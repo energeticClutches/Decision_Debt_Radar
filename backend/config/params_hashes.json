@@ -1,0 +1,10 @@
+{
+  "ddi_params_v0.1": {
+    "file": "ddi/ddi_params_v0.1.yaml",
+    "sha256": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee"
+  },
+  "nbe_params_v0.1": {
+    "file": "nbe/nbe_params_v0.1.yaml",
+    "sha256": "8a7c730edb77fc7b7f69cce487bce99fba5ace660f1c028c8cb6692221546ff7"
+  }
+}

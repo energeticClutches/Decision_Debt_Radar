@@ -1,0 +1,44 @@
+# Secrets and local config (never commit)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Data generated at build/seed time (Day 2+). Generator code and manifests are tracked
+data/generated/
+data/*.csv
+!data/seed/**/*.csv
+
+# Database volumes / dumps
+pgdata/
+*.dump
+*.sql.gz
+
+# Power BI temporary files (the .pbix itself is tracked)
+*.pbix.tmp
+.pbi/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

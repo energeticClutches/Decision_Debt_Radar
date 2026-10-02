@@ -1,0 +1,93 @@
+# NBE parameters, version nbe_params_v0.1
+# Source of truth: docs/NBE-spec.md. Proposed defaults and documented assumptions.
+# Ceilings are attainable-strength ASSUMPTIONS, not predictions of what evidence will show.
+#
+# Day-3 note: amended in place BEFORE any assessment used it (R8-R11: applicability thresholds,
+# supplied evidence types, blocker map, removal of clears_heterogeneity_floor). Its SHA-256 is recorded in
+# backend/config/params_hashes.json and verified at load time.
+
+version: nbe_params_v0.1
+status: proposed_defaults
+ddi_params_version: ddi_params_v0.1   # NBE expected reduction is computed with this DDI version
+
+# priority = relevance * expected_reduction / effort_days ; ties -> lower effort, then action id.
+# Insufficient-evidence state: priority = relevance * blockers_resolved / effort_days (expected_reduction = 0).
+effort_bands_days: {S: 1, M: 3, L: 8, XL: 15}
+
+# Day-3 relevance is rule-based: 1.0 targets the success metric's evidence; 0.7 supplies a missing
+# checklist type; otherwise 0.4. No Reviewer-challenge relevance (R11).
+relevance_values:
+  direct_or_critical_challenge: 1.0
+  checklist_gap: 0.7
+  secondary_dimension: 0.4
+
+# Applicability thresholds (R8). The rule for each action is documented in docs/NBE-spec.md.
+applicability:
+  holdout_d4_below: 0.8
+  holdout_best_power_factor_at_least: 0.8
+  segment_d6_below: 0.6
+  customer_interview_d5_below: 0.85
+  targeted_survey_d5_below: 0.80
+  freshness_threshold: 0.5
+  ci_component_threshold: 0.5
+  financial_d7_below: 0.8
+  concentration_threshold: 0.5
+
+actions:
+  - id: fix_dq_or_instrumentation
+    description: Fix or add instrumentation, or resolve a data-quality issue
+    targets: [DQ_GATE, D1]
+    ceilings: {D1_dq_factor: 1.0}
+    effort_band: M
+    unblocks_scoring: true
+    resolves_blockers: [open_critical_dq]
+  - id: powered_holdout_test
+    description: Run a powered holdout or A/B test
+    targets: [D4, D6]
+    ceilings: {D4: 0.8}
+    d6_cap_lift_when_d4_at_least: 0.6   # the observational cap on D6 is lifted when D4 reaches this level
+    supplies_evidence_type: experiment
+    effort_band: L
+    resolves_blockers: [success_metric_evidence, min_items, min_types]
+  - id: segment_level_analysis
+    description: Segment-level analysis of the effect
+    targets: [P1, D6]
+    ceilings: {D6: 0.6}
+    effort_band: S
+    resolves_blockers: [success_metric_evidence]
+  - id: customer_interview_sprint
+    description: Customer interview sprint
+    targets: [D5]
+    ceilings: {D5: 0.85}
+    supplies_evidence_type: customer
+    effort_band: M
+    resolves_blockers: [min_items, min_types]
+  - id: targeted_survey
+    description: Targeted survey
+    targets: [D5]
+    ceilings: {D5: 0.80}
+    supplies_evidence_type: customer
+    effort_band: S
+    resolves_blockers: [min_items, min_types]
+  - id: extend_observation_or_refresh_data
+    description: Extend the observation window or refresh data
+    targets: [D3, P2]
+    ceilings: {D3: 0.90}
+    p2_ci_component_multiplier: 0.7
+    supplies_evidence_type: behavioral
+    effort_band: S
+    resolves_blockers: [success_metric_evidence, min_items, min_types]
+  - id: financial_model_with_sensitivity
+    description: Financial model with a sensitivity range
+    targets: [D7]
+    ceilings: {D7: 0.80}
+    supplies_evidence_type: financial
+    effort_band: M
+    resolves_blockers: [min_items, min_types]
+  - id: replicate_independent_source
+    description: Replicate with an independent source
+    targets: [P2, D1]
+    ceilings: {}
+    p2_concentration_component_multiplier: 0.6
+    effort_band: M
+    resolves_blockers: []

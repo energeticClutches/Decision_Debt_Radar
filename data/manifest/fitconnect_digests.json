@@ -1,0 +1,12 @@
+{
+  "ai_inference_costs.csv": "edc3307529862f1d0e4dcda9b626e64c93c59f0737b35275e9e875eb18599fef",
+  "events.csv": "5bddc08ab311da47b959d51b0f62ee924f7e2bab2a3827be8830a9f55719ca2d",
+  "experiment_assignments.csv": "55f7b62632d26a87f8b3abe1edfa0609dfb450484221e59f23686debce447db8",
+  "experiment_outcomes.csv": "bc06da094852caeb767f758a2ff4d1b078852d61bdc24d5e7dd33e479956c023",
+  "feedback.csv": "9ef19ff8d746951bab2d0ed8683e7f2e3ce39bf66784a7ced4bf273323b4c2b1",
+  "feedback_ground_truth.csv": "250f59c4c83c71ee3c4b79d6ec2fef078f5df23c27c79680a626448aeda37fb1",
+  "manifest.json": "f294131d318d17171e5bb5686b33007970cd38b19340c1951407df6755224b5f",
+  "pricing_model_inputs.csv": "baf889761089e950d68c8e468b82619cf29a7f3c88d70c1566169008502d6114",
+  "subscriptions.csv": "7e511f22cd25fec7cfb862f9cfba22199667c75bfde8fe1d49737b3b0747a11c",
+  "users.csv": "67ced5dee745c362a4ec5763b00985c609c65ac453e71024f525d13844f78853"
+}

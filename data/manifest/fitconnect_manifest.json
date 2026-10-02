@@ -1,0 +1,504 @@
+{
+  "checks": [
+    {
+      "bound": 0,
+      "description": "No fc_ row is flagged non-synthetic",
+      "id": "GLB-001",
+      "op": "==",
+      "scenario": "global",
+      "sql": "SELECT (SELECT count(*) FROM fc_.users WHERE NOT is_synthetic) + (SELECT count(*) FROM fc_.events WHERE NOT is_synthetic) + (SELECT count(*) FROM fc_.subscriptions WHERE NOT is_synthetic) + (SELECT count(*) FROM fc_.feedback WHERE NOT is_synthetic) + (SELECT count(*) FROM fc_.feedback_ground_truth WHERE NOT is_synthetic) + (SELECT count(*) FROM fc_.experiment_assignments WHERE NOT is_synthetic) + (SELECT count(*) FROM fc_.experiment_outcomes WHERE NOT is_synthetic) + (SELECT count(*) FROM fc_.ai_inference_costs WHERE NOT is_synthetic) + (SELECT count(*) FROM fc_.pricing_model_inputs WHERE NOT is_synthetic)"
+    },
+    {
+      "bound": 50000,
+      "description": "User count equals the configured scale",
+      "id": "GLB-002",
+      "op": "==",
+      "scenario": "global",
+      "sql": "SELECT count(*) FROM fc_.users"
+    },
+    {
+      "bound": 0,
+      "description": "All events fall inside the 12-month window",
+      "id": "GLB-003",
+      "op": "==",
+      "scenario": "global",
+      "sql": "SELECT count(*) FROM fc_.events WHERE event_ts < timestamptz '2025-10-01 00:00:00+00' OR event_ts >= timestamptz '2026-10-01 00:00:00+00'"
+    },
+    {
+      "bound": [
+        25,
+        60
+      ],
+      "description": "Average events per user is in the intended range",
+      "id": "GLB-004",
+      "op": "between",
+      "scenario": "global",
+      "sql": "SELECT (SELECT count(*) FROM fc_.events)::numeric / (SELECT count(*) FROM fc_.users)"
+    },
+    {
+      "bound": 0.15,
+      "description": "Observational: adopters retain much better than non-adopters at D90 (raw gap)",
+      "id": "AI-001",
+      "op": ">=",
+      "scenario": "ai_coach",
+      "sql": "WITH ret AS ( SELECT u.user_id, u.prior_engagement_tier AS tier, u.engagement_style AS style, EXISTS (SELECT 1 FROM fc_.events e WHERE e.user_id = u.user_id AND e.event_name = 'app_open' AND e.event_ts >= u.signup_ts + interval '90 days') AS retained FROM fc_.users u WHERE u.signup_ts < timestamptz '2026-07-01 00:00:00+00' ), ai AS ( SELECT DISTINCT user_id FROM fc_.events WHERE event_name = 'ai_coach_session' AND user_id NOT IN (SELECT user_id FROM fc_.experiment_assignments WHERE experiment_key = 'ai_coach_holdout_2026q1') ) SELECT (SELECT avg(retained::int) FROM ret WHERE user_id IN (SELECT user_id FROM ai)) - (SELECT avg(retained::int) FROM ret WHERE user_id NOT IN (SELECT user_id FROM ai))"
+    },
+    {
+      "bound": 2.0,
+      "description": "Power-user selection: adopters are over-represented in the high engagement tier (ratio vs population)",
+      "id": "AI-002",
+      "op": ">=",
+      "scenario": "ai_coach",
+      "sql": "WITH ai AS (SELECT DISTINCT user_id FROM fc_.events WHERE event_name='ai_coach_session' AND user_id NOT IN (SELECT user_id FROM fc_.experiment_assignments WHERE experiment_key='ai_coach_holdout_2026q1')) SELECT (SELECT avg((prior_engagement_tier='high')::int) FROM fc_.users WHERE user_id IN (SELECT user_id FROM ai)) / (SELECT avg((prior_engagement_tier='high')::int) FROM fc_.users)"
+    },
+    {
+      "bound": 0.45,
+      "description": "Within engagement tiers the adopter gap is a small fraction of the raw gap (selection explains most of it)",
+      "id": "AI-003",
+      "op": "<=",
+      "scenario": "ai_coach",
+      "sql": "WITH ret AS ( SELECT u.user_id, u.prior_engagement_tier AS tier, u.engagement_style AS style, EXISTS (SELECT 1 FROM fc_.events e WHERE e.user_id = u.user_id AND e.event_name = 'app_open' AND e.event_ts >= u.signup_ts + interval '90 days') AS retained FROM fc_.users u WHERE u.signup_ts < timestamptz '2026-07-01 00:00:00+00' ), ai AS ( SELECT DISTINCT user_id FROM fc_.events WHERE event_name = 'ai_coach_session' AND user_id NOT IN (SELECT user_id FROM fc_.experiment_assignments WHERE experiment_key = 'ai_coach_holdout_2026q1') ), t AS (SELECT tier, (user_id IN (SELECT user_id FROM ai)) AS adopter, avg(retained::int) AS r, count(*) AS n FROM ret GROUP BY 1, 2), g AS (SELECT a.n AS n_adopt, a.r - b.r AS gap FROM t a JOIN t b ON a.tier = b.tier AND a.adopter AND NOT b.adopter), raw AS (SELECT (SELECT avg(retained::int) FROM ret WHERE user_id IN (SELECT user_id FROM ai)) - (SELECT avg(retained::int) FROM ret WHERE user_id NOT IN (SELECT user_id FROM ai)) AS gap) SELECT (SELECT sum(n_adopt * gap) / sum(n_adopt) FROM g) / (SELECT gap FROM raw)"
+    },
+    {
+      "bound": 4.0,
+      "description": "High inference cost: median monthly cost per adopter-month (USD)",
+      "id": "AI-004",
+      "op": ">=",
+      "scenario": "ai_coach",
+      "sql": "SELECT percentile_cont(0.5) WITHIN GROUP (ORDER BY cost_usd) FROM fc_.ai_inference_costs"
+    },
+    {
+      "bound": 0.65,
+      "description": "Positive customer evidence: share of positive AI Coach feedback",
+      "id": "AI-005",
+      "op": ">=",
+      "scenario": "ai_coach",
+      "sql": "SELECT avg((sentiment='positive')::int) FROM fc_.feedback_ground_truth WHERE scenario_key='ai_coach'"
+    },
+    {
+      "bound": [
+        0.25,
+        0.35
+      ],
+      "description": "Imbalanced experiment: treatment share far from the planned 50%",
+      "id": "AI-006",
+      "op": "between",
+      "scenario": "ai_coach",
+      "sql": "SELECT avg((variant='ai_coach')::int) FROM fc_.experiment_assignments WHERE experiment_key='ai_coach_holdout_2026q1'"
+    },
+    {
+      "bound": 14,
+      "description": "Short experiment: duration in days",
+      "id": "AI-007",
+      "op": "<=",
+      "scenario": "ai_coach",
+      "sql": "SELECT (DATE '2026-03-29' - DATE '2026-03-16' + 1)"
+    },
+    {
+      "bound": 0.5,
+      "description": "Weak experiment: enrolled users as a share of the planned sample",
+      "id": "AI-008",
+      "op": "<=",
+      "scenario": "ai_coach",
+      "sql": "SELECT count(*)::numeric / 4000 FROM fc_.experiment_assignments WHERE experiment_key='ai_coach_holdout_2026q1'"
+    },
+    {
+      "bound": 0.1,
+      "description": "Apparent activation decline (measured activation_7d, pre minus post defect date)",
+      "id": "ONB-001",
+      "op": ">=",
+      "scenario": "onboarding",
+      "sql": "WITH act AS ( SELECT u.user_id, u.platform, u.signup_ts, EXISTS (SELECT 1 FROM fc_.events e WHERE e.user_id = u.user_id AND e.event_name = 'onboarding_completed' AND e.event_ts < u.signup_ts + interval '7 days') AS activated FROM fc_.users u ) SELECT (SELECT avg(activated::int) FROM act WHERE signup_ts >= timestamptz '2026-06-01 00:00:00+00' AND signup_ts < timestamptz '2026-08-03 00:00:00+00' ) - (SELECT avg(activated::int) FROM act WHERE signup_ts >= timestamptz '2026-08-03 00:00:00+00' )"
+    },
+    {
+      "bound": 0.25,
+      "description": "Apparent decline is concentrated on android",
+      "id": "ONB-002",
+      "op": ">=",
+      "scenario": "onboarding",
+      "sql": "WITH act AS ( SELECT u.user_id, u.platform, u.signup_ts, EXISTS (SELECT 1 FROM fc_.events e WHERE e.user_id = u.user_id AND e.event_name = 'onboarding_completed' AND e.event_ts < u.signup_ts + interval '7 days') AS activated FROM fc_.users u ) SELECT (SELECT avg(activated::int) FROM act WHERE signup_ts >= timestamptz '2026-06-01 00:00:00+00' AND signup_ts < timestamptz '2026-08-03 00:00:00+00' AND platform='android') - (SELECT avg(activated::int) FROM act WHERE signup_ts >= timestamptz '2026-08-03 00:00:00+00' AND platform='android')"
+    },
+    {
+      "bound": 0.05,
+      "description": "ios barely moves (absolute change)",
+      "id": "ONB-003",
+      "op": "<=",
+      "scenario": "onboarding",
+      "sql": "WITH act AS ( SELECT u.user_id, u.platform, u.signup_ts, EXISTS (SELECT 1 FROM fc_.events e WHERE e.user_id = u.user_id AND e.event_name = 'onboarding_completed' AND e.event_ts < u.signup_ts + interval '7 days') AS activated FROM fc_.users u ) SELECT abs((SELECT avg(activated::int) FROM act WHERE signup_ts >= timestamptz '2026-06-01 00:00:00+00' AND signup_ts < timestamptz '2026-08-03 00:00:00+00' AND platform='ios') - (SELECT avg(activated::int) FROM act WHERE signup_ts >= timestamptz '2026-08-03 00:00:00+00' AND platform='ios'))"
+    },
+    {
+      "bound": 0,
+      "description": "DEFECT: android step 2 event never fires after the release date",
+      "id": "ONB-004",
+      "op": "==",
+      "scenario": "onboarding",
+      "sql": "SELECT count(*) FROM fc_.events WHERE event_name='onboarding_step_2_completed' AND platform='android' AND event_ts >= timestamptz '2026-08-03 00:00:00+00'"
+    },
+    {
+      "bound": 100,
+      "description": "DEFECT signal: android step 3 events still fire after the release date (sequence violation)",
+      "id": "ONB-005",
+      "op": ">=",
+      "scenario": "onboarding",
+      "sql": "SELECT count(*) FROM fc_.events WHERE event_name='onboarding_step_3_completed' AND platform='android' AND event_ts >= timestamptz '2026-08-03 00:00:00+00'"
+    },
+    {
+      "bound": 1.8,
+      "description": "Increased complaints: onboarding tickets per 1,000 signups, post vs pre (ratio)",
+      "id": "ONB-006",
+      "op": ">=",
+      "scenario": "onboarding",
+      "sql": "WITH c AS (SELECT f.created_at, f.user_id FROM fc_.feedback f JOIN fc_.feedback_ground_truth g USING (feedback_id) WHERE g.theme='onboarding_complaint'), pre AS (SELECT count(*)::numeric / NULLIF((SELECT count(*) FROM fc_.users WHERE signup_ts >= timestamptz '2026-06-01 00:00:00+00' AND signup_ts < timestamptz '2026-08-03 00:00:00+00'),0) AS r FROM c JOIN fc_.users u USING (user_id) WHERE u.signup_ts >= timestamptz '2026-06-01 00:00:00+00' AND signup_ts < timestamptz '2026-08-03 00:00:00+00'), post AS (SELECT count(*)::numeric / NULLIF((SELECT count(*) FROM fc_.users WHERE signup_ts >= timestamptz '2026-08-03 00:00:00+00'),0) AS r FROM c JOIN fc_.users u USING (user_id) WHERE u.signup_ts >= timestamptz '2026-08-03 00:00:00+00') SELECT (SELECT r FROM post) / (SELECT r FROM pre)"
+    },
+    {
+      "bound": [
+        -0.03,
+        0.06
+      ],
+      "description": "Ground truth: TRUE onboarding completion changed far less than measured (generator truth, pre minus post, below 6 points)",
+      "id": "ONB-007",
+      "op": "between",
+      "scenario": "onboarding",
+      "sql": "SELECT 0.5352 - 0.5196"
+    },
+    {
+      "bound": 6,
+      "description": "Financial upside model inputs present",
+      "id": "PRC-001",
+      "op": ">=",
+      "scenario": "pricing",
+      "sql": "SELECT count(*) FROM fc_.pricing_model_inputs"
+    },
+    {
+      "bound": 0,
+      "description": "Financial inputs contain NO sensitivity range (deliberate gap)",
+      "id": "PRC-002",
+      "op": "==",
+      "scenario": "pricing",
+      "sql": "SELECT count(*) FROM fc_.pricing_model_inputs WHERE input_key ILIKE '%sensitivity%' OR input_key ILIKE '%range%'"
+    },
+    {
+      "bound": -0.05,
+      "description": "Conversion effect in some cohorts: CA pilot trial-to-paid change vs pre-pilot",
+      "id": "PRC-003",
+      "op": "<=",
+      "scenario": "pricing",
+      "sql": "SELECT (SELECT avg((s.status='trial_converted')::int) FROM fc_.subscriptions s JOIN fc_.users u USING (user_id) WHERE s.plan='free_trial' AND u.country='CA' AND u.signup_ts >= timestamptz '2026-04-01 00:00:00+00') - (SELECT avg((s.status='trial_converted')::int) FROM fc_.subscriptions s JOIN fc_.users u USING (user_id) WHERE s.plan='free_trial' AND u.country='CA' AND u.signup_ts < timestamptz '2026-04-01 00:00:00+00')"
+    },
+    {
+      "bound": 0.04,
+      "description": "No material conversion effect in the AU pilot cohort (absolute change)",
+      "id": "PRC-004",
+      "op": "<=",
+      "scenario": "pricing",
+      "sql": "SELECT abs((SELECT avg((s.status='trial_converted')::int) FROM fc_.subscriptions s JOIN fc_.users u USING (user_id) WHERE s.plan='free_trial' AND u.country='AU' AND u.signup_ts >= timestamptz '2026-04-01 00:00:00+00') - (SELECT avg((s.status='trial_converted')::int) FROM fc_.subscriptions s JOIN fc_.users u USING (user_id) WHERE s.plan='free_trial' AND u.country='AU' AND u.signup_ts < timestamptz '2026-04-01 00:00:00+00'))"
+    },
+    {
+      "bound": 1.25,
+      "description": "Churn effect: CA pilot 90-day churn relative to standard (ratio)",
+      "id": "PRC-005",
+      "op": ">=",
+      "scenario": "pricing",
+      "sql": "SELECT (SELECT avg((s.status='cancelled' AND s.end_date <= s.start_date + 90)::int) FROM fc_.subscriptions s JOIN fc_.users u USING (user_id) WHERE s.plan='premium' AND s.start_date <= DATE '2026-06-30' AND u.country='CA' AND u.signup_ts >= timestamptz '2026-04-01 00:00:00+00') / (SELECT avg((s.status='cancelled' AND s.end_date <= s.start_date + 90)::int) FROM fc_.subscriptions s JOIN fc_.users u USING (user_id) WHERE s.plan='premium' AND s.start_date <= DATE '2026-06-30' AND u.user_id NOT IN (SELECT user_id FROM fc_.experiment_assignments WHERE experiment_key='premium_price_test_2026q2') AND NOT (u.country IN ('CA','AU') AND u.signup_ts >= timestamptz '2026-04-01 00:00:00+00'))"
+    },
+    {
+      "bound": 0.5,
+      "description": "Pricing-sensitive customer feedback dominates pricing feedback (share negative)",
+      "id": "PRC-006",
+      "op": ">=",
+      "scenario": "pricing",
+      "sql": "SELECT avg((sentiment='negative')::int) FROM fc_.feedback_ground_truth WHERE scenario_key='pricing'"
+    },
+    {
+      "bound": 1.0,
+      "description": "Experiment is inconclusive: |conversion difference| is within 1.96 standard errors",
+      "id": "PRC-007",
+      "op": "<",
+      "scenario": "pricing",
+      "sql": "WITH x AS (SELECT a.variant, count(*) AS n, avg(o.value) AS p FROM fc_.experiment_outcomes o JOIN fc_.experiment_assignments a USING (experiment_key, user_id) WHERE o.experiment_key='premium_price_test_2026q2' GROUP BY 1), c AS (SELECT * FROM x WHERE variant LIKE 'control%'), t AS (SELECT * FROM x WHERE variant LIKE 'treatment%') SELECT abs(t.p - c.p) / (1.96 * sqrt(c.p*(1-c.p)/c.n + t.p*(1-t.p)/t.n)) FROM c, t"
+    },
+    {
+      "bound": 0.25,
+      "description": "Underpowered experiment: enrolled users per arm as a share of the planned per-arm sample",
+      "id": "PRC-008",
+      "op": "<=",
+      "scenario": "pricing",
+      "sql": "SELECT (count(*)::numeric / 2) / 4000 FROM fc_.experiment_assignments WHERE experiment_key='premium_price_test_2026q2'"
+    },
+    {
+      "bound": 0.12,
+      "description": "Strong aggregate retention relationship that masks segment differences (joiners minus non-joiners)",
+      "id": "COM-001",
+      "op": ">=",
+      "scenario": "community",
+      "sql": "WITH ret AS ( SELECT u.user_id, u.prior_engagement_tier AS tier, u.engagement_style AS style, EXISTS (SELECT 1 FROM fc_.events e WHERE e.user_id = u.user_id AND e.event_name = 'app_open' AND e.event_ts >= u.signup_ts + interval '90 days') AS retained FROM fc_.users u WHERE u.signup_ts < timestamptz '2026-07-01 00:00:00+00' ), com AS (SELECT DISTINCT user_id FROM fc_.events WHERE event_name = 'challenge_joined') SELECT (SELECT avg(retained::int) FROM ret WHERE user_id IN (SELECT user_id FROM com)) - (SELECT avg(retained::int) FROM ret WHERE user_id NOT IN (SELECT user_id FROM com))"
+    },
+    {
+      "bound": 0.15,
+      "description": "Segment A (social_exerciser): strongly positive",
+      "id": "COM-002",
+      "op": ">=",
+      "scenario": "community",
+      "sql": "WITH ret AS ( SELECT u.user_id, u.prior_engagement_tier AS tier, u.engagement_style AS style, EXISTS (SELECT 1 FROM fc_.events e WHERE e.user_id = u.user_id AND e.event_name = 'app_open' AND e.event_ts >= u.signup_ts + interval '90 days') AS retained FROM fc_.users u WHERE u.signup_ts < timestamptz '2026-07-01 00:00:00+00' ), com AS (SELECT DISTINCT user_id FROM fc_.events WHERE event_name = 'challenge_joined') SELECT (SELECT avg(retained::int) FROM ret WHERE style = 'social_exerciser' AND user_id IN (SELECT user_id FROM com)) - (SELECT avg(retained::int) FROM ret WHERE style = 'social_exerciser' AND user_id NOT IN (SELECT user_id FROM com))"
+    },
+    {
+      "bound": 0.02,
+      "description": "Segment B (solo_athlete): near zero or negative",
+      "id": "COM-003",
+      "op": "<=",
+      "scenario": "community",
+      "sql": "WITH ret AS ( SELECT u.user_id, u.prior_engagement_tier AS tier, u.engagement_style AS style, EXISTS (SELECT 1 FROM fc_.events e WHERE e.user_id = u.user_id AND e.event_name = 'app_open' AND e.event_ts >= u.signup_ts + interval '90 days') AS retained FROM fc_.users u WHERE u.signup_ts < timestamptz '2026-07-01 00:00:00+00' ), com AS (SELECT DISTINCT user_id FROM fc_.events WHERE event_name = 'challenge_joined') SELECT (SELECT avg(retained::int) FROM ret WHERE style = 'solo_athlete' AND user_id IN (SELECT user_id FROM com)) - (SELECT avg(retained::int) FROM ret WHERE style = 'solo_athlete' AND user_id NOT IN (SELECT user_id FROM com))"
+    },
+    {
+      "bound": -0.05,
+      "description": "Segment C (time_pressed): negative",
+      "id": "COM-004",
+      "op": "<=",
+      "scenario": "community",
+      "sql": "WITH ret AS ( SELECT u.user_id, u.prior_engagement_tier AS tier, u.engagement_style AS style, EXISTS (SELECT 1 FROM fc_.events e WHERE e.user_id = u.user_id AND e.event_name = 'app_open' AND e.event_ts >= u.signup_ts + interval '90 days') AS retained FROM fc_.users u WHERE u.signup_ts < timestamptz '2026-07-01 00:00:00+00' ), com AS (SELECT DISTINCT user_id FROM fc_.events WHERE event_name = 'challenge_joined') SELECT (SELECT avg(retained::int) FROM ret WHERE style = 'time_pressed' AND user_id IN (SELECT user_id FROM com)) - (SELECT avg(retained::int) FROM ret WHERE style = 'time_pressed' AND user_id NOT IN (SELECT user_id FROM com))"
+    },
+    {
+      "bound": 0.55,
+      "description": "Composition drives the aggregate: share of joiners in segment A",
+      "id": "COM-005",
+      "op": ">=",
+      "scenario": "community",
+      "sql": "SELECT avg((u.engagement_style='social_exerciser')::int) FROM fc_.users u WHERE u.user_id IN (SELECT user_id FROM fc_.events WHERE event_name='challenge_joined')"
+    },
+    {
+      "bound": 0.9,
+      "description": "Notification complaints come from the time_pressed segment (share)",
+      "id": "COM-006",
+      "op": ">=",
+      "scenario": "community",
+      "sql": "SELECT avg((u.engagement_style='time_pressed')::int) FROM fc_.feedback_ground_truth g JOIN fc_.feedback f USING (feedback_id) JOIN fc_.users u ON u.user_id=f.user_id WHERE g.theme='community_negative_notifications'"
+    }
+  ],
+  "generator_truth": {
+    "ai_adopter_share_by_latent_tier": [
+      0.5041,
+      0.155,
+      0.03
+    ],
+    "ai_adopters": 7892,
+    "ai_experiment_n": 1500,
+    "ai_experiment_planned_total": 4000,
+    "ai_experiment_treatment_n": 450,
+    "community_join_rate_by_style": [
+      0.4596,
+      0.1103,
+      0.0882
+    ],
+    "community_joiners": 10505,
+    "events": 2111051,
+    "pricing_experiment_n": 1174,
+    "pricing_experiment_per_arm_planned": 4000,
+    "row_counts": {
+      "ai_inference_costs": 28862,
+      "events": 2111051,
+      "experiment_assignments": 2674,
+      "experiment_outcomes": 2674,
+      "feedback": 6083,
+      "feedback_ground_truth": 6083,
+      "pricing_model_inputs": 7,
+      "subscriptions": 27374,
+      "users": 50000
+    },
+    "true_onboarding_completion_post": 0.5196,
+    "true_onboarding_completion_pre": 0.5352,
+    "users": 50000
+  },
+  "generator_version": "fc-gen-0.1",
+  "manifest_version": "1.0",
+  "min_users_for_pattern_checks": 20000,
+  "row_counts": {
+    "ai_inference_costs": 28862,
+    "events": 2111051,
+    "experiment_assignments": 2674,
+    "experiment_outcomes": 2674,
+    "feedback": 6083,
+    "feedback_ground_truth": 6083,
+    "pricing_model_inputs": 7,
+    "subscriptions": 27374,
+    "users": 50000
+  },
+  "scale": {
+    "signup_end": "2026-08-31",
+    "users": 50000,
+    "window_end": "2026-09-30",
+    "window_start": "2025-10-01"
+  },
+  "scenarios": {
+    "ai_coach": {
+      "decision": "Invest in expanding the AI Coach",
+      "expected_downstream": {
+        "assessment_state": "scored",
+        "ddi_band": [
+          "moderate",
+          "high"
+        ],
+        "next_best_evidence": [
+          "powered_holdout_test"
+        ],
+        "reviewer_flags": [
+          "correlation_vs_causation",
+          "selection_bias",
+          "weak_experiment",
+          "cost_not_weighed"
+        ]
+      },
+      "generator_parameters": {
+        "adopt_p_by_latent_tier": [
+          0.55,
+          0.18,
+          0.04
+        ],
+        "adoption_day_range": [
+          3,
+          12
+        ],
+        "cost_per_session_usd": 1.35,
+        "true_remaining_life_effect": 0.05
+      },
+      "patterns": [
+        "positive observational engagement/retention relationship",
+        "power-user selection effect (adoption concentrated in the high engagement tier)",
+        "positive customer feedback among adopters",
+        "high inference cost per active adopter-month",
+        "weak, imbalanced (30/70 vs planned 50/50), short (14 day) experiment with contamination"
+      ]
+    },
+    "community": {
+      "decision": "Invest in community challenges",
+      "expected_downstream": {
+        "assessment_state": "scored",
+        "ddi_band": [
+          "moderate"
+        ],
+        "heterogeneity_flag": true,
+        "next_best_evidence": [
+          "segment_level_analysis",
+          "powered_holdout_test"
+        ],
+        "recommendation": "segment-aware validation",
+        "reviewer_flags": [
+          "aggregate_masking"
+        ]
+      },
+      "generator_parameters": {
+        "join_p_by_style": [
+          0.45,
+          0.1,
+          0.08
+        ],
+        "remaining_life_multiplier_by_style": [
+          2.0,
+          0.85,
+          0.45
+        ],
+        "style_lifetime_multiplier": [
+          1.25,
+          1.0,
+          0.85
+        ]
+      },
+      "patterns": [
+        "strong aggregate retention relationship",
+        "materially different segment effects",
+        "composition-driven aggregate: joiners are mostly the high-baseline segment",
+        "aggregate-vs-segment heterogeneity / aggregate masking: the positive aggregate conceals an about-zero effect in segment B and a negative effect in segment C (together about 70% of users)"
+      ],
+      "terminology_note": "Related to Simpson-type aggregation risks, but this is not a textbook Simpson's paradox: the aggregate is positive and segment effects are mixed, not all reversed."
+    },
+    "onboarding": {
+      "affects_success_metric": "activation_rate_7d",
+      "decision": "Fund a full onboarding redesign",
+      "defects": [
+        {
+          "app_version": "5.2.0",
+          "detection_signals": [
+            "platform x event volume discontinuity at the release date",
+            "event-sequence violation: step 3 without step 2"
+          ],
+          "effect": "step 2 never fires, creating a spurious step 2 to 3 abandonment on android",
+          "event_name": "onboarding_step_2_completed",
+          "id": "DEF-ONB-001",
+          "loss_rate": 1.0,
+          "platform": "android",
+          "starts": "2026-08-03",
+          "table": "fc_.events"
+        },
+        {
+          "app_version": "5.2.0",
+          "detection_signals": [
+            "completion-to-step-3 ratio collapses on android after the release date",
+            "android versus ios divergence in the success metric"
+          ],
+          "effect": "60% of true completions are not tracked, so measured activation_7d falls sharply on android",
+          "event_name": "onboarding_completed",
+          "id": "DEF-ONB-002",
+          "loss_rate": 0.6,
+          "platform": "android",
+          "starts": "2026-08-03",
+          "table": "fc_.events"
+        }
+      ],
+      "expected_downstream": {
+        "assessment_state": "insufficient_evidence",
+        "blocking_reason": "open critical DQ failure on the success metric data",
+        "ddi_band": null,
+        "next_best_evidence": [
+          "fix_dq_or_instrumentation"
+        ]
+      },
+      "patterns": [
+        "apparent activation decline (measured)",
+        "apparent onboarding abandonment increase (measured)",
+        "increased onboarding complaints",
+        "true completion barely changed"
+      ]
+    },
+    "pricing": {
+      "decision": "Raise the premium subscription price",
+      "expected_downstream": {
+        "assessment_state": "scored",
+        "ddi_band": [
+          "high"
+        ],
+        "next_best_evidence": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test"
+        ],
+        "reviewer_flags": [
+          "inconclusive_experiment",
+          "assumed_elasticity"
+        ]
+      },
+      "generator_parameters": {
+        "conversion_multipliers": {
+          "AU_pilot": 0.98,
+          "CA_pilot": 0.78,
+          "exp_treatment": 0.93
+        },
+        "monthly_churn": {
+          "AU_pilot": 0.067,
+          "CA_pilot": 0.12,
+          "exp_treatment": 0.07,
+          "standard": 0.065
+        },
+        "pilot_start": "2026-04-01",
+        "price_pilot": 11.99,
+        "price_standard": 9.99
+      },
+      "patterns": [
+        "financial upside model inputs (assumed elasticity, no sensitivity range)",
+        "pricing-sensitive customer feedback (heavier in the CA pilot cohort)",
+        "conversion decline in the CA pilot cohort, no material decline in AU, churn uplift in CA",
+        "inconclusive, underpowered price experiment"
+      ]
+    }
+  },
+  "seed": 20260401,
+  "synthetic": true,
+  "synthetic_notice": "FitConnect is a FICTIONAL company. All data described here is SYNTHETIC."
+}
