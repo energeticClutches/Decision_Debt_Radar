@@ -92,8 +92,9 @@ def new_decision(conn, ids, **over):
     vals.update(over)
     return conn.execute(
         "INSERT INTO decisions (org_id, team_id, title, description, hypothesis, success_metric_id, decision_due_date,"
-        " risk_level, change_my_mind_criteria, decision_type, canvas_completed_at, owner_id, is_synthetic)"
-        " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s,now(),%s,true) RETURNING id",
+        " risk_level, change_my_mind_criteria, decision_type, expected_direction, canvas_completed_at, owner_id, is_synthetic)"
+        " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,now(),%s,true) RETURNING id",
         (ids.org, ids.team, vals["title"], vals["description"], vals["hypothesis"], vals["metric"],
-         vals["decision_due_date"], vals["risk_level"], vals["criteria"], vals["decision_type"], ids.pm),
+         vals["decision_due_date"], vals["risk_level"], vals["criteria"], vals["decision_type"],
+         vals.get("expected_direction", "increase"), ids.pm),
     ).fetchone()[0]

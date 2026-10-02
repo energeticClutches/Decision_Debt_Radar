@@ -21,7 +21,10 @@ class Settings(BaseSettings):
     anthropic_model_reviewer: str = "claude-opus-5-5"
 
     ddi_params_version: str = "ddi_params_v0.1"
-    nbe_params_version: str = "nbe_params_v0.1"
+    nbe_params_version: str = "nbe_params_v0.2"
+    # Day 4: generic analytics parameters and the tenant (organisation) analytics configuration.
+    analytics_params_version: str = "analytics_params_v0.1"
+    tenant_config_key: str = "fitconnect"
 
     # Optional fixed "as of" date for reproducible demos (ISO date). Unset = the system date.
     ddr_as_of_date: date | None = None

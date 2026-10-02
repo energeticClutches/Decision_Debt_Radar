@@ -50,6 +50,7 @@ def test_canvas_edit_after_the_lock_marks_stale_and_returns_to_evidence_gathered
 @pytest.mark.parametrize("column,value", [
     ("title", "'A changed title'"), ("description", "'changed'"), ("risk_level", "'high'"),
     ("current_evidence_notes", "'new notes'"), ("decision_due_date", "'2027-01-01'"), ("decision_type", "'pricing_change'"),
+    ("expected_direction", "'decrease'"),                                             # migration 0005 (D4-20)
     ("change_my_mind_criteria", "'[\"A different criterion that is long enough\"]'::jsonb"),
 ])
 def test_every_canvas_column_triggers_the_stale_rule(conn, ids, column, value):
@@ -111,8 +112,9 @@ def test_every_guarded_table_rejects_writes_once_the_decision_is_decided(conn, i
                             " relevance, priority_score, is_synthetic) VALUES (%s,'a','d',1,0,1,0,true)", (aid,)),
         "decision_reviews": ("INSERT INTO decision_reviews (assessment_id, reviewer_type, reviewer_id, verdict, is_synthetic)"
                              " VALUES (%s,'human',%s,'ready',true)", (aid, ids.executive)),
-        "dq_checks": ("INSERT INTO dq_checks (assessment_id, data_source_id, check_type, severity, finding, is_synthetic)"
-                      " VALUES (%s,(SELECT id FROM data_sources LIMIT 1),'t','warn','f',true)", (aid,)),
+        "dq_checks": ("INSERT INTO dq_checks (decision_id, assessment_id, data_source_id, check_type, severity, finding, check_key,"
+                      " target, is_synthetic) VALUES ((SELECT decision_id FROM decision_assessments WHERE id=%s),%s,"
+                      "(SELECT id FROM data_sources LIMIT 1),'t','warn','f','k','t',true)", (aid, aid)),
         "analysis_results": ("INSERT INTO analysis_results (decision_id, analysis_type, is_synthetic) VALUES (%s,'trend',true)", (did,)),
         "claims": ("INSERT INTO claims (assessment_id, claim_text, claim_type, stance, confidence, is_synthetic)"
                    " VALUES (%s,'c','descriptive','supports','low',true)", (aid,)),

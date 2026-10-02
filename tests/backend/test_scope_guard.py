@@ -6,7 +6,9 @@ import ast
 from pathlib import Path
 
 APP = Path(__file__).resolve().parents[2] / "backend" / "app"
+# Day 4 (O3): sqlglot is allowed only in analytics/sql_guard.py. anthropic and agents stay forbidden everywhere.
 FORBIDDEN_DAY_3 = {"anthropic", "sqlglot", "agents"}
+SQLGLOT_ONLY_IN = "analytics/sql_guard.py"
 FRAMEWORK_MODULES = {"sqlalchemy", "fastapi", "psycopg", "starlette", "alembic"}
 
 
@@ -26,9 +28,11 @@ def test_32_anthropic_sqlglot_and_agents_are_never_imported_under_backend_app():
     files = list(APP.rglob("*.py"))
     assert len(files) > 30                     # the scan really covers the backend
     for path in files:
-        bad = imported_modules(path) & FORBIDDEN_DAY_3
+        rel = path.relative_to(APP).as_posix()
+        forbidden = FORBIDDEN_DAY_3 - ({"sqlglot"} if rel == SQLGLOT_ONLY_IN else set())
+        bad = imported_modules(path) & forbidden
         if bad:
-            offenders[str(path.relative_to(APP))] = sorted(bad)
+            offenders[rel] = sorted(bad)
     assert offenders == {}, offenders
 
 

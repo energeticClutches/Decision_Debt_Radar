@@ -6,5 +6,13 @@
   "nbe_params_v0.1": {
     "file": "nbe/nbe_params_v0.1.yaml",
     "sha256": "8a7c730edb77fc7b7f69cce487bce99fba5ace660f1c028c8cb6692221546ff7"
+  },
+  "nbe_params_v0.2": {
+    "file": "nbe/nbe_params_v0.2.yaml",
+    "sha256": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+  },
+  "analytics_params_v0.1": {
+    "file": "analytics/analytics_params_v0.1.yaml",
+    "sha256": "b3dfcee11c9e0d61572f471905f03e19f5641ddbdabc723f61abae62a1fa2e05"
   }
 }

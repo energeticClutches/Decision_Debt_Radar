@@ -1,4 +1,4 @@
-"""SQLAlchemy 2.0 models mirroring the LIVE schema (migrations 0001-0004).
+"""SQLAlchemy 2.0 models mirroring the LIVE schema (migrations 0001-0005).
 
 The schema is created only by the SQL migrations in database/sql/ (never by Base.metadata.create_all).
 tests/backend/test_models_reflection.py compares these models with the reflected database
@@ -162,6 +162,8 @@ class Decision(Base):
     is_synthetic: Mapped[bool] = mapped_column(Boolean)
     created_at: Mapped[datetime] = _created()
     updated_at: Mapped[datetime] = _updated()
+    # migration 0005 (D4-20, O1): increase | decrease | no_material_decrease
+    expected_direction: Mapped[str] = mapped_column(Text)
 
 
 class EvidenceSource(Base):
@@ -197,6 +199,10 @@ class Experiment(Base):
     is_synthetic: Mapped[bool] = mapped_column(Boolean)
     created_at: Mapped[datetime] = _created()
     updated_at: Mapped[datetime] = _updated()
+    # migration 0005 (D4-12)
+    planned_treatment_share: Mapped[Decimal | None] = mapped_column(Numeric)
+    control_variant: Mapped[str | None] = mapped_column(Text)
+    outcome_key: Mapped[str | None] = mapped_column(Text)
 
 
 class ExperimentResult(Base):
@@ -307,6 +313,10 @@ class AnalysisResult(Base):
     dq_status: Mapped[str | None] = mapped_column(DQ_SEVERITY)
     is_synthetic: Mapped[bool] = mapped_column(Boolean)
     created_at: Mapped[datetime] = _created()
+    # migration 0005 (D4-15)
+    analysis_identity: Mapped[str | None] = mapped_column(Text)
+    params_hash: Mapped[str | None] = mapped_column(Text)
+    source_fingerprint: Mapped[str | None] = mapped_column(Text)
 
 
 class Evidence(Base):
@@ -333,12 +343,19 @@ class Evidence(Base):
     is_synthetic: Mapped[bool] = mapped_column(Boolean)
     created_at: Mapped[datetime] = _created()
     updated_at: Mapped[datetime] = _updated()
+    # migration 0005 (D4-16, D4-19)
+    status: Mapped[str] = mapped_column(Text, server_default=text("'active'"))
+    superseded_by: Mapped[uuid.UUID | None] = mapped_column(UUID_T, ForeignKey("evidence.id"))
+    superseded_at: Mapped[datetime | None] = mapped_column(TS)
+    analysis_identity: Mapped[str | None] = mapped_column(Text)
+    source_fingerprint: Mapped[str | None] = mapped_column(Text)
 
 
 class DqCheck(Base):
     __tablename__ = "dq_checks"
     id: Mapped[uuid.UUID] = _pk()
-    assessment_id: Mapped[uuid.UUID] = mapped_column(UUID_T, ForeignKey("decision_assessments.id"))
+    # migration 0005: the assessment link is optional; a check belongs to a decision (D4-02)
+    assessment_id: Mapped[uuid.UUID | None] = mapped_column(UUID_T, ForeignKey("decision_assessments.id"))
     data_source_id: Mapped[uuid.UUID] = mapped_column(UUID_T, ForeignKey("data_sources.id"))
     check_type: Mapped[str] = mapped_column(Text)
     severity: Mapped[str] = mapped_column(DQ_SEVERITY)
@@ -349,6 +366,15 @@ class DqCheck(Base):
     resolved_at: Mapped[datetime | None] = mapped_column(TS)
     is_synthetic: Mapped[bool] = mapped_column(Boolean)
     created_at: Mapped[datetime] = _created()
+    # migration 0005 (D4-01, D4-02, D4-03)
+    decision_id: Mapped[uuid.UUID] = mapped_column(UUID_T, ForeignKey("decisions.id"))
+    check_key: Mapped[str] = mapped_column(Text)
+    target: Mapped[str] = mapped_column(Text)
+    observed_value: Mapped[Decimal | None] = mapped_column(Numeric)
+    threshold: Mapped[Decimal | None] = mapped_column(Numeric)
+    affects_success_metric: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    source_snapshot: Mapped[str | None] = mapped_column(Text)
+    last_run_at: Mapped[datetime | None] = mapped_column(TS)
 
 
 class Claim(Base):

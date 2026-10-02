@@ -1,2 +1,3 @@
 backend/config/**/*.yaml -text
 backend/config/params_hashes.json -text
+backend/config/nbe/nbe_params_v0.2.yaml -text

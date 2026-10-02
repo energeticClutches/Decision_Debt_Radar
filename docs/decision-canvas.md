@@ -17,6 +17,7 @@ A lightweight PM/BA artifact in the decision-creation workflow. It forces the de
 | 6 | Current evidence | `current_evidence_notes` | text | Optional | Free text. Actual evidence is added in the evidence register |
 | 7 | What evidence would change our mind? | `change_my_mind_criteria` | jsonb array of 1–5 strings | Yes | E.g. "A holdout test showing < +2 pp D90 retention" |
 | – | Decision type | `decision_type` | enum (configured types) | Yes | Selects the coverage checklist (DDI-spec §5) |
+| 8 | In which direction should the success metric move if the hypothesis is right? (Day 4) | `expected_direction` | enum `increase` / `decrease` / `no_material_decrease` | Yes | `no_material_decrease` is the non-inferiority claim ("the metric does not fall materially", for example a price change). It sets how the analytics read an effect: the stance of generated evidence is supports / contradicts / neutral against this direction |
 | – | Team / owner | `team_id`, `owner_id` | FK | Yes | |
 
 System fields: `canvas_completed_at`, `canvas_locked_at`, `lifecycle_stage`.
@@ -31,6 +32,7 @@ System fields: `canvas_completed_at`, `canvas_locked_at`, `lifecycle_stage`.
 | CV-4 | `decision_due_date` ≥ today at creation | Block |
 | CV-5 | 1–5 change-my-mind criteria, each 10–300 characters | Block |
 | CV-6 | `decision_type` is in the configured list | Block |
+| CV-8 | `expected_direction` is one of `increase`, `decrease`, `no_material_decrease` (Day 4) | Block (missing or invalid) |
 | CV-7 | Canvas locks at the first assessment. Later edits are allowed but audit-logged, flagged "canvas changed after assessment" on the brief, and mark the assessment stale | Rule. **Implemented on Day 3** as a database invariant (inside the lifecycle guard) plus the `canvas.edited` audit row with `canvas_changed_after_assessment` |
 
 ## 4. Connection to the existing Decision object
@@ -55,6 +57,11 @@ One page, about seven fields, inline validation, a "completeness" indicator, and
 
 ## 7. Acceptance criteria
 Canonical: PRD §26.5 (AC-37 to AC-42).
+
+## 9. Day-4 implementation notes
+- `expected_direction` is required on `POST /decisions` (HTTP 422 without it or with another value), may be changed with `PATCH /decisions/{id}/canvas`, and is stored in `decisions.expected_direction` (migration 0005, NOT NULL, no default). It is a canvas column: changing it after the first assessment marks the assessment stale (it is in the canvas-stale list of `ddr_decision_lifecycle_guard`).
+- Seeded values (open point O1): AI Coach, Onboarding and Community `increase`; Pricing `no_material_decrease`.
+- A change of `expected_direction` changes the stance of already generated evidence in place (same analysis identity), because the stance is a function of the effect, the interval, the materiality and the direction.
 
 ## 8. Day-3 implementation notes
 - CV-1, CV-4, CV-5 and CV-6 block (HTTP 422). CV-2 and CV-3 (no data source) are returned as `warnings` on the created decision and never block. CV-4 uses the injected clock.

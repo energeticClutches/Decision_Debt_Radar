@@ -37,13 +37,24 @@ def test_canvas_accepts_valid_criteria_and_requires_fields(conn, ids):
     did = new_decision(conn, ids, criteria=json.dumps(["x" * 10, "y" * 300]))
     assert did
     assert fails(conn, "INSERT INTO decisions (org_id, team_id, title, description, hypothesis, success_metric_id,"
-                       " decision_due_date, risk_level, change_my_mind_criteria, decision_type, canvas_completed_at, owner_id, is_synthetic)"
-                       " VALUES (%s,%s,'t','d','h',%s,NULL,'low','[\"criterion long enough\"]','pricing_change',now(),%s,true)",
+                       " decision_due_date, risk_level, change_my_mind_criteria, decision_type, expected_direction, canvas_completed_at,"
+                       " owner_id, is_synthetic)"
+                       " VALUES (%s,%s,'t','d','h',%s,NULL,'low','[\"criterion long enough\"]','pricing_change','increase',now(),%s,true)",
                  (ids.org, ids.team, ids.metric, ids.pm)), "decision_due_date is required"
     assert fails(conn, "INSERT INTO decisions (org_id, team_id, title, description, hypothesis, success_metric_id,"
-                       " decision_due_date, risk_level, change_my_mind_criteria, decision_type, canvas_completed_at, owner_id, is_synthetic)"
-                       " VALUES (%s,%s,'t','d','h',NULL,'2026-12-01','low','[\"criterion long enough\"]','pricing_change',now(),%s,true)",
+                       " decision_due_date, risk_level, change_my_mind_criteria, decision_type, expected_direction, canvas_completed_at,"
+                       " owner_id, is_synthetic)"
+                       " VALUES (%s,%s,'t','d','h',NULL,'2026-12-01','low','[\"criterion long enough\"]','pricing_change','increase',now(),%s,true)",
                  (ids.org, ids.team, ids.pm)), "success_metric_id is required"
+    assert fails(conn, "INSERT INTO decisions (org_id, team_id, title, description, hypothesis, success_metric_id,"
+                       " decision_due_date, risk_level, change_my_mind_criteria, decision_type, canvas_completed_at, owner_id, is_synthetic)"
+                       " VALUES (%s,%s,'t','d','h',%s,'2026-12-01','low','[\"criterion long enough\"]','pricing_change',now(),%s,true)",
+                 (ids.org, ids.team, ids.metric, ids.pm)), "0005: expected_direction is required (no default)"
+    assert fails(conn, "INSERT INTO decisions (org_id, team_id, title, description, hypothesis, success_metric_id,"
+                       " decision_due_date, risk_level, change_my_mind_criteria, decision_type, expected_direction, canvas_completed_at,"
+                       " owner_id, is_synthetic)"
+                       " VALUES (%s,%s,'t','d','h',%s,'2026-12-01','low','[\"criterion long enough\"]','pricing_change','sideways',now(),%s,true)",
+                 (ids.org, ids.team, ids.metric, ids.pm)), "0005: expected_direction must be one of the three values"
 
 
 def test_title_hypothesis_and_type_limits(conn, ids):
@@ -80,8 +91,9 @@ def test_new_decisions_must_start_created(conn, ids):
         with conn.transaction():
             conn.execute(
                 "INSERT INTO decisions (org_id, team_id, title, description, hypothesis, success_metric_id, decision_due_date,"
-                " risk_level, change_my_mind_criteria, decision_type, canvas_completed_at, owner_id, lifecycle_stage, is_synthetic)"
-                " VALUES (%s,%s,'t','d','h',%s,'2026-12-01','low','[\"criterion long enough\"]','pricing_change',now(),%s,'assessed',true)",
+                " risk_level, change_my_mind_criteria, decision_type, expected_direction, canvas_completed_at, owner_id,"
+                " lifecycle_stage, is_synthetic)"
+                " VALUES (%s,%s,'t','d','h',%s,'2026-12-01','low','[\"criterion long enough\"]','pricing_change','increase',now(),%s,'assessed',true)",
                 (ids.org, ids.team, ids.metric, ids.pm))
 
 

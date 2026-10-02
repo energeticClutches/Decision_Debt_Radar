@@ -5,7 +5,7 @@ import uuid
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.db.models import DecisionAssessment, DqCheck
+from app.db.models import DqCheck
 
 
 def get_dq_check(session: Session, check_id: uuid.UUID) -> DqCheck | None:
@@ -13,11 +13,24 @@ def get_dq_check(session: Session, check_id: uuid.UUID) -> DqCheck | None:
 
 
 def decision_id_of(session: Session, check: DqCheck) -> uuid.UUID:
-    return session.get(DecisionAssessment, check.assessment_id).decision_id
+    """A DQ check belongs to a decision (migration 0005); the assessment link is optional."""
+    return check.decision_id
 
 
 def list_for_decision(session: Session, decision_id: uuid.UUID) -> list[DqCheck]:
-    """DQ checks of every assessment version of the decision (earlier versions remain relevant, R5)."""
-    return list(session.scalars(select(DqCheck).join(DecisionAssessment, DecisionAssessment.id == DqCheck.assessment_id)
-                                .where(DecisionAssessment.decision_id == decision_id)
-                                .order_by(DqCheck.created_at, DqCheck.id)))
+    """All DQ checks of the decision (they are per decision since Day 4 and updated in place on every run)."""
+    return list(session.scalars(select(DqCheck).where(DqCheck.decision_id == decision_id)
+                                .order_by(DqCheck.check_key, DqCheck.id)))
+
+
+def checks_by_key(session: Session, decision_id: uuid.UUID) -> dict[str, DqCheck]:
+    return {c.check_key: c for c in session.scalars(
+        select(DqCheck).where(DqCheck.decision_id == decision_id).execution_options(populate_existing=True))}
+
+
+def add_check(session: Session, **fields) -> DqCheck:
+    c = DqCheck(**fields)
+    session.add(c)
+    session.flush()
+    session.refresh(c)
+    return c

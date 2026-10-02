@@ -10,6 +10,8 @@ Decision Debt Radar (DDR) helps an organization see how well an important busine
 
 ## Status
 
+**Day 4 of 7: data and analytics foundation (deterministic, no LLM).** On top of Day 3: per-decision data-quality checks reconciled on re-run, experiment statistics (SRM, effect with CI, design power), group comparison, trend, funnel and heterogeneity analyses, evidence generated from analyses with full traceability (identity, supersede), the SQL guard with read-only execution, and a deterministic pipeline (stages 1, 2 and 4 plus the Day-3 assessment) behind `POST /decisions/{id}/pipeline-runs`. The DDI is unchanged and NBE v0.1 is preserved (a test enforces it). **Day 4.1 remediation:** NBE v0.2 (active default) adds the success-metric blocker dependency under an open critical DQ issue, and descriptive trend and funnel evidence no longer counts toward D6. See [docs/day-4-implementation-notes.md](docs/day-4-implementation-notes.md). Still no LLM, agent, frontend feature or Power BI report.
+
 **Day 3 of 7: deterministic business-logic foundation.** On top of the Day-2 database and synthetic data: the pure DDI and NBE engines (gating, contribution breakdown, sensitivity, evidence-direction summary), versioned and hash-checked parameters, the decision lifecycle, assessment versioning, human review and decision record, SQLAlchemy models, repositories, services and the FastAPI API with a demo role switcher (`X-Demo-User`, not authentication). There is no LLM, agent, analytics, frontend feature or Power BI report yet. See [docs/day-3-implementation-notes.md](docs/day-3-implementation-notes.md), [docs/day-2-data-foundation.md](docs/day-2-data-foundation.md) (rebuild commands included) and [docs/day-1-readiness.md](docs/day-1-readiness.md).
 
 ## Documentation (source of truth)
@@ -24,6 +26,8 @@ Decision Debt Radar (DDR) helps an organization see how well an important busine
 | [docs/decision-lifecycle.md](docs/decision-lifecycle.md) | Decision lifecycle |
 | [docs/decision-canvas.md](docs/decision-canvas.md) | Decision Canvas |
 | [docs/ADRs.md](docs/ADRs.md) | Architecture decisions |
+| [docs/day-4-implementation-brief.md](docs/day-4-implementation-brief.md) | Day-4 decisions D4-01 to D4-25, O1 to O3, required tests |
+| [docs/day-4-implementation-notes.md](docs/day-4-implementation-notes.md) | Day-4 implementation notes (architecture, migration 0005, hashes, methodology as built, parameter justification, expected vs observed) |
 | [docs/day-3-implementation-brief.md](docs/day-3-implementation-brief.md) | Day-3 decisions R1-R14, resolutions and required tests |
 | [docs/day-3-implementation-notes.md](docs/day-3-implementation-notes.md) | Day-3 implementation notes (methodology as built, parameters, migration 0004, API, tests) |
 

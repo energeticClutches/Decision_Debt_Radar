@@ -17,7 +17,7 @@ from app.services.base import unit_of_work
 from app.services.lifecycle import LifecycleHelpers, apply_transition
 
 CANVAS_FIELDS = ("title", "description", "hypothesis", "success_metric_id", "decision_due_date", "risk_level",
-                 "current_evidence_notes", "change_my_mind_criteria", "decision_type", "team_id", "owner_id")
+                 "current_evidence_notes", "change_my_mind_criteria", "decision_type", "expected_direction", "team_id", "owner_id")
 
 
 def _snap(value):
@@ -38,7 +38,7 @@ class DecisionService(LifecycleHelpers):
     def create(self, actor: Actor, fields: dict) -> tuple[Decision, list[dict]]:
         perm.authorize_role(actor, perm.CREATE_DECISION)
         with unit_of_work(self.session):
-            validate_canvas(fields, decision_types=self.ctx.ddi_params.coverage_checklists, today=self.clock.today())
+            validate_canvas(fields, decision_types=self.ctx.ddi_params.coverage_checklists, today=self.clock.today(), creating=True)
             metric_id = parse_uuid(fields.get("success_metric_id"))
             metric = decisions_repo.get_metric(self.session, metric_id) if metric_id else None
             if metric is None or str(metric.org_id) != actor.org_id:
@@ -57,7 +57,7 @@ class DecisionService(LifecycleHelpers):
                 success_metric_id=metric.id, decision_due_date=fields["decision_due_date"], risk_level=fields["risk_level"],
                 current_evidence_notes=fields.get("current_evidence_notes"),
                 change_my_mind_criteria=list(fields["change_my_mind_criteria"]), decision_type=fields["decision_type"],
-                canvas_completed_at=self.clock.now(), is_synthetic=bool(metric.is_synthetic))
+                expected_direction=fields["expected_direction"], canvas_completed_at=self.clock.now(), is_synthetic=bool(metric.is_synthetic))
             self.audit(actor, "decision.created", "decision", decision.id, decision, before=None,
                        after={"lifecycle_stage": decision.lifecycle_stage, "title": decision.title,
                               "decision_type": decision.decision_type})

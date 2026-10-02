@@ -30,7 +30,8 @@ def canvas(seed, **over) -> dict:
         title="Flow test decision", description="Created by a test.", hypothesis="If we do X then retention will increase.",
         success_metric_id=seed.metric_d90, decision_due_date=date(2026, 12, 31), risk_level="medium",
         change_my_mind_criteria=["A properly powered test shows less than a 2 point effect"],
-        decision_type="product_feature_investment", current_evidence_notes=None, team_id=None, owner_id=None)
+        decision_type="product_feature_investment", expected_direction="increase", current_evidence_notes=None,
+        team_id=None, owner_id=None)
     fields.update(over)
     return fields
 
@@ -110,11 +111,14 @@ class Flow:
 
     # ---- raw helpers (setup that the services deliberately do not offer)
     def insert_dq_check(self, assessment, data_source_id, severity="critical", status="open", metric_id=None) -> uuid.UUID:
+        """A DQ check for the assessment's decision (Day 4: checks belong to a decision, check_key is unique per decision)."""
         row = self.session.execute(text(
-            "INSERT INTO dq_checks (assessment_id, data_source_id, check_type, severity, finding, affects_metric_id, status,"
-            " resolved_by, is_synthetic) VALUES (:a,:ds,'tracking_gap',:sev,'synthetic finding',:mid,:st,:rb,true) RETURNING id"),
-            {"a": assessment.id, "ds": data_source_id, "sev": severity, "mid": metric_id, "st": status,
-             "rb": uuid.UUID(self.seed.analyst.id) if status == "resolved" else None}).one()
+            "INSERT INTO dq_checks (decision_id, assessment_id, data_source_id, check_type, severity, finding, affects_metric_id,"
+            " status, resolved_by, check_key, target, is_synthetic)"
+            " VALUES (:d,:a,:ds,'tracking_gap',:sev,'synthetic finding',:mid,:st,:rb,:key,'test target',true) RETURNING id"),
+            {"d": assessment.decision_id, "a": assessment.id, "ds": data_source_id, "sev": severity, "mid": metric_id, "st": status,
+             "rb": uuid.UUID(self.seed.analyst.id) if status == "resolved" else None,
+             "key": f"{data_source_id}|tracking_gap|{uuid.uuid4()}"}).one()
         return row[0]
 
     def insert_partial_assessment(self, decision, version: int, *, poison: bool = False) -> uuid.UUID:

@@ -1,0 +1,87 @@
+# Analytics parameters, version analytics_params_v0.1 (Day 4, docs/day-4-implementation-brief.md section 4.1).
+# GENERIC methods and thresholds only. No organisation-specific value (metric, event, view or segment name) lives
+# here: those are in the tenant configuration (backend/config/orgs/<org>/analytics_config.yaml).
+# These are PROPOSED DEFAULTS (documented assumptions), not empirically calibrated values.
+# Its SHA-256 is recorded in backend/config/params_hashes.json and verified at load time. A released parameter
+# version is never edited: a change is a new version file.
+
+version: analytics_params_v0.1
+status: proposed_defaults
+
+# Read-only SQL execution (docs/day-4-implementation-brief.md section 9).
+sql:
+  max_rows: 100000
+  statement_timeout: 30s
+
+# Data quality (brief section 5).
+# window_days is the look-back window. The baseline is its oldest baseline_days days and the recent window is its
+# newest recent_days days. The window ends on the last day on which the source has signups (rates are per signup).
+dq:
+  window_days: 56
+  baseline_days: 28
+  recent_days: 14
+  min_sustained_days: 7            # a volume drop counts only if at least this many recent days are below the warn level
+  volume:                          # drop of an event's per-signup daily rate, recent window vs baseline, per platform
+    warn_pct_drop: 0.25
+    critical_pct_drop: 0.50
+  sequence:                        # share of users with step k but without step k-1
+    warn_rate: 0.02
+    critical_rate: 0.10
+  completeness:                    # null rate of a required column
+    warn_null_rate: 0.01
+    critical_null_rate: 0.05
+  duplicates:                      # duplicate rows over the key
+    warn_rate: 0.001
+    critical_rate: 0.01
+  referential:                     # rows whose user is not present in the users view
+    warn_rate: 0.0
+    critical_rate: 0.001
+
+# A finding at the critical threshold is critical only if its target is in the success metric's lineage.
+# Otherwise it is capped at warn (impact over size).
+severity_rule:
+  critical_requires_lineage: true
+  non_lineage_cap: warn
+
+# Descriptive analyses (no hypothesis test). The comparison confidence level is used for the Wald interval of a
+# difference between two proportions.
+comparisons:
+  confidence_level: 0.95
+
+trend:                             # weekly series of the success metric by signup week (complete weeks only)
+  lookback_weeks: 26
+  recent_weeks: 4
+
+funnel:                            # ordered steps of a configured funnel, over the signups of the window
+  cohort_window_days: 56
+
+# Heterogeneity / aggregate masking (brief section 6).
+heterogeneity:
+  min_segment_n: 500
+  test: two_proportion_z
+  alpha: 0.05
+  correction: bonferroni           # over the eligible segment pairs
+  min_eligible_segments: 2
+
+# Experiment statistics (brief section 7). Design power is computed at the experiment's pre-registered MDE with the
+# achieved n and allocation: NormalIndPower + proportion_effectsize (binary outcomes), TTestIndPower with
+# d = mde / pooled SD (continuous outcomes). With no MDE the power is None.
+experiments:
+  srm_alpha: 0.001
+  power_alpha: 0.05
+  power_alternative: two-sided
+  confidence_level: 0.95
+  binary_method: two_proportion
+  continuous_method: welch_t
+
+# Strength grade A-D (DDI-spec section 4 rubric). Deterministic; the first matching row applies, in the order D, C, A, B.
+grading:
+  order: [D, C, A, B]
+  D: {item_dq: critical, n_below: 100}
+  C: {item_dq: warn, srm_failed: true, design_power_below: 0.5, n_below: 1000}
+  A: {designs: [rct, holdout], srm_passed: true, design_power_at_least: 0.8, ci_width_at_most_mde_multiple: 2}
+  B: everything_else
+
+# Stance of a comparative analysis (brief section 8 / D4-21). Materiality comes from the metric configuration.
+stance:
+  expected_directions: [increase, decrease, no_material_decrease]

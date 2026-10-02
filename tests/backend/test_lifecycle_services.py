@@ -188,7 +188,7 @@ def test_22_an_assessment_runs_only_from_evidence_gathered(flow):
 def test_22_the_assessment_stores_versions_hashes_fingerprint_and_as_of(flow):
     d, a = flow.scored()
     assert a.params_version == "ddi_params_v0.1" and len(a.params_hash) == 64
-    assert a.nbe_params_version == "nbe_params_v0.1" and len(a.nbe_params_hash) == 64
+    assert a.nbe_params_version == "nbe_params_v0.2" and len(a.nbe_params_hash) == 64
     assert len(a.evidence_fingerprint) == 64 and a.as_of_date == date(2026, 10, 1)
     assert a.dimension_scores["params_hash"] == a.params_hash
     assert a.sensitivity["band_stable"] in (True, False)

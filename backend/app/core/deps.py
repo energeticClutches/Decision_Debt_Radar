@@ -13,18 +13,20 @@ from sqlalchemy.orm import Session
 
 from app.core.clock import Clock, FixedClock, SystemClock
 from app.core.config import get_settings
-from app.core.params import get_ddi_params, get_nbe_params
+from app.core.params import get_analytics_params, get_ddi_params, get_nbe_params, get_tenant_config
 from app.db.session import session_scope
 from app.domain.errors import Unauthorized
 from app.domain.permissions import Actor
 from app.repositories.users import get_user, to_actor
 from app.services import (
+    AnalysisService,
     AssessmentService,
     AuditService,
     DecisionRecordService,
     DecisionService,
     DqService,
     EvidenceService,
+    PipelineService,
     RecommendationService,
     ReviewService,
     ServiceContext,
@@ -53,7 +55,8 @@ def get_actor(x_demo_user: str | None = Header(default=None, alias=DEMO_HEADER),
 
 
 def get_ctx(session: Session = Depends(get_session), clock: Clock = Depends(get_clock)) -> ServiceContext:
-    return ServiceContext(session=session, clock=clock, ddi_params=get_ddi_params(), nbe_params=get_nbe_params())
+    return ServiceContext(session=session, clock=clock, ddi_params=get_ddi_params(), nbe_params=get_nbe_params(),
+                          analytics_params=get_analytics_params(), tenant=get_tenant_config())
 
 
 def decision_service(ctx: ServiceContext = Depends(get_ctx)) -> DecisionService:
@@ -86,3 +89,11 @@ def dq_service(ctx: ServiceContext = Depends(get_ctx)) -> DqService:
 
 def audit_service(ctx: ServiceContext = Depends(get_ctx)) -> AuditService:
     return AuditService(ctx)
+
+
+def pipeline_service(ctx: ServiceContext = Depends(get_ctx)) -> PipelineService:
+    return PipelineService(ctx)
+
+
+def analysis_service(ctx: ServiceContext = Depends(get_ctx)) -> AnalysisService:
+    return AnalysisService(ctx)

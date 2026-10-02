@@ -275,6 +275,8 @@ def _recommend_insufficient(result: DdiResult, facts: EvidenceFacts, ddi: DdiPar
         for b in action.resolves_blockers:
             if b not in codes:
                 continue
+            if not nbe.may_claim_blocker(action, b, codes):      # v0.2 dependency (empty under v0.1)
+                continue
             if b == "min_types" and (action.supplies_evidence_type is None or action.supplies_evidence_type in types_present):
                 continue
             resolved.append(b)

@@ -50,8 +50,9 @@ def engine(sa_url):
             if n == 0:
                 pytest.skip("database not seeded (run python -m database.seed.run)")
             c.execute(text("SELECT blockers_resolved FROM recommendations LIMIT 0"))
+            c.execute(text("SELECT expected_direction FROM decisions LIMIT 0"))        # migration 0005
     except Exception as exc:  # noqa: BLE001
-        pytest.skip(f"PostgreSQL not reachable, not migrated to 0004, or not seeded: {exc}")
+        pytest.skip(f"PostgreSQL not reachable, not migrated to 0005, or not seeded: {exc}")
     yield eng
     eng.dispose()
 

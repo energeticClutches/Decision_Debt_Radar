@@ -12,6 +12,7 @@ RiskLevel = Literal["low", "medium", "high"]
 EvidenceType = Literal["behavioral", "experiment", "customer", "financial", "market", "anecdotal"]
 Stance = Literal["supports", "contradicts", "neutral"]
 Grade = Literal["A", "B", "C", "D"]
+ExpectedDirection = Literal["increase", "decrease", "no_material_decrease"]
 
 
 class _Body(BaseModel):
@@ -27,6 +28,7 @@ class CanvasCreate(_Body):
     risk_level: RiskLevel
     change_my_mind_criteria: list[str]
     decision_type: str
+    expected_direction: ExpectedDirection      # required (Day 4, D4-20): increase | decrease | no_material_decrease
     current_evidence_notes: str | None = None
     team_id: str | None = None          # defaults to the actor's team
     owner_id: str | None = None         # defaults to the actor
@@ -41,6 +43,7 @@ class CanvasPatch(_Body):
     risk_level: RiskLevel | None = None
     change_my_mind_criteria: list[str] | None = None
     decision_type: str | None = None
+    expected_direction: ExpectedDirection | None = None
     current_evidence_notes: str | None = None
     team_id: str | None = None
     owner_id: str | None = None

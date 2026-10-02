@@ -74,6 +74,11 @@ METRICS = [  # (key, name, definition, sql_logic, unit, grain, source)
      "Defined for later analysis (subscription-month exposure model).", "ratio", "month", "subs"),
 ]
 
+# Expected direction of the success metric under the hypothesis (Day 4, D4-20 and approved open point O1).
+# Pricing is a non-inferiority claim ("conversion does not fall materially").
+EXPECTED_DIRECTION = {"ai_coach": "increase", "onboarding": "increase", "community": "increase",
+                      "pricing": "no_material_decrease"}
+
 # decision key, scenario, team, owner, metric, risk, type, due, title, description, hypothesis, notes, criteria
 DECISIONS = [
     ("ai_coach", "ai_coach", "Product", "pm1", "d90", "high", "product_feature_investment", "2026-10-31",
@@ -147,10 +152,10 @@ def seed_core(conn, meta: dict, experiments_meta: dict) -> dict:
         cur.execute(
             "INSERT INTO decisions (id, org_id, team_id, title, description, hypothesis, success_metric_id,"
             " decision_due_date, risk_level, current_evidence_notes, change_my_mind_criteria, decision_type,"
-            " canvas_completed_at, owner_id, scenario_key, is_synthetic)"
-            " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,%s,true)",
+            " canvas_completed_at, owner_id, scenario_key, expected_direction, is_synthetic)"
+            " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb,%s,%s,%s,%s,%s,true)",
             (decision_id[key], ORG, team_id[team], title, desc, hyp, metric_id[metric], due, risk, notes,
-             json.dumps(crit), dtype, CANVAS_TS, user_id[owner], scen))
+             json.dumps(crit), dtype, CANVAS_TS, user_id[owner], scen, EXPECTED_DIRECTION[key]))
         cur.execute("INSERT INTO audit_logs (id, org_id, actor_type, actor_id, action, entity_type, entity_id, after, ts,"
                     " is_synthetic) VALUES (%s,%s,'user',%s,'decision.created','decision',%s,%s::jsonb,%s,true)",
                     (uid(f"audit:{key}:created"), ORG, user_id[owner], decision_id[key],
@@ -164,20 +169,22 @@ def seed_core(conn, meta: dict, experiments_meta: dict) -> dict:
                      AS_OF_TS))
 
     ae, pe = experiments_meta["ai"], experiments_meta["pricing"]
+    # Day 4 (D4-12): planned treatment share, the control variant and the outcome key (outcome metric_name in the source data).
     exps = [
         ("ai_holdout", "ai_coach", "AI Coach holdout (short, imbalanced)",
          "AI Coach availability increases workouts over 14 days.", "holdout", ae["start"], ae["end"],
-         None, meta["ai_experiment_planned_total"], 0.5, ae["key"]),
+         None, meta["ai_experiment_planned_total"], 0.5, ae["key"], 0.5, "holdout", "workouts_14d"),
         ("price_test", "pricing", "Premium price test 9.99 vs 11.99",
          "A higher premium price does not reduce trial-to-paid conversion materially.", "rct", pe["start"], pe["end"],
-         "conv", 2 * meta["pricing_experiment_per_arm_planned"], 0.02, pe["key"]),
+         "conv", 2 * meta["pricing_experiment_per_arm_planned"], 0.02, pe["key"], 0.5, "control_9_99", "converted_to_paid"),
     ]
-    for key, dec, name, hyp, design, start, end, metric, planned, mde, ref in exps:
+    for key, dec, name, hyp, design, start, end, metric, planned, mde, ref, share, control, outcome in exps:
         cur.execute("INSERT INTO experiments (id, org_id, decision_id, name, hypothesis, design, start_date, end_date, status,"
-                    " primary_metric_id, planned_sample, mde, source_ref, is_synthetic)"
-                    " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,'completed',%s,%s,%s,%s,true)",
+                    " primary_metric_id, planned_sample, mde, source_ref, planned_treatment_share, control_variant,"
+                    " outcome_key, is_synthetic)"
+                    " VALUES (%s,%s,%s,%s,%s,%s,%s,%s,'completed',%s,%s,%s,%s,%s,%s,%s,true)",
                     (uid(f"exp:{key}"), ORG, decision_id[dec], name, hyp, design, start, end,
-                     metric_id[metric] if metric else None, planned, mde, ref))
+                     metric_id[metric] if metric else None, planned, mde, ref, share, control, outcome))
 
     # Observations: plain counts and rates by week/month (data preparation, no analysis).
     obs = [

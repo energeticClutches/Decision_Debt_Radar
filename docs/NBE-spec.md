@@ -1,6 +1,6 @@
 # Next Best Evidence (NBE) Specification
 
-**Status:** v0.1, reconciled on Day 3 with the Product Owner decisions R8-R11 (see [day-3-implementation-brief.md](day-3-implementation-brief.md) and [day-3-implementation-notes.md](day-3-implementation-notes.md)). Parent: [PRD-v0.1.md](PRD-v0.1.md) §11, §25.
+**Status:** v0.1 is the original methodology (reconciled on Day 3 with the Product Owner decisions R8-R11). **v0.2 (Day 4.1, widened in Day 4.1b) is the active default**: it adds one rule, the blocker dependency under an open critical DQ issue (section 3a). Both versions stay loadable; v0.1 output is unchanged. Reconciled with R8-R11 (see [day-3-implementation-brief.md](day-3-implementation-brief.md) and [day-3-implementation-notes.md](day-3-implementation-notes.md)). Parent: [PRD-v0.1.md](PRD-v0.1.md) §11, §25.
 
 > NBE is **a proposed framework for this portfolio project**. Its estimates are rule-based heuristics, not predictions. All FitConnect data is synthetic.
 
@@ -44,7 +44,29 @@ For each candidate action:
 | financial_model_with_sensitivity | D7 applicable and D7 < 0.8 |
 | replicate_independent_source | normalized HHI > 0.5 |
 
-**INSUFFICIENT EVIDENCE decisions (R10):** there is no DDI_now. `potential_ddi_reduction = 0` and the new column `recommendations.blockers_resolved` holds the number of gating blockers the action addresses. The two units are never mixed (the API reports `impact_unit`). Blocker to action map: `open_critical_dq` → fix DQ (one per data source). `success_metric_evidence` → holdout, segment analysis, extend observation. `min_items` → any action that supplies a new evidence item (holdout: experiment; survey and interviews: customer; financial model: financial; extend observation: behavioral). `min_types` → the same actions when the supplied type is not yet present. In this state `priority = relevance * blockers_resolved / effort_days`, and only actions with `blockers_resolved ≥ 1` are listed (they form the "Unblock scoring" group). An action that resolves `success_metric_evidence` has relevance 1.0 (it targets the success metric's evidence); otherwise relevance is 0.7 if the action supplies a missing checklist type and 0.4 if not.
+**INSUFFICIENT EVIDENCE decisions (R10, v0.1 rules; v0.2 adds section 3a):** there is no DDI_now. `potential_ddi_reduction = 0` and the new column `recommendations.blockers_resolved` holds the number of gating blockers the action addresses. The two units are never mixed (the API reports `impact_unit`). Blocker to action map: `open_critical_dq` → fix DQ (one per data source). `success_metric_evidence` → holdout, segment analysis, extend observation. `min_items` → any action that supplies a new evidence item (holdout: experiment; survey and interviews: customer; financial model: financial; extend observation: behavioral). `min_types` → the same actions when the supplied type is not yet present. In this state `priority = relevance * blockers_resolved / effort_days`, and only actions with `blockers_resolved ≥ 1` are listed (they form the "Unblock scoring" group). An action that resolves `success_metric_evidence` has relevance 1.0 (it targets the success metric's evidence); otherwise relevance is 0.7 if the action supplies a missing checklist type and 0.4 if not.
+
+## 3a. Versions and the v0.2 blocker dependency (Day 4.1)
+
+**NBE v0.1 is the original methodology** (`nbe_params_v0.1.yaml`, unchanged, hash `8a7c730e...`). **NBE v0.2 (`nbe_params_v0.2.yaml`, the active default) adds the blocker dependency under an open critical DQ issue** and nothing else: effort bands and their day values, relevance values, applicability thresholds, the action catalogue, ceilings, the priority formula and the tie-breaking are identical to v0.1 (a test compares the two files). It references `ddi_params_v0.1`; assessments store `nbe_params_v0.2` and its hash.
+
+*Problem fixed.* In the insufficient-evidence state, v0.1 let `extend_observation_or_refresh_data` (and the holdout and segment analysis) claim `success_metric_evidence` as a resolved blocker even while an `open_critical_dq` issue affected the success metric. More data cannot supply usable success-metric evidence while that defect blocks the metric, so the claim inflated the action's `blockers_resolved` and priority.
+
+*Rule (generic, configuration-driven).* The v0.2 file has a section `blocker_dependencies`, a list of `{blocker, requires_resolved}` pairs. v0.2 ships three (Day 4.1b, PO-approved widening; the first version of v0.2 had only the first): `{blocker: success_metric_evidence | min_items | min_types, requires_resolved: open_critical_dq}`. In effect, while `open_critical_dq` is present no action may claim any other blocker unless it resolves `open_critical_dq` itself: while the critical defect blocks the success metric nothing can be scored, so adding items or types unblocks nothing. While the gate reports `requires_resolved`, an action may claim `blocker` as resolved only if the action itself lists `requires_resolved` in its `resolves_blockers`. The gate reports `open_critical_dq` only for a critical open DQ issue that affects the success metric (its data source or its metric), so the rule applies exactly then. `fix_dq_or_instrumentation` resolves `open_critical_dq`, so it is unaffected. Nothing is hard-coded to an action id or to Onboarding, and fix-DQ is not forced to rank first: the order is still `relevance * blockers_resolved / effort_days`. When the DQ issue is resolved or accepted the dependency disappears and the actions claim their blockers again (output then equals v0.1). The widening needed no engine change: the same generic mechanism handles it. With an empty `blocker_dependencies` list (v0.1) the engine behaves exactly as at the Day-3 baseline `f6209e9`.
+
+*Effect.* In the seeded Onboarding open-DQ state (reasons min_items, min_types, success_metric_evidence, open_critical_dq), priority = relevance x blockers_resolved / effort_days:
+
+| Rank | v0.1 | v0.2 (widened) |
+|---|---|---|
+| 1 | extend_observation_or_refresh_data (3 blockers, relevance 1.0, 1 d, 3.0) | fix_dq_or_instrumentation (1 blocker, relevance 1.0, 3 d, 0.3333), the only listed action |
+| 2 | targeted_survey (2, 0.7, 1 d, 1.4) | not listed |
+| 3 | segment_level_analysis (1, 1.0, 1 d, 1.0) | not listed |
+| 4 | customer_interview_sprint (2, 0.7, 3 d, 0.4667) | not listed |
+| 5 | financial_model_with_sensitivity (2, 0.7, 3 d, 0.4667) | not listed |
+| 6 | powered_holdout_test (3, 1.0, 8 d, 0.375) | not listed |
+| 7 | fix_dq_or_instrumentation (1, 1.0, 3 d, 0.3333) | not listed |
+
+Only actions with `blockers_resolved >= 1` are listed (Day-3 rule), so once the other actions cannot claim a blocker they drop out; fix-DQ is first because it is the only one, not because of a hard-coded order (a test shows that emptying the dependency list brings the others back above it). An intermediate version of v0.2 with only the `success_metric_evidence` dependency left extend ranked first (priority 1.4); that is why the Product Owner widened it.
 
 ## 4. Worked example (illustrative, uses the DDI-spec §9 numbers, updated per R9)
 
@@ -70,7 +92,7 @@ What changed relative to the Day-1 draft: relevance is recomputed by the Day-3 r
 4. Actions are scored independently. Interaction effects are not modelled in the MVP.
 5. Candidate actions come from the catalog. The LLM may suggest *which catalog actions apply* and write the rationale, but cannot create numbers or invent catalog entries.
 6. Relevance is rule-based and coarse. On Day 3 it uses only information available at assessment time (no Reviewer challenges).
-7. The ranking depends on the DDI parameter version. Each assessment stores the NBE parameter version and hash, and the loader verifies that the NBE file references the active DDI version.
+7. The ranking depends on the DDI parameter version and the NBE parameter version (v0.1 or v0.2). Each assessment stores the NBE parameter version and hash, and the loader verifies that the NBE file references the active DDI version.
 
 ## 7. LLM boundary
 Allowed: select applicable catalog actions, phrase descriptions and "why this". Not allowed: set effort, ceilings, relevance, R or priority. These are computed by code (BR-5).
@@ -85,6 +107,6 @@ Canonical: PRD §11 and AC-9, AC-34. Additional:
 |---|---|
 | NBE-AC-1 | `potential_ddi_reduction` equals the engine's DDI difference for a hand-computed fixture. Priority is reproducible. |
 | NBE-AC-2 | Ties break on lower effort. Ordering is deterministic. |
-| NBE-AC-3 | In an INSUFFICIENT scenario (Onboarding), the instrumentation fix appears first under "Unblock scoring". |
+| NBE-AC-3 | In an INSUFFICIENT scenario (Onboarding), the instrumentation fix appears first under "Unblock scoring" (under NBE v0.2 it is the only listed action while the critical DQ issue is open; the order emerges from the dependency model). |
 | NBE-AC-4 | A seeded scenario where the top-ranked action is applied (adding its evidence in a variant seed) changes the DDI in the direction the engine predicted. |
 | NBE-AC-5 | Accept/reject/defer decisions are stored with a note and audit-logged. |

@@ -90,3 +90,15 @@ def test_nbe_actions_are_well_formed(nbe):
         assert action["effort_band"] in bands
         assert action["targets"]
     assert set(nbe["relevance_values"].values()) == {1.0, 0.7, 0.4}
+
+
+def test_nbe_v0_2_differs_from_v0_1_only_in_version_and_the_blocker_dependency(nbe):
+    """Day 4.1: v0.2 = v0.1 + `blocker_dependencies`. Every other value (bands, relevance, applicability, actions) is identical."""
+    v2_file = CONFIG / "nbe" / "nbe_params_v0.2.yaml"
+    v2 = yaml.safe_load(v2_file.read_text(encoding="utf-8"))
+    assert v2["version"] == v2_file.stem == "nbe_params_v0.2" and v2["ddi_params_version"] == "ddi_params_v0.1"
+    assert v2["blocker_dependencies"] == [{"blocker": b, "requires_resolved": "open_critical_dq"}
+                                          for b in ("success_metric_evidence", "min_items", "min_types")]     # Day 4.1b widening
+    assert "blocker_dependencies" not in nbe
+    rest = {k: v for k, v in v2.items() if k not in ("version", "blocker_dependencies")}
+    assert rest == {k: v for k, v in nbe.items() if k != "version"}

@@ -18,6 +18,7 @@ from pathlib import Path
 
 import yaml
 
+from app.analytics.config import AnalyticsParams, TenantConfig
 from app.core.config import get_settings
 from app.domain.ddi.params import DdiParams
 from app.domain.errors import ParamsError
@@ -25,6 +26,9 @@ from app.domain.nbe.params import NbeParams
 
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 REGISTRY_FILE = CONFIG_DIR / "params_hashes.json"
+# Tenant (organisation) configuration files are hashed too. Their registry is separate from params_hashes.json,
+# which holds only the versioned engine parameter sets (Day 4 may only add analytics_params_v0.1 to it).
+ORG_REGISTRY_FILE = CONFIG_DIR / "orgs" / "config_hashes.json"
 
 
 def sha256_file(path: Path) -> str:
@@ -72,6 +76,62 @@ def load_nbe_params(version: str | None = None, *, ddi_params: DdiParams | None 
         raise ParamsError(f"NBE parameters {params.version} reference DDI version {params.ddi_params_version}, "
                           f"but the active DDI version is {ddi_params.version}")
     return params
+
+
+def load_analytics_params(version: str | None = None, *, config_dir: Path | None = None,
+                          registry_path: Path | None = None) -> AnalyticsParams:
+    """Generic analytics parameters (Day 4). Same version, hash and ParamsError checks as the DDI file."""
+    version = version or get_settings().analytics_params_version
+    raw, digest = _load_verified("analytics", version, config_dir or CONFIG_DIR, registry_path or REGISTRY_FILE)
+    return AnalyticsParams.from_mapping(raw, digest)
+
+
+def load_tenant_config(org_key: str | None = None, *, analytics_params: AnalyticsParams | None = None,
+                       config_dir: Path | None = None, registry_path: Path | None = None) -> TenantConfig:
+    """Tenant analytics configuration (orgs/<org_key>/analytics_config.yaml), hash-verified against its registry.
+
+    The file must declare the analytics parameter version it was written for, which must be the active one."""
+    org_key = org_key or get_settings().tenant_config_key
+    base = config_dir or CONFIG_DIR
+    path = base / "orgs" / org_key / "analytics_config.yaml"
+    if not path.is_file():
+        raise ParamsError(f"tenant analytics configuration not found for '{org_key}': {path.name}")
+    try:
+        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        raise ParamsError(f"tenant analytics configuration is not valid YAML: {exc}") from exc
+    if not isinstance(raw, dict) or not raw.get("version"):
+        raise ParamsError(f"{path.name}: missing version field")
+    registry_file = registry_path or (base / "orgs" / "config_hashes.json")
+    try:
+        registry = json.loads(registry_file.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ParamsError(f"tenant configuration hash registry unreadable: {exc}") from exc
+    entry = registry.get(raw["version"])
+    if not entry or "sha256" not in entry:
+        raise ParamsError(f"tenant configuration {raw['version']} is not registered in {registry_file.name}")
+    actual = sha256_file(path)
+    if actual != entry["sha256"]:
+        raise ParamsError(
+            f"tenant configuration {path.name} does not match its registered hash (expected {entry['sha256'][:12]}..., "
+            f"got {actual[:12]}...). Released configuration versions are immutable: create a new version instead.")
+    analytics_params = analytics_params or load_analytics_params(config_dir=config_dir)
+    if raw.get("analytics_params_version") != analytics_params.version:
+        raise ParamsError(f"tenant configuration {raw['version']} was written for {raw.get('analytics_params_version')}, "
+                          f"but the active analytics parameter version is {analytics_params.version}")
+    if raw.get("org_key") != org_key:
+        raise ParamsError(f"tenant configuration {raw['version']} declares org_key {raw.get('org_key')!r}, expected {org_key!r}")
+    return TenantConfig.from_mapping(raw, actual)
+
+
+@lru_cache
+def get_analytics_params() -> AnalyticsParams:
+    return load_analytics_params()
+
+
+@lru_cache
+def get_tenant_config() -> TenantConfig:
+    return load_tenant_config(analytics_params=get_analytics_params())
 
 
 @lru_cache

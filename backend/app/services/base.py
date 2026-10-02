@@ -10,11 +10,12 @@ import uuid
 from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
 
+from app.analytics.config import AnalyticsParams, TenantConfig
 from app.core.clock import Clock
 from app.core.errors import translate_db_error
 from app.db.models import Decision
@@ -52,6 +53,11 @@ class ServiceContext:
     clock: Clock
     ddi_params: DdiParams
     nbe_params: NbeParams
+    # Day 4 (optional, so the Day-3 constructors keep working): generic analytics parameters, the tenant analytics configuration
+    # and the read-only SQL executor. The services that need them load the configured defaults when they are None.
+    analytics_params: AnalyticsParams | None = None
+    tenant: TenantConfig | None = None
+    executor: Any = None
 
 
 class BaseService:

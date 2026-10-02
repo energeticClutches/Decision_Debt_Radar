@@ -25,8 +25,10 @@ def test_active_parameters_load_with_the_registered_hash():
     nbe = load_nbe_params(ddi_params=ddi)
     registry = json.loads(REGISTRY_FILE.read_text(encoding="utf-8"))
     assert ddi.version == "ddi_params_v0.1" and ddi.content_hash == registry["ddi_params_v0.1"]["sha256"]
-    assert nbe.version == "nbe_params_v0.1" and nbe.content_hash == registry["nbe_params_v0.1"]["sha256"]
+    assert nbe.version == "nbe_params_v0.2" and nbe.content_hash == registry["nbe_params_v0.2"]["sha256"]     # Day 4.1: v0.2 is the default
     assert nbe.ddi_params_version == ddi.version
+    old = load_nbe_params("nbe_params_v0.1", ddi_params=ddi)                                                    # v0.1 stays loadable
+    assert old.version == "nbe_params_v0.1" and old.content_hash == registry["nbe_params_v0.1"]["sha256"]
     assert ddi.content_hash == sha256_file(CONFIG_DIR / "ddi" / "ddi_params_v0.1.yaml")
 
 
@@ -58,16 +60,33 @@ def test_unregistered_or_missing_version_raises(cfg):
         load_ddi_params("ddi_params_v7", config_dir=config_dir, registry_path=registry)
 
 
-def test_nbe_file_must_reference_the_active_ddi_version(cfg):
+@pytest.mark.parametrize("version", ["nbe_params_v0.1", "nbe_params_v0.2"])
+def test_nbe_file_must_reference_the_active_ddi_version(cfg, version):
     config_dir, registry = cfg
     ddi = load_ddi_params(config_dir=config_dir, registry_path=registry)
-    f = config_dir / "nbe" / "nbe_params_v0.1.yaml"
+    f = config_dir / "nbe" / f"{version}.yaml"
     f.write_bytes(f.read_bytes().replace(b"ddi_params_version: ddi_params_v0.1", b"ddi_params_version: ddi_params_v0.2"))
     reg = json.loads(registry.read_text(encoding="utf-8"))
-    reg["nbe_params_v0.1"]["sha256"] = sha256_file(f)
+    reg[version]["sha256"] = sha256_file(f)
     registry.write_text(json.dumps(reg), encoding="utf-8")
     with pytest.raises(ParamsError, match="reference DDI version"):
-        load_nbe_params(ddi_params=ddi, config_dir=config_dir, registry_path=registry)
+        load_nbe_params(version, ddi_params=ddi, config_dir=config_dir, registry_path=registry)
+
+
+def test_nbe_v0_2_fails_on_a_hash_or_version_mismatch(cfg):
+    config_dir, registry = cfg
+    ddi = load_ddi_params(config_dir=config_dir, registry_path=registry)
+    f = config_dir / "nbe" / "nbe_params_v0.2.yaml"
+    original = f.read_bytes()
+    f.write_bytes(original + b"# edited after registration\n")
+    with pytest.raises(ParamsError, match="registered hash"):
+        load_nbe_params("nbe_params_v0.2", ddi_params=ddi, config_dir=config_dir, registry_path=registry)
+    f.write_bytes(original.replace(b"version: nbe_params_v0.2", b"version: nbe_params_v9.9", 1))
+    reg = json.loads(registry.read_text(encoding="utf-8"))
+    reg["nbe_params_v0.2"]["sha256"] = sha256_file(f)                      # hash is consistent, the version field is not
+    registry.write_text(json.dumps(reg), encoding="utf-8")
+    with pytest.raises(ParamsError, match="does not match the requested version"):
+        load_nbe_params("nbe_params_v0.2", ddi_params=ddi, config_dir=config_dir, registry_path=registry)
 
 
 def test_parameter_amendments_of_the_day_3_brief_are_present():

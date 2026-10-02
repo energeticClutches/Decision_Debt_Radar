@@ -58,6 +58,7 @@ class DecisionOut(BaseModel):
     current_evidence_notes: str | None
     change_my_mind_criteria: list[str]
     decision_type: str
+    expected_direction: str
     lifecycle_stage: str
     lifecycle_label: str
     assessment_stale: bool
@@ -93,6 +94,13 @@ class EvidenceOut(BaseModel):
     is_synthetic: bool
     created_at: datetime
     updated_at: datetime
+    # Day 4: generated evidence is traceable to its analysis; superseded evidence is kept, never deleted
+    status: str = "active"
+    analysis_id: str | None = None
+    analysis_identity: str | None = None
+    source_fingerprint: str | None = None
+    superseded_by: str | None = None
+    superseded_at: datetime | None = None
 
 
 class AssessmentOut(BaseModel):
@@ -173,14 +181,60 @@ class DecisionRecordOut(BaseModel):
 
 class DqCheckOut(BaseModel):
     id: str
-    assessment_id: str
+    decision_id: str
+    assessment_id: str | None
     data_source_id: str
+    check_key: str
     check_type: str
+    target: str
     severity: str
     finding: str
+    observed_value: float | None
+    threshold: float | None
+    affects_metric_id: str | None
+    affects_success_metric: bool
+    source_snapshot: str | None
+    last_run_at: datetime | None
     status: str
     resolved_by: str | None
     resolved_at: datetime | None
+
+
+class AnalysisSummaryOut(BaseModel):
+    id: str
+    decision_id: str
+    analysis_type: str
+    key: str | None
+    metric_id: str | None
+    n: int | None
+    dq_status: str | None
+    analysis_identity: str | None
+    params_hash: str | None
+    source_fingerprint: str | None
+    creates_evidence: bool
+    created_at: datetime
+
+
+class AnalysisOut(AnalysisSummaryOut):
+    agent_run_id: str | None
+    params: dict[str, Any]
+    query_text: str | None
+    result: dict[str, Any] | None
+    limitations: str | None
+    evidence_ids: list[str]
+    is_synthetic: bool
+    synthetic_notice: str | None
+
+
+class PipelineRunOut(BaseModel):
+    decision_id: str
+    lifecycle_stage: str
+    partial: bool
+    failed_stage: str | None
+    error: str | None
+    stages: list[dict[str, Any]]
+    analysis_ids: list[str]
+    assessment: AssessmentOut | None
 
 
 class AuditOut(BaseModel):
@@ -218,7 +272,7 @@ def decision_out(d, *, warnings: list[dict] | None = None, current=None, previou
         "success_metric_id": str(d.success_metric_id), "decision_due_date": d.decision_due_date,
         "risk_level": d.risk_level, "current_evidence_notes": d.current_evidence_notes,
         "change_my_mind_criteria": list(d.change_my_mind_criteria), "decision_type": d.decision_type,
-        "lifecycle_stage": d.lifecycle_stage, "lifecycle_label": lifecycle_rules.label(d.lifecycle_stage),
+        "expected_direction": d.expected_direction, "lifecycle_stage": d.lifecycle_stage, "lifecycle_label": lifecycle_rules.label(d.lifecycle_stage),
         "assessment_stale": d.assessment_stale, "canvas_completed_at": d.canvas_completed_at,
         "canvas_locked_at": d.canvas_locked_at, "is_synthetic": d.is_synthetic,
         "synthetic_notice": SYNTHETIC_NOTICE if d.is_synthetic else None,
@@ -236,7 +290,9 @@ def evidence_out(e) -> dict:
             "effect_size": _f(e.effect_size), "ci_low": _f(e.ci_low), "ci_high": _f(e.ci_high),
             "metric_id": _s(e.metric_id), "experiment_id": _s(e.experiment_id), "insight_id": _s(e.insight_id),
             "created_by": e.created_by, "is_synthetic": e.is_synthetic, "created_at": e.created_at,
-            "updated_at": e.updated_at}
+            "updated_at": e.updated_at, "status": e.status, "analysis_id": _s(e.analysis_id),
+            "analysis_identity": e.analysis_identity, "source_fingerprint": e.source_fingerprint,
+            "superseded_by": _s(e.superseded_by), "superseded_at": e.superseded_at}
 
 
 def assessment_panel(a, *, is_current: bool, is_superseded: bool, historical: bool = False, previous=None) -> dict:
@@ -299,9 +355,26 @@ def record_out(rec, decision) -> dict:
 
 
 def dq_out(c) -> dict:
-    return {"id": str(c.id), "assessment_id": str(c.assessment_id), "data_source_id": str(c.data_source_id),
-            "check_type": c.check_type, "severity": c.severity, "finding": c.finding, "status": c.status,
+    return {"id": str(c.id), "decision_id": str(c.decision_id), "assessment_id": _s(c.assessment_id),
+            "data_source_id": str(c.data_source_id), "check_key": c.check_key, "check_type": c.check_type, "target": c.target,
+            "severity": c.severity, "finding": c.finding, "observed_value": _f(c.observed_value), "threshold": _f(c.threshold),
+            "affects_metric_id": _s(c.affects_metric_id), "affects_success_metric": c.affects_success_metric,
+            "source_snapshot": c.source_snapshot, "last_run_at": c.last_run_at, "status": c.status,
             "resolved_by": _s(c.resolved_by), "resolved_at": c.resolved_at}
+
+
+def analysis_summary(a) -> dict:
+    p = a.params or {}
+    return {"id": str(a.id), "decision_id": str(a.decision_id), "analysis_type": a.analysis_type, "key": p.get("key"),
+            "metric_id": p.get("metric_id"), "n": a.n, "dq_status": a.dq_status, "analysis_identity": a.analysis_identity,
+            "params_hash": a.params_hash, "source_fingerprint": a.source_fingerprint,
+            "creates_evidence": a.analysis_type in ("comparison", "trend", "funnel", "experiment"), "created_at": a.created_at}
+
+
+def analysis_out(a, evidence_ids: list[str]) -> dict:
+    return {**analysis_summary(a), "agent_run_id": _s(a.agent_run_id), "params": a.params or {}, "query_text": a.query_text,
+            "result": a.result, "limitations": a.limitations, "evidence_ids": evidence_ids, "is_synthetic": a.is_synthetic,
+            "synthetic_notice": SYNTHETIC_NOTICE if a.is_synthetic else None}
 
 
 def audit_out(a) -> dict:

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 from app.domain.errors import ParamsError
@@ -24,6 +24,13 @@ class NbeAction:
 
 
 @dataclass(frozen=True)
+class BlockerDependency:
+    """While the gate reports `requires_resolved`, only an action that itself resolves `requires_resolved` may claim `blocker`."""
+    blocker: str
+    requires_resolved: str
+
+
+@dataclass(frozen=True)
 class NbeParams:
     version: str
     content_hash: str
@@ -34,9 +41,15 @@ class NbeParams:
     relevance_secondary: float
     applicability: Mapping[str, float]
     actions: tuple[NbeAction, ...]
+    blocker_dependencies: tuple[BlockerDependency, ...] = ()      # empty for nbe_params_v0.1 (no dependency model)
 
     def effort_days(self, action: NbeAction) -> float:
         return float(self.effort_bands_days[action.effort_band])
+
+    def may_claim_blocker(self, action: NbeAction, blocker: str, gate_codes: Sequence[str]) -> bool:
+        """False when a dependency of `blocker` is currently reported by the gate and the action does not resolve it."""
+        return not any(d.blocker == blocker and d.requires_resolved in gate_codes
+                       and d.requires_resolved not in action.resolves_blockers for d in self.blocker_dependencies)
 
     @classmethod
     def from_mapping(cls, raw: Mapping, content_hash: str) -> NbeParams:
@@ -61,7 +74,10 @@ class NbeParams:
                 relevance_checklist_gap=float(rel["checklist_gap"]),
                 relevance_secondary=float(rel["secondary_dimension"]),
                 applicability={k: float(v) for k, v in raw["applicability"].items()},
-                actions=actions)
+                actions=actions,
+                blocker_dependencies=tuple(
+                    BlockerDependency(blocker=str(d["blocker"]), requires_resolved=str(d["requires_resolved"]))
+                    for d in (raw.get("blocker_dependencies") or ())))
         except (KeyError, TypeError, ValueError) as exc:
             raise ParamsError(f"NBE parameter file is incomplete or malformed: {exc!r}") from exc
         for a in params.actions:

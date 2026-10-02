@@ -193,7 +193,7 @@ Every conclusion is traceable to its evidence through the **Evidence Traceabilit
 | ID | Rule |
 |---|---|
 | BR-1 | **Insufficient evidence (volume):** DDI is not computed if fewer than 3 evidence items exist or they span fewer than 2 evidence types. |
-| BR-2 | **Insufficient evidence (success metric):** DDI is not computed if no evidence relates directly to the decision's success metric. |
+| BR-2 | **Insufficient evidence (success metric):** DDI is not computed if no evidence relates directly to the decision's success metric. (Day 4.1: descriptive trend and funnel evidence has no metric link and does not count here or toward D6; see [DDI-spec.md](DDI-spec.md).) |
 | BR-3 | **Insufficient evidence (data quality):** DDI is not computed if an open **critical** DQ failure affects data feeding the success metric. The system states what must be fixed. Day-3 detail: DQ checks of every assessment version of the decision remain relevant. `open` blocks, `accepted` does not block but is shown as a warning, `resolved` does not block. |
 | BR-4 | **No forced score:** the UI never shows a numeric DDI, a default, or an estimate when BR-1 to BR-3 trigger. |
 | BR-5 | The LLM never sets, adjusts or overrides the DDI. It supplies classifications that are validated against enums and rubrics. |
@@ -377,15 +377,15 @@ PostgreSQL. UUID primary keys. `created_at`/`updated_at` everywhere. `org_id` on
 | `data_sources` | Origin of datasets | id, org_id, name, source_type enum(csv, survey, ticketing, other), owner_id, refresh_cadence, last_loaded_at, reliability_tier smallint(1–4), tier_rationale text, is_synthetic | FK org, user |
 | `metrics` | KPI definitions | id, org_id, name, definition text, sql_logic text, unit, grain, data_source_id, owner_id | unique(org_id,name) |
 | `metric_observations` | Time series | id, metric_id, observed_at date, segment_key, segment_value, value numeric, n_sample int | FK metric; idx(metric_id, observed_at) |
-| `decisions` | Core object | id, org_id, team_id, title, description, hypothesis, success_metric_id, decision_type text, risk_level enum, lifecycle_stage enum(created, evidence_gathered, assessed, challenged, validated, decided), assessment_stale bool, decision_due_date date, current_evidence_notes text, change_my_mind_criteria jsonb (1–5 strings), canvas_completed_at, canvas_locked_at, owner_id, scenario_key, is_synthetic | FKs; idx(org_id,lifecycle_stage). Canvas fields live on this table (no new entity). See [decision-canvas.md](decision-canvas.md) |
+| `decisions` | Core object | id, org_id, team_id, title, description, hypothesis, success_metric_id, decision_type text, risk_level enum, lifecycle_stage enum(created, evidence_gathered, assessed, challenged, validated, decided), assessment_stale bool, decision_due_date date, current_evidence_notes text, change_my_mind_criteria jsonb (1–5 strings), expected_direction text (Day 4: increase, decrease or no_material_decrease; required), canvas_completed_at, canvas_locked_at, owner_id, scenario_key, is_synthetic | FKs; idx(org_id,lifecycle_stage). Canvas fields live on this table (no new entity). See [decision-canvas.md](decision-canvas.md) |
 | `decision_records` | Final human decision | id, decision_id, decided_by, outcome enum(approve, reject, defer, approve_conditional), rationale text, acknowledged_risk bool, decided_at | FK decision, user. Partial unique index on decision_id WHERE outcome <> 'defer': at most one final record per decision, while deferral records are kept as history |
 | `evidence_sources` | Citable origin | id, org_id, data_source_id null, title, ref, source_type, collected_at, reliability_tier, is_synthetic | FK |
-| `evidence` | Atomic evidence item | id, decision_id, evidence_source_id, analysis_id null, evidence_type enum(behavioral, experiment, customer, financial, market, anecdotal), summary text, stance enum, strength_grade enum(A–D), observed_start, observed_end, n_sample int null, effect_size numeric null, ci_low, ci_high, metric_id null, experiment_id null, insight_id null, created_by enum(user, agent), agent_run_id null, is_synthetic | FKs; idx(decision_id) |
-| `experiments` | Tests | id, org_id, decision_id, name, hypothesis, design enum(rct, holdout, pre_post, other), start_date, end_date, status, primary_metric_id, planned_sample, mde numeric, source_ref text (reference to the raw experiment data within its data source, for example an experiment key, used by the Experiment Evidence stage to locate assignments and outcomes) | FKs |
-| `experiment_results` | Outcomes | id, experiment_id, variant, n int, metric_value, effect_size, ci_low, ci_high, p_value, srm_flag bool, notes | FK; idx(experiment_id) |
+| `evidence` | Atomic evidence item | id, decision_id, evidence_source_id, analysis_id null, evidence_type enum(behavioral, experiment, customer, financial, market, anecdotal), summary text, stance enum, strength_grade enum(A–D), observed_start, observed_end, n_sample int null, effect_size numeric null, ci_low, ci_high, metric_id null, experiment_id null, insight_id null, created_by enum(user, agent), agent_run_id null, status enum(active, superseded) (Day 4), superseded_by null, superseded_at null, analysis_identity text null, source_fingerprint text null, is_synthetic | FKs; idx(decision_id). Partial unique index on (decision_id, analysis_identity) for active items. A superseded item is never deleted |
+| `experiments` | Tests | id, org_id, decision_id, name, hypothesis, design enum(rct, holdout, pre_post, other), start_date, end_date, status, primary_metric_id, planned_sample, mde numeric, source_ref text (reference to the raw experiment data within its data source, for example an experiment key, used by the Experiment Evidence stage to locate assignments and outcomes), planned_treatment_share numeric (> 0 and < 1), control_variant text, outcome_key text (the outcome metric_name in the source data) (Day 4) | FKs |
+| `experiment_results` | Outcomes | id, experiment_id, variant, n int, metric_value, effect_size, ci_low, ci_high, p_value, srm_flag bool, notes | FK; idx(experiment_id); unique(experiment_id, variant) (Day 4, upsert target). Effect, CI, p and the SRM flag are on the treatment row only |
 | `customer_insights` | Qualitative themes | id, org_id, data_source_id, decision_id null, theme, sentiment enum, segment, quote_count int, sample_quotes jsonb, collected_at | FKs |
-| `dq_checks` | DQ results | id, assessment_id, data_source_id, check_type, severity enum(pass, warn, critical), finding text, affects_metric_id null, status enum(open, resolved, accepted), resolved_by null | FKs; idx(assessment_id) |
-| `analysis_results` | Reproducible analyses | id, decision_id, agent_run_id, analysis_type enum(trend, segmentation, funnel, retention, experiment, comparison), params jsonb, query_text text, result jsonb, n int, limitations text, dq_status | FK; idx(decision_id) |
+| `dq_checks` | DQ results | id, decision_id (Day 4), assessment_id null, data_source_id, check_type, check_key, target, severity enum(pass, warn, critical), finding text, observed_value, threshold, affects_metric_id null, affects_success_metric bool, source_snapshot, last_run_at, status enum(open, resolved, accepted), resolved_by null | FKs; idx(assessment_id), idx(decision_id); unique(decision_id, check_key). Updated in place on re-runs (day-4-implementation-notes.md section 5) |
+| `analysis_results` | Reproducible analyses | id, decision_id, agent_run_id, analysis_type enum(trend, segmentation, funnel, retention, experiment, comparison), params jsonb, query_text text, result jsonb, n int, limitations text, dq_status, analysis_identity, params_hash, source_fingerprint (Day 4) | FK; idx(decision_id). Historical: only agent_run_id may change after insert |
 | `claims` | Atomic synthesis assertions | id, assessment_id, claim_text, claim_type enum, stance, confidence enum(low, medium, high), conclusion_ref text (the DDI dimension or finding the claim feeds, for the traceability matrix `conclusion_ref` column) | FK |
 | `claim_evidence` | Claim ↔ evidence (M:N) | claim_id, evidence_id | PK (claim_id, evidence_id) |
 | `decision_assessments` | Versioned DDI snapshots | id, decision_id, version int, state enum(scored, insufficient_evidence, partial), ddi_score numeric null, ddi_band null, dimension_scores jsonb, penalty_scores jsonb, blocking_reasons jsonb, sensitivity jsonb, params_version text, params_hash text, nbe_params_version text, nbe_params_hash text, evidence_fingerprint text, as_of_date date, narrative text, brief_md text | FK; unique(decision_id, version). The current assessment is the highest version; lower versions are superseded (derived, no stored flag). Migration 0004 added the hash, fingerprint and as-of columns. An assessment is immutable once written: only narrative and brief_md may change |
@@ -401,6 +401,7 @@ PostgreSQL. UUID primary keys. `created_at`/`updated_at` everywhere. `org_id` on
 - `v_evidence_freshness`, `v_nbe_ranking`, `v_agent_quality` (eval metrics) for Power BI
 - `v_evidence_health` (descriptive evidence-base summary, §24). Built from existing tables only. **No new tables were added for Evidence Health, Canvas or Lifecycle.** Lifecycle transitions are recorded in `audit_logs`. Field-level canonical ERD: [ERD.md](ERD.md)
 - Read-only analytical views over `fc_` data for the SQL-guard allow-list.
+- **Day 4:** `v_evidence_freshness` and `v_evidence_health` count only `active` evidence. `v_traceability_matrix` keeps every evidence row (claims of historical assessments must still resolve) and adds `evidence_status`.
 
 ### 14.3 ERD (text)
 
@@ -455,6 +456,7 @@ every entity ─* audit_logs
 - **Failure modes:** wrong joins, hallucinated columns, p-hacking, small-cell noise, multiple comparisons.
 - **Evaluation:** SQL validity rate, golden-answer accuracy, DQ defect detection (seeded), SRM detection.
 - **Should NOT act:** on non-allow-listed objects. On a data source with open critical DQ failure (it reports instead). Claim causation. Run unbounded fishing across segments without correction.
+- **Day-4 implementation (deterministic, no LLM).** The Data & Analytics capability is implemented as code in `backend/app/analytics/` (`agents/` stays reserved for the Day-5 LLM agents). All analysis SQL comes from parameterised templates and goes through the SQL guard (`analytics/sql_guard.py`, the only sqlglot user) and a read-only executor (own transaction, role `ddr_readonly`, `SET TRANSACTION READ ONLY`, 30 s statement timeout). It writes `dq_checks`, `experiment_results` and `analysis_results`; evidence is created from analysis results by a separate evidence materialisation service. `agent_runs.agent_name` records `data_analytics` and `orchestrator` with `model = NULL`. The deterministic pipeline (`services/pipeline.py`) runs stages 1, 2 and 4, materialisation and the Day-3 assessment; customer evidence (Stage 3) is recorded as `skipped_day5`. See [day-4-implementation-notes.md](day-4-implementation-notes.md).
 
 ### A3. Evidence Synthesis Agent
 - **Purpose:** turn analyses, experiments and customer data into cited claims, gaps, recommendation text and the brief.
@@ -492,6 +494,8 @@ every entity ─* audit_logs
 | **Evidence comparison** | Do sources agree? | Evidence stances | Stance matrix by type, concentration | Agree/conflict table | Depends on stance labels |
 | **Anomaly (stretch)** | Is there a spike/drop? | Time series | Z-score vs trailing window | Flag list | False positives |
 | **Revenue impact** | Is business impact quantified? | Subscription + price data | Scenario model with sensitivity range, sourced from evidence | Range table | Assumed elasticity. Never presented as observed. |
+
+**Day-4 implementation of the capabilities above** (details and the points the brief left open: [day-4-implementation-notes.md](day-4-implementation-notes.md)). *Data quality:* volume / tracking-gap per lineage event and platform (per-signup daily rate, recent vs baseline window), sequence, completeness, duplicates and referential integrity, with severity capped at warn when the target is outside the success metric's lineage. *Trend:* a descriptive weekly series by signup week (no OLS slope or test on Day 4). *Segmentation:* the heterogeneity / aggregate-masking flag with a minimum cell size and a Bonferroni correction over segment pairs; within-segment effects only. *Funnel:* step conversion by platform. *Experiment analysis:* effect (treatment minus control, natural scale) with CI, SRM chi-square against the planned share, and design power at the pre-registered MDE. Retention is the d90_retention metric inside the comparison and trend analyses. Evidence comparison, anomaly detection, revenue impact and customer evidence are not Day-4 analytics.
 
 **Statistical hygiene rules:** report effect sizes and CIs, not p-values alone. Minimum cell sizes. Multiple-comparison note on segment scans. All analyses store query and params for reproducibility.
 
@@ -578,7 +582,7 @@ Format: Given / When / Then. All must pass for MVP sign-off.
 | **1** | Approve PRD. Finalize docs: DDI spec, business rules, traceability spec, NBE spec, ERD, ADRs, stakeholder/process models. Repo setup, Docker Compose skeleton. | Docs approved by PO |
 | **2** | PostgreSQL schema + migrations, `fc_` synthetic generator with scenario patterns and defect manifest, CSV loaders, reporting views | Seed loads reproducibly. Manifest verifiable |
 | **3** | FastAPI CRUD, role-switcher, audit logging, **DDI engine + sensitivity + gating with unit tests**, NBE engine | DDI runs on hand-built evidence. Gating tests pass |
-| **4** | Data & Analytics Agent (DQ, SQL guard, 6 analyses, experiment stats), Orchestrator, stages 1, 2, 4 end to end | Onboarding returns INSUFFICIENT. Community flags heterogeneity |
+| **4** | Data & Analytics Agent (DQ, SQL guard, 6 analyses, experiment stats), Orchestrator, stages 1, 2, 4 end to end | Onboarding returns INSUFFICIENT. Community flags heterogeneity. **Day-4 status (2026-10-02): implemented as deterministic code, no LLM** (data quality, SQL guard and read-only executor, comparison / trend / funnel / segmentation / experiment analyses, evidence materialisation with traceability, pipeline stages 1, 2, 4; migration 0005). See [day-4-implementation-notes.md](day-4-implementation-notes.md) |
 | **5** | Evidence Synthesis + Reviewer agents, structured outputs, citation filter, traceability matrix view, brief generation, NBE integration | Full 7-stage flow on all four scenarios |
 | **6** | Next.js UI (pipeline view, DDI breakdown, matrix, NBE table, reviewer panel, decision form, role-switcher). **Power BI dashboard on reporting views** | Demoable UI + .pbix |
 | **7** | Eval suite (~20 scenarios) + report, README, demo script, screenshots, polish, buffer. Optional hosting only if everything else is stable | All acceptance criteria evidenced |
@@ -831,7 +835,7 @@ The numeric score is the least valuable part of DDI. The auditable decomposition
 | Current evidence | `current_evidence_notes` (+ evidence linked in the register) | text | Optional (recommended) |
 | What evidence would change our mind? | `change_my_mind_criteria` | 1–5 short statements | Yes |
 
-Also captured: `decision_type` (drives the coverage checklist) and `team_id`/`owner_id`.
+Also captured: `decision_type` (drives the coverage checklist) and `team_id`/`owner_id`, and (Day 4) **`expected_direction`**: `increase`, `decrease` or `no_material_decrease` (a non-inferiority claim such as "conversion does not fall materially"). It is required, is part of the canvas for the stale rule, and tells the analytics how to read an effect (the stance of generated evidence).
 
 ### 26.2 Validation rules
 - CV-1 All required fields present.
@@ -840,6 +844,7 @@ Also captured: `decision_type` (drives the coverage checklist) and `team_id`/`ow
 - CV-4 `decision_due_date` must be today or later at creation.
 - CV-5 At least one "change my mind" criterion. Each 10–300 characters.
 - CV-6 `decision_type` must be one of the configured types, which determine the required-evidence checklist (DDI-spec).
+- CV-8 (Day 4) `expected_direction` is required and one of `increase`, `decrease`, `no_material_decrease`.
 - CV-7 The canvas is **locked at first assessment** (`canvas_locked_at`). Later edits are allowed but audit-logged, flagged as "canvas changed after assessment" on the brief, and mark the assessment stale.
 
 ### 26.3 Connection to the pipeline
@@ -922,6 +927,8 @@ Future versions, once the Outcome Observed and Re-assessment stages exist (§23)
 | Narrative / future analytics | Documentation only | |
 
 **Day-3 reconciliation (2026-10-02).** Product Owner decisions R1-R14 and the Day-3 clarifications are recorded in [day-3-implementation-brief.md](day-3-implementation-brief.md) and [day-3-implementation-notes.md](day-3-implementation-notes.md): DDI meaning and the evidence-direction summary, cap reconciliation, band edge and rounding, quality-adjusted P1, normalized HHI, versioned and hashed parameters, assessment versioning and immutability, concurrency, human review and override, demo role switcher. No DDI dimension and no NBE action was added.
+
+**Day-4 reconciliation (2026-10-02).** The Product Owner decisions D4-01 to D4-25 and the open points O1 to O3 are recorded in [day-4-implementation-brief.md](day-4-implementation-brief.md) and [day-4-implementation-notes.md](day-4-implementation-notes.md): per-decision data-quality checks reconciled on re-run, deterministic experiment statistics and heterogeneity, evidence generated from analyses (identity, supersede, traceability), the SQL guard with read-only execution, the deterministic pipeline, `expected_direction` on the canvas. The DDI and NBE are unchanged (enforced by a test).
 
 **Unchanged:** four agents (Orchestrator, Data & Analytics, Evidence Synthesis, Reviewer/Critic), seven UI stages, deterministic DDI, Power BI (Must), evaluation (Must), traceability matrix (Must), NBE (Must), INSUFFICIENT EVIDENCE as a first-class outcome, mandatory human decision, synthetic and labelled FitConnect data, the approved technology stack.
 

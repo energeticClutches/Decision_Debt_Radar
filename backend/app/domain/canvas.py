@@ -8,15 +8,24 @@ from datetime import date
 from app.domain.errors import InvalidInput
 
 RISK_LEVELS = ("low", "medium", "high")
+# Expected direction of the success metric under the hypothesis (Day 4, D4-20 and the approved open point O1).
+# no_material_decrease is the non-inferiority claim ("the metric does not fall materially").
+EXPECTED_DIRECTIONS = ("increase", "decrease", "no_material_decrease")
 EVIDENCE_TYPES = ("behavioral", "experiment", "customer", "financial", "market", "anecdotal")
 STANCES = ("supports", "contradicts", "neutral")
 GRADES = ("A", "B", "C", "D")
 DIRECTION_WORDS = ("increase", "decrease", "reduce", "improve")
 
 
-def validate_canvas(fields: Mapping, *, decision_types: Collection[str], today: date, check_due_date: bool = True) -> None:
-    """Block-level rules CV-1, CV-4, CV-5, CV-6 for the fields present in `fields` (all fields on creation)."""
+def validate_canvas(fields: Mapping, *, decision_types: Collection[str], today: date, check_due_date: bool = True,
+                    creating: bool = False) -> None:
+    """Block-level rules CV-1, CV-4, CV-5, CV-6 for the fields present in `fields` (all fields on creation).
+    CV-8 (Day 4): expected_direction is required and must be one of EXPECTED_DIRECTIONS."""
     errors: dict[str, str] = {}
+    if creating and fields.get("expected_direction") is None:
+        errors["expected_direction"] = f"expected_direction is required (one of {EXPECTED_DIRECTIONS})"
+    if fields.get("expected_direction") is not None and fields["expected_direction"] not in EXPECTED_DIRECTIONS:
+        errors["expected_direction"] = f"expected_direction must be one of {EXPECTED_DIRECTIONS}"
     if "title" in fields:
         t = (fields["title"] or "").strip()
         if not 1 <= len(t) <= 120:
