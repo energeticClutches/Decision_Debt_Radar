@@ -4,7 +4,7 @@ from pathlib import Path
 
 import yaml
 
-from .conftest import new_decision
+from .conftest import new_decision, new_synthesis
 
 CONFIG = Path(__file__).resolve().parents[2] / "backend" / "config" / "ddi" / "ddi_params_v0.1.yaml"
 
@@ -26,9 +26,9 @@ def build_assessed_decision(conn, ids):
         "INSERT INTO decision_assessments (decision_id, version, state, ddi_score, ddi_band, sensitivity, params_version, params_hash, evidence_fingerprint, as_of_date, is_synthetic)"
         " VALUES (%s,1,'scored',61.0,'high','{\"band_stable\": true, \"range\": [56.5, 65.6]}'::jsonb,'ddi_params_v0.1','h','f','2026-10-01',true) RETURNING id",
         (did,)).fetchone()[0]
-    claim = conn.execute("INSERT INTO claims (assessment_id, claim_text, claim_type, stance, confidence, conclusion_ref, is_synthetic)"
-                         " VALUES (%s,'Users with the feature retain more','associative','supports','medium','D6 Behavioral',true) RETURNING id",
-                         (a,)).fetchone()[0]
+    claim = conn.execute("INSERT INTO claims (assessment_id, synthesis_id, claim_text, claim_type, stance, confidence, conclusion_ref, is_synthetic)"
+                         " VALUES (%s,%s,'Users with the feature retain more','associative','supports','medium','D6 Behavioral',true) RETURNING id",
+                         (a, new_synthesis(conn, a))).fetchone()[0]
     for e in (ev["beh"], ev["exp"]):
         conn.execute("INSERT INTO claim_evidence (claim_id, evidence_id, is_synthetic) VALUES (%s,%s,true)", (claim, e))
     for action, red, eff, rel in [("financial_model_with_sensitivity", 8.4, 3, 0.7), ("powered_holdout_test", 11.7, 8, 1.0),

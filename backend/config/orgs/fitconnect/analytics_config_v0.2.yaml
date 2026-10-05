@@ -1,0 +1,175 @@
+# FitConnect tenant analytics configuration, version fitconnect_analytics_config_v0.2 (Day 5, docs/day-5-implementation-brief.md
+# section 3). v0.2 = v0.1 (every value unchanged, it stays released and loadable) plus the `customer_feedback` and
+# `customer_taxonomy` sections at the end of this file.
+# (Day 4 original header follows: docs/day-4-implementation-brief.md section 4.2.)
+# FitConnect is a FICTIONAL company and every row it refers to is SYNTHETIC. All FitConnect-specific values
+# (views, columns, metrics, events, funnels, segment keys, comparison-group definitions) live ONLY here, never in
+# core code. The file is hashed: its SHA-256 is recorded in backend/config/orgs/config_hashes.json, verified at load
+# time, and stored in analysis_results.params.
+
+version: fitconnect_analytics_config_v0.2
+org_key: fitconnect
+analytics_params_version: analytics_params_v0.2
+
+# Allow-listed views the analytics may read (the SQL guard allow-list is the same eight views plus
+# public.metric_observations). data_source_ref is evidence_sources.ref / the registered data source of the view.
+views:
+  fc_.v_users:
+    data_source_ref: fc_.events
+    key_columns: [[user_id]]
+    required_columns: [user_id, signup_ts, platform, country, acquisition_channel, engagement_style, prior_engagement_tier]
+  fc_.v_events:
+    data_source_ref: fc_.events
+    ts_column: event_ts              # the DQ window is applied to this column
+    user_column: user_id
+    key_columns: [[event_id], [user_id, event_name, event_ts]]
+    required_columns: [event_id, user_id, event_ts, event_name, platform, app_version]
+  fc_.v_subscriptions:
+    data_source_ref: fc_.subscriptions
+    user_column: user_id
+    key_columns: [[subscription_id]]
+    required_columns: [subscription_id, user_id, plan, price_monthly, start_date, status]
+  fc_.v_experiment_assignments:
+    data_source_ref: fc_.experiment_assignments
+    user_column: user_id
+    key_columns: [[experiment_key, user_id]]
+    required_columns: [experiment_key, user_id, variant, assigned_at]
+  fc_.v_experiment_outcomes:
+    data_source_ref: fc_.experiment_assignments      # the experiment export is one registered data source
+    user_column: user_id
+    key_columns: [[experiment_key, user_id, metric_name]]
+    required_columns: [experiment_key, user_id, metric_name, value]
+
+# Metrics (D4-22), keyed by metric name. materiality is on the metric's natural scale.
+#   outcome        how a user's metric outcome is read from the source view
+#   maturity_days  a cohort is used only when its signup is at least this many days before the as-of date
+#   lineage_views  views whose data feeds the metric (their DQ findings are in the metric's lineage)
+metrics:
+  d90_retention:
+    source_view: fc_.v_events
+    lineage_views: [fc_.v_events, fc_.v_users]
+    kind: proportion
+    defining_events: [app_open]
+    denominator: users
+    materiality: 0.02
+    maturity_days: 92
+    outcome: {type: event_after_days, event: app_open, days: 90}
+  activation_rate_7d:
+    source_view: fc_.v_events
+    lineage_views: [fc_.v_events, fc_.v_users]
+    kind: proportion
+    defining_events: [onboarding_completed]
+    denominator: users
+    materiality: 0.02
+    maturity_days: 7
+    outcome: {type: event_within_days, event: onboarding_completed, days: 7}
+  paid_conversion_rate:
+    source_view: fc_.v_subscriptions
+    lineage_views: [fc_.v_subscriptions, fc_.v_users]
+    kind: proportion
+    defining_events: []
+    denominator: trial_starters
+    materiality: 0.02
+    maturity_days: 0
+    outcome: {type: subscription_status, plan: free_trial, status: trial_converted}
+
+# One segment key per metric (D4-09), a column of fc_.v_users.
+segment_keys:
+  d90_retention: engagement_style
+  activation_rate_7d: platform
+  paid_conversion_rate: country
+
+# Outcomes of experiments that have no primary metric: materiality on the outcome's natural scale.
+# workouts_14d: the pre-registered MDE of the AI Coach holdout (0.5 workouts) is the smallest effect of interest.
+experiment_outcomes:
+  workouts_14d:
+    kind: count
+    materiality: 0.5
+
+# Ordered funnels (sequence check and funnel analysis).
+funnels:
+  onboarding:
+    - onboarding_started
+    - onboarding_step_1_completed
+    - onboarding_step_2_completed
+    - onboarding_step_3_completed
+    - onboarding_completed
+
+# Comparison-group definitions per decision scenario_key (D4-04 / brief 4.2). Every decision also gets the
+# metric-level trend, and the analyses of its linked experiments. A decision without an entry gets only those.
+decision_analyses:
+  ai_coach:
+    comparison:
+      type: event_users                  # treatment = users with the event, comparison = all other users
+      treatment_event: ai_coach_session
+      exclude_experiment_participants: true   # users in the decision's linked experiments are not treatment users
+  community:
+    comparison:
+      type: event_users
+      treatment_event: challenge_joined
+      exclude_experiment_participants: false
+  pricing:
+    comparison:
+      type: cohort_split                 # treatment = signups on or after split_date, comparison = signups before it
+      split_date: "2026-04-01"
+      population: {column: country, value: CA}
+  onboarding:
+    funnel: onboarding
+
+# ---------------------------------------------------------------- Day 5 additions (new in v0.2)
+# Where the customer feedback is read from. It is read ONLY through the allow-listed view and the SQL guard. The evaluation
+# ground-truth labels are never read by product code, prompts or configuration.
+customer_feedback:
+  view: fc_.v_feedback
+  data_source_ref: fc_.feedback
+  id_column: feedback_id
+  text_column: body
+  ts_column: created_at
+  source_column: source
+  user_column: user_id
+
+# Closed, per-decision customer-theme taxonomy (D5-01) with the HUMAN-AUTHORED, versioned and hashed theme -> stance map
+# (D5-03). The model assigns only a theme from this list (or null) and a relevance. It never chooses a stance.
+# The theme names and descriptions are authored independently from any evaluation label.
+# Stance is relative to the decision hypothesis: a theme that shows the problem exists SUPPORTS the decision to fix it, and is
+# not evidence that the proposed fix works (see docs/day-5-implementation-brief.md section 3).
+customer_taxonomy:
+  ai_coach:
+    taxonomy_version: fitconnect_ai_coach_taxonomy_v0.1
+    themes:
+      - theme: coach_helpful
+        description: "The customer says the AI coach's plan, tips or adjustments help them stay on track or make their routine easier to keep."
+        stance: supports
+      - theme: coach_generic_or_wrong
+        description: "The customer says the AI coach's advice is repetitive or generic, or that it ignored something they told it."
+        stance: contradicts
+      - theme: coach_indifferent
+        description: "The customer mentions trying the AI coach but is lukewarm: it is okay, or they mostly follow their own plan."
+        stance: neutral
+  community:
+    taxonomy_version: fitconnect_community_taxonomy_v0.1
+    themes:
+      - theme: challenges_motivating
+        description: "The customer says community challenges, or competing with friends, keep them motivated or bring them back to a routine."
+        stance: supports
+      - theme: notifications_unwanted
+        description: "The customer complains that challenge notifications or reminders are too frequent, pushy or stressful."
+        stance: contradicts
+      - theme: challenges_indifferent
+        description: "The customer mentions joining a challenge but is lukewarm, or says challenges are not for them or they train alone."
+        stance: neutral
+  onboarding:
+    taxonomy_version: fitconnect_onboarding_taxonomy_v0.1
+    themes:
+      - theme: setup_blocked
+        description: "The customer says they got stuck, looped, crashed or gave up during sign-up, setup or the welcome flow."
+        stance: supports
+  pricing:
+    taxonomy_version: fitconnect_pricing_taxonomy_v0.1
+    themes:
+      - theme: price_too_high
+        description: "The customer says the premium subscription is too expensive, or that they would cancel or downgrade because of the price."
+        stance: contradicts
+      - theme: worth_the_price
+        description: "The customer says the premium subscription is worth the money or good value for the price."
+        stance: supports

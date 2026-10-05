@@ -63,7 +63,7 @@ def test_31_models_match_live_schema_columns_types_and_nullability(engine):
     insp = inspect(engine)
     live_tables = {t for t in insp.get_table_names(schema="public") if t != "alembic_version"}
     model_tables = set(Base.metadata.tables)
-    assert model_tables == live_tables and len(model_tables) == 22
+    assert model_tables == live_tables and len(model_tables) == 25     # 22 + llm_classifications, syntheses, decision_briefs (0006)
 
     problems: list[str] = []
     for name, table in sorted(Base.metadata.tables.items()):

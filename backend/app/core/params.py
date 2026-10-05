@@ -27,7 +27,7 @@ from app.domain.nbe.params import NbeParams
 CONFIG_DIR = Path(__file__).resolve().parents[2] / "config"
 REGISTRY_FILE = CONFIG_DIR / "params_hashes.json"
 # Tenant (organisation) configuration files are hashed too. Their registry is separate from params_hashes.json,
-# which holds only the versioned engine parameter sets (Day 4 may only add analytics_params_v0.1 to it).
+# which holds only the versioned engine parameter sets (Day 4 added analytics_params_v0.1, Day 5 adds analytics_params_v0.2).
 ORG_REGISTRY_FILE = CONFIG_DIR / "orgs" / "config_hashes.json"
 
 
@@ -86,35 +86,39 @@ def load_analytics_params(version: str | None = None, *, config_dir: Path | None
     return AnalyticsParams.from_mapping(raw, digest)
 
 
-def load_tenant_config(org_key: str | None = None, *, analytics_params: AnalyticsParams | None = None,
+def load_tenant_config(org_key: str | None = None, *, version: str | None = None, analytics_params: AnalyticsParams | None = None,
                        config_dir: Path | None = None, registry_path: Path | None = None) -> TenantConfig:
-    """Tenant analytics configuration (orgs/<org_key>/analytics_config.yaml), hash-verified against its registry.
+    """Tenant analytics configuration, hash-verified against its registry (orgs/config_hashes.json).
 
-    The file must declare the analytics parameter version it was written for, which must be the active one."""
+    The registry entry of the requested version names the file (Day 5: analytics_config_v0.2.yaml next to the released v0.1 file,
+    which is never edited). The file must declare the analytics parameter version it was written for, which must be the active
+    one."""
     org_key = org_key or get_settings().tenant_config_key
+    version = version or get_settings().tenant_config_version
     base = config_dir or CONFIG_DIR
-    path = base / "orgs" / org_key / "analytics_config.yaml"
-    if not path.is_file():
-        raise ParamsError(f"tenant analytics configuration not found for '{org_key}': {path.name}")
-    try:
-        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
-    except yaml.YAMLError as exc:
-        raise ParamsError(f"tenant analytics configuration is not valid YAML: {exc}") from exc
-    if not isinstance(raw, dict) or not raw.get("version"):
-        raise ParamsError(f"{path.name}: missing version field")
     registry_file = registry_path or (base / "orgs" / "config_hashes.json")
     try:
         registry = json.loads(registry_file.read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise ParamsError(f"tenant configuration hash registry unreadable: {exc}") from exc
-    entry = registry.get(raw["version"])
+    entry = registry.get(version)
     if not entry or "sha256" not in entry:
-        raise ParamsError(f"tenant configuration {raw['version']} is not registered in {registry_file.name}")
+        raise ParamsError(f"tenant configuration {version} is not registered in {registry_file.name}")
+    path = base / str(entry.get("file") or f"orgs/{org_key}/analytics_config.yaml")
+    if not path.is_file():
+        raise ParamsError(f"tenant analytics configuration not found for '{org_key}': {path.name}")
     actual = sha256_file(path)
     if actual != entry["sha256"]:
         raise ParamsError(
             f"tenant configuration {path.name} does not match its registered hash (expected {entry['sha256'][:12]}..., "
             f"got {actual[:12]}...). Released configuration versions are immutable: create a new version instead.")
+    try:
+        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        raise ParamsError(f"tenant analytics configuration is not valid YAML: {exc}") from exc
+    if not isinstance(raw, dict) or raw.get("version") != version:
+        raise ParamsError(f"{path.name}: version field {raw.get('version') if isinstance(raw, dict) else None!r} "
+                          f"does not match the requested version {version}")
     analytics_params = analytics_params or load_analytics_params(config_dir=config_dir)
     if raw.get("analytics_params_version") != analytics_params.version:
         raise ParamsError(f"tenant configuration {raw['version']} was written for {raw.get('analytics_params_version')}, "

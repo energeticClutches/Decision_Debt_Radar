@@ -85,3 +85,17 @@ class RecommendationPatch(_Body):
 class DqPatch(_Body):
     status: Literal["resolved", "accepted"]
     note: str | None = None
+
+
+# ---------------------------------------------------------------- Day 5
+class ApprovalPatch(_Body):
+    action: Literal["approve", "reject"]
+    note: str | None = None
+
+
+class SynthesisCreate(_Body):
+    force: bool = False
+
+
+class BriefCreate(_Body):
+    kind: Literal["decision_brief", "gated_evidence_summary"]

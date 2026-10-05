@@ -1,6 +1,7 @@
 """Schema structure checks against docs/ERD.md (tables, enums, views, isolation, synthetic labelling)."""
 
 CORE_TABLES = {
+    "llm_classifications", "syntheses", "decision_briefs",      # migration 0006
     "organizations", "teams", "users", "data_sources", "metrics", "metric_observations", "decisions",
     "decision_records", "evidence_sources", "evidence", "experiments", "experiment_results",
     "customer_insights", "dq_checks", "analysis_results", "claims", "claim_evidence",
@@ -13,7 +14,7 @@ FC_TABLES = {
 ENUMS = {
     "user_role", "lifecycle_stage", "risk_level", "evidence_type", "stance", "strength_grade",
     "assessment_state", "ddi_band", "dq_severity", "dq_status", "recommendation_status", "review_verdict",
-    "decision_outcome", "pipeline_stage",
+    "decision_outcome", "pipeline_stage", "customer_relevance",
 }
 REPORTING_VIEWS = {
     "v_traceability_matrix", "v_debt_radar", "v_evidence_freshness", "v_nbe_ranking", "v_agent_quality",
@@ -32,7 +33,7 @@ def names(conn, sql, *params):
 def test_core_tables_match_the_canonical_erd(conn, dsn):
     got = names(conn, "SELECT table_name FROM information_schema.tables WHERE table_schema='public' "
                       "AND table_type='BASE TABLE' AND table_name <> 'alembic_version'")
-    assert got == CORE_TABLES and len(got) == 22
+    assert got == CORE_TABLES and len(got) == 25
 
 
 def test_fc_schema_tables(conn, dsn):

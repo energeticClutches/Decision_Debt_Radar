@@ -17,19 +17,24 @@ from app.core.params import get_analytics_params, get_ddi_params, get_nbe_params
 from app.db.session import session_scope
 from app.domain.errors import Unauthorized
 from app.domain.permissions import Actor
+from app.llm import get_llm_client
 from app.repositories.users import get_user, to_actor
 from app.services import (
     AnalysisService,
     AssessmentService,
     AuditService,
+    BriefService,
+    CustomerEvidenceService,
     DecisionRecordService,
     DecisionService,
     DqService,
     EvidenceService,
     PipelineService,
     RecommendationService,
+    ReviewerService,
     ReviewService,
     ServiceContext,
+    SynthesisService,
 )
 
 DEMO_HEADER = "X-Demo-User"
@@ -54,9 +59,20 @@ def get_actor(x_demo_user: str | None = Header(default=None, alias=DEMO_HEADER),
     return to_actor(user)
 
 
-def get_ctx(session: Session = Depends(get_session), clock: Clock = Depends(get_clock)) -> ServiceContext:
+def get_llm():
+    """The LlmClient (None when no ANTHROPIC_API_KEY is configured: the LLM stages are then skipped or refused). Tests override it."""
+    return get_llm_client()
+
+
+def get_llm_models():
+    """Model names per purpose (None = the settings defaults). Tests override it with the stub model names."""
+    return None
+
+
+def get_ctx(session: Session = Depends(get_session), clock: Clock = Depends(get_clock), llm=Depends(get_llm),
+            llm_models=Depends(get_llm_models)) -> ServiceContext:
     return ServiceContext(session=session, clock=clock, ddi_params=get_ddi_params(), nbe_params=get_nbe_params(),
-                          analytics_params=get_analytics_params(), tenant=get_tenant_config())
+                          analytics_params=get_analytics_params(), tenant=get_tenant_config(), llm=llm, llm_models=llm_models)
 
 
 def decision_service(ctx: ServiceContext = Depends(get_ctx)) -> DecisionService:
@@ -97,3 +113,19 @@ def pipeline_service(ctx: ServiceContext = Depends(get_ctx)) -> PipelineService:
 
 def analysis_service(ctx: ServiceContext = Depends(get_ctx)) -> AnalysisService:
     return AnalysisService(ctx)
+
+
+def customer_evidence_service(ctx: ServiceContext = Depends(get_ctx)) -> CustomerEvidenceService:
+    return CustomerEvidenceService(ctx)
+
+
+def synthesis_service(ctx: ServiceContext = Depends(get_ctx)) -> SynthesisService:
+    return SynthesisService(ctx)
+
+
+def reviewer_service(ctx: ServiceContext = Depends(get_ctx)) -> ReviewerService:
+    return ReviewerService(ctx)
+
+
+def brief_service(ctx: ServiceContext = Depends(get_ctx)) -> BriefService:
+    return BriefService(ctx)

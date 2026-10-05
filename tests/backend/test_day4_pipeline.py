@@ -88,7 +88,7 @@ def test_pipe_1_onboarding_is_insufficient_with_an_open_critical_dq_reason_and_n
     assert len(runs) == 6 and {r.model for r in runs} == {None} and {r.prompt_version for r in runs} == {None}
     assert {r.agent_name for r in runs} == {"data_analytics", "orchestrator"} and all(r.latency_ms is not None for r in runs)
     customer = next(s for s in result.stages if s["stage"] == "customer")
-    assert customer["output"]["outcome"] == "skipped_day5"
+    assert customer["output"]["outcome"] == "skipped_no_llm_client"      # Day 5: no LlmClient in these deterministic tests
     # the NBE offers the DQ fix as the unblocking action
     recs = {r.action_type: r for r in flow.recs.list_for_assessment(seed.pm, a.id)}
     assert "fix_dq_or_instrumentation" in recs and recs["fix_dq_or_instrumentation"].blockers_resolved >= 1

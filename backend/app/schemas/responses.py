@@ -101,6 +101,10 @@ class EvidenceOut(BaseModel):
     source_fingerprint: str | None = None
     superseded_by: str | None = None
     superseded_at: datetime | None = None
+    # Day 5: the human who approved or rejected a proposed customer item
+    approved_by: str | None = None
+    approved_at: datetime | None = None
+    approval_note: str | None = None
 
 
 class AssessmentOut(BaseModel):
@@ -235,6 +239,10 @@ class PipelineRunOut(BaseModel):
     stages: list[dict[str, Any]]
     analysis_ids: list[str]
     assessment: AssessmentOut | None
+    # Day 5: Stage 3 proposals awaiting a human, and the status of the LLM stages (the DDI is unchanged by any failure of them)
+    pending_approvals: list[dict[str, Any]] = []
+    synthesis: dict[str, Any] | None = None
+    review: dict[str, Any] | None = None
 
 
 class AuditOut(BaseModel):
@@ -292,7 +300,8 @@ def evidence_out(e) -> dict:
             "created_by": e.created_by, "is_synthetic": e.is_synthetic, "created_at": e.created_at,
             "updated_at": e.updated_at, "status": e.status, "analysis_id": _s(e.analysis_id),
             "analysis_identity": e.analysis_identity, "source_fingerprint": e.source_fingerprint,
-            "superseded_by": _s(e.superseded_by), "superseded_at": e.superseded_at}
+            "superseded_by": _s(e.superseded_by), "superseded_at": e.superseded_at,
+            "approved_by": _s(e.approved_by), "approved_at": e.approved_at, "approval_note": e.approval_note}
 
 
 def assessment_panel(a, *, is_current: bool, is_superseded: bool, historical: bool = False, previous=None) -> dict:
@@ -380,3 +389,96 @@ def analysis_out(a, evidence_ids: list[str]) -> dict:
 def audit_out(a) -> dict:
     return {"id": str(a.id), "ts": a.ts, "actor_type": a.actor_type, "actor_id": _s(a.actor_id), "action": a.action,
             "entity_type": a.entity_type, "entity_id": _s(a.entity_id), "before": a.before, "after": a.after}
+
+
+# ---------------------------------------------------------------- Day 5
+class InsightOut(BaseModel):
+    id: str
+    theme: str
+    sentiment: str
+    mentions: int
+    relevance_observed: float | None
+    relevance_note: str = "observed, not used by DDI v0.1"
+    source_types: list[str] | None
+    first_mention_date: date | None
+    last_mention_date: date | None
+    taxonomy_version: str | None
+    segment_counts: dict[str, Any] | None
+    sample_quotes: list[dict[str, Any]]
+
+
+class CustomerEvidenceItemOut(BaseModel):
+    evidence: EvidenceOut
+    insight: InsightOut | None
+    classification_counts: dict[str, Any] | None
+
+
+class CustomerEvidenceOut(BaseModel):
+    decision_id: str
+    pending_approvals: int
+    items: list[CustomerEvidenceItemOut]
+    classification_counts: list[dict[str, Any]]
+
+
+class SynthesisOut(BaseModel):
+    id: str
+    assessment_id: str
+    version: int
+    status: str
+    agent_run_id: str
+    input_sha256: str
+    output_sha256: str | None
+    output: dict[str, Any] | None
+    validator_report: dict[str, Any]
+    claims_dropped: int
+    created_at: datetime
+    is_synthetic: bool
+    synthetic_notice: str | None
+
+
+class SynthesisRunOut(BaseModel):
+    reused: bool
+    synthesis: SynthesisOut | None
+    synthesis_status: str
+    review: dict[str, Any] | None
+
+
+class BriefOut(BaseModel):
+    id: str
+    assessment_id: str
+    synthesis_id: str | None
+    kind: str
+    version: int
+    label: str
+    content: dict[str, Any]
+    markdown: str
+    created_at: datetime
+    is_synthetic: bool
+    synthetic_notice: str | None
+
+
+def insight_out(i) -> dict:
+    return {"id": str(i.id), "theme": i.theme, "sentiment": i.sentiment, "mentions": i.quote_count,
+            "relevance_observed": _f(i.relevance_observed), "source_types": i.source_types,
+            "first_mention_date": i.first_mention_date, "last_mention_date": i.last_mention_date,
+            "taxonomy_version": i.taxonomy_version, "segment_counts": i.segment_counts, "sample_quotes": list(i.sample_quotes or [])}
+
+
+def customer_evidence_out(data: dict) -> dict:
+    return {"decision_id": str(data["decision"].id), "pending_approvals": data["pending_approvals"],
+            "items": [{"evidence": evidence_out(it["evidence"]), "insight": insight_out(it["insight"]) if it["insight"] else None,
+                       "classification_counts": it["classification_counts"]} for it in data["items"]],
+            "classification_counts": data["classification_counts"]}
+
+
+def synthesis_out(s) -> dict:
+    return {"id": str(s.id), "assessment_id": str(s.assessment_id), "version": s.version, "status": s.status,
+            "agent_run_id": str(s.agent_run_id), "input_sha256": s.input_sha256, "output_sha256": s.output_sha256, "output": s.output,
+            "validator_report": s.validator_report or {}, "claims_dropped": s.claims_dropped, "created_at": s.created_at,
+            "is_synthetic": s.is_synthetic, "synthetic_notice": SYNTHETIC_NOTICE if s.is_synthetic else None}
+
+
+def brief_out(b) -> dict:
+    return {"id": str(b.id), "assessment_id": str(b.assessment_id), "synthesis_id": _s(b.synthesis_id), "kind": b.kind,
+            "version": b.version, "label": (b.content or {}).get("label", ""), "content": b.content, "markdown": b.markdown,
+            "created_at": b.created_at, "is_synthetic": b.is_synthetic, "synthetic_notice": SYNTHETIC_NOTICE if b.is_synthetic else None}

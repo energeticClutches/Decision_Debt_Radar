@@ -79,7 +79,7 @@ def test_t_guard_1_params_hashes_json_only_gains_the_analytics_and_nbe_v0_2_entr
     old = json.loads(git("show", f"{BASELINE}:backend/config/params_hashes.json").stdout)
     new = json.loads((CONFIG / "params_hashes.json").read_text(encoding="utf-8"))
     assert {k: new[k] for k in old} == old, "an existing registry entry changed"
-    assert set(new) - set(old) == {"analytics_params_v0.1", "nbe_params_v0.2"}
+    assert set(new) - set(old) == {"analytics_params_v0.1", "nbe_params_v0.2", "analytics_params_v0.2"}      # Day 5 adds v0.2
     for version, path in (("analytics_params_v0.1", CONFIG / "analytics" / "analytics_params_v0.1.yaml"),
                           ("nbe_params_v0.2", CONFIG / "nbe" / "nbe_params_v0.2.yaml")):
         assert new[version]["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest()
@@ -115,7 +115,8 @@ def test_t_guard_2_anthropic_and_agents_are_never_imported_and_sqlglot_only_in_t
     sqlglot_users = []
     for path in APP.rglob("*.py"):
         mods = _imports(path)
-        assert not (mods & set(FORBIDDEN_PACKAGES)), path
+        allowed = {"anthropic"} if path.relative_to(APP).as_posix() == "llm/anthropic_client.py" else set()      # Day 5 (G2)
+        assert not (mods & set(FORBIDDEN_PACKAGES) - allowed), path
         if "sqlglot" in mods:
             sqlglot_users.append(path.relative_to(APP).as_posix())
     assert sqlglot_users == ["analytics/sql_guard.py"]
@@ -176,8 +177,8 @@ def config_copy(tmp_path):
 
 
 def test_cfg_1_the_released_files_load_with_version_and_hash():
-    p = load_analytics_params()
-    t = load_tenant_config()
+    p = load_analytics_params("analytics_params_v0.1")
+    t = load_tenant_config(version="fitconnect_analytics_config_v0.1", analytics_params=p)
     assert p.version == "analytics_params_v0.1"
     assert p.content_hash == hashlib.sha256((CONFIG / "analytics" / "analytics_params_v0.1.yaml").read_bytes()).hexdigest()
     assert t.version == "fitconnect_analytics_config_v0.1" and t.analytics_params_version == p.version
@@ -195,7 +196,7 @@ def test_cfg_1_an_edited_analytics_parameter_file_is_rejected(config_copy):
     path = config_copy / "analytics" / "analytics_params_v0.1.yaml"
     path.write_text(path.read_text(encoding="utf-8").replace("window_days: 56", "window_days: 57"), encoding="utf-8")
     with pytest.raises(ParamsError, match="registered hash"):
-        load_analytics_params(config_dir=config_copy, registry_path=config_copy / "params_hashes.json")
+        load_analytics_params("analytics_params_v0.1", config_dir=config_copy, registry_path=config_copy / "params_hashes.json")
 
 
 def test_cfg_1_a_version_mismatch_or_missing_registration_is_rejected(config_copy):
@@ -207,11 +208,11 @@ def test_cfg_1_a_version_mismatch_or_missing_registration_is_rejected(config_cop
     reg["analytics_params_v0.1"]["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()       # hash matches, version field does not
     registry.write_text(json.dumps(reg), encoding="utf-8")
     with pytest.raises(ParamsError, match="version"):
-        load_analytics_params(config_dir=config_copy, registry_path=registry)
+        load_analytics_params("analytics_params_v0.1", config_dir=config_copy, registry_path=registry)
     del reg["analytics_params_v0.1"]
     registry.write_text(json.dumps(reg), encoding="utf-8")
     with pytest.raises(ParamsError, match="not registered"):
-        load_analytics_params(config_dir=config_copy, registry_path=registry)
+        load_analytics_params("analytics_params_v0.1", config_dir=config_copy, registry_path=registry)
     with pytest.raises(ParamsError, match="not found"):
         load_analytics_params("analytics_params_v9.9", config_dir=config_copy, registry_path=registry)
 
@@ -220,7 +221,7 @@ def test_cfg_1_an_edited_tenant_configuration_is_rejected(config_copy):
     path = config_copy / "orgs" / "fitconnect" / "analytics_config.yaml"
     path.write_text(path.read_text(encoding="utf-8").replace("materiality: 0.02", "materiality: 0.03", 1), encoding="utf-8")
     with pytest.raises(ParamsError, match="registered hash"):
-        load_tenant_config(config_dir=config_copy)
+        load_tenant_config(version="fitconnect_analytics_config_v0.1", analytics_params=load_analytics_params("analytics_params_v0.1"), config_dir=config_copy)
 
 
 def test_cfg_1_the_tenant_configuration_must_match_the_active_analytics_version(config_copy):
@@ -233,7 +234,7 @@ def test_cfg_1_the_tenant_configuration_must_match_the_active_analytics_version(
     reg["fitconnect_analytics_config_v0.1"]["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
     registry.write_text(json.dumps(reg), encoding="utf-8")
     with pytest.raises(ParamsError, match="analytics parameter version"):
-        load_tenant_config(config_dir=config_copy)
+        load_tenant_config(version="fitconnect_analytics_config_v0.1", analytics_params=load_analytics_params("analytics_params_v0.1"), config_dir=config_copy)
 
 
 def test_cfg_1_invalid_structure_is_rejected_at_load(config_copy):
@@ -247,7 +248,7 @@ def test_cfg_1_invalid_structure_is_rejected_at_load(config_copy):
     reg["analytics_params_v0.1"]["sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
     registry.write_text(json.dumps(reg), encoding="utf-8")
     with pytest.raises(ParamsError, match="warn <= critical"):
-        load_analytics_params(config_dir=config_copy, registry_path=registry)
+        load_analytics_params("analytics_params_v0.1", config_dir=config_copy, registry_path=registry)
 
 
 def test_cfg_1_tenant_values_live_only_in_the_tenant_file():

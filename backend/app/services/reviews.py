@@ -6,6 +6,8 @@ Day 3 has no Reviewer agent (Day 5). A human review records a verdict and a reas
 - a human `needs_rework` verdict needs a non-empty reason;
 - OVERRIDE: after a `needs_rework` verdict on the same assessment, a later `ready` verdict is accepted only as a
   human review with a non-empty reason;
+- Day 5: when the automated review did not complete for the assessment (a synthesis or review LLM run failed and no agent review
+  exists), a human `ready` verdict needs a non-empty reason (the brief then carries "No automated adversarial review", R2)
 - validate (challenged -> validated) requires the latest review verdict `ready`. If any review of the assessment
   was `needs_rework`, the latest review must be a human review with a non-empty reason (the override), which is
   audit-logged as `assessment.override`.
@@ -19,12 +21,23 @@ from app.domain.errors import InvalidInput, NotFound, StateConflict
 from app.domain.permissions import Actor
 from app.repositories import assessments as assessments_repo
 from app.repositories import reviews as reviews_repo
+from app.repositories import syntheses as syn_repo
 from app.repositories.users import parse_uuid
 from app.services.lifecycle import LifecycleHelpers, apply_transition
 
 
 def _has_reason(review: DecisionReview) -> bool:
     return bool((review.human_response or "").strip())
+
+
+def automated_review_incomplete(session, assessment_id) -> bool:
+    """True when an LLM synthesis or review was attempted for the assessment but no agent review was recorded: the automated
+    adversarial review did not complete, so a human review must carry a reason (D5-08, R2)."""
+    if syn_repo.agent_reviews(session, assessment_id):
+        return False
+    attempted_failed = bool(syn_repo.llm_failures(session, assessment_id))
+    not_succeeded = any(s.status != "succeeded" for s in syn_repo.list_syntheses(session, assessment_id))
+    return attempted_failed or not_succeeded
 
 
 class ReviewService(LifecycleHelpers):
@@ -65,6 +78,9 @@ class ReviewService(LifecycleHelpers):
                 raise InvalidInput("A needs_rework verdict requires a reason (human_response).")
             if verdict == "ready" and any(r.verdict == "needs_rework" for r in existing) and not reason:
                 raise InvalidInput("Overriding a needs_rework verdict requires a non-empty reason (human_response, BR-13).")
+            if verdict == "ready" and not reason and automated_review_incomplete(self.session, assessment.id):
+                raise InvalidInput("The automated adversarial review did not complete for this assessment (an LLM stage failed). "
+                                   "A human review needs a non-empty reason (human_response).")
             review = reviews_repo.add_review(
                 self.session, assessment_id=assessment.id, reviewer_type="human", reviewer_id=parse_uuid(actor.id),
                 verdict=verdict, challenges=[], human_response=reason or None, is_synthetic=decision.is_synthetic)

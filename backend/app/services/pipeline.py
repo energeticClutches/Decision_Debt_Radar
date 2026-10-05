@@ -1,14 +1,19 @@
-"""Deterministic pipeline: stages 1, 2 and 4 of the seven-stage design plus materialisation and the Day-3 assessment
-(docs/day-4-implementation-brief.md section 10). No LLM, no agents: `agent_runs.agent_name` records data_analytics and
-orchestrator with model = NULL and prompt_version = NULL.
+"""Pipeline: stages 1, 2 and 4 of the seven-stage design plus materialisation and the Day-3 assessment
+(docs/day-4-implementation-brief.md section 10), and since Day 5 the LLM boundary: Stage 3 customer evidence (classification and
+proposal, docs/day-5-implementation-brief.md section 5), then Stage 5 synthesis and Stage 6 review after the assessment.
+`agent_runs.agent_name` records data_analytics and orchestrator with model = NULL for the deterministic stages; every LLM call
+writes its own row (evidence_synthesis or reviewer) with the model, prompt hash and call metadata.
 
     run_pipeline(actor, decision_id)      precondition: the decision is at stage evidence_gathered
       1. data quality (commit)
       2. quantitative analyses, skipped for the success metric while an open critical DQ check affects it (commit)
-      3. customer evidence: skipped on Day 4, recorded as skipped_day5 (Stage 3 arrives with Day 5)
+      3. customer evidence (Day 5): LLM classification, deterministic aggregation, PROPOSED evidence (only human-approved active
+         evidence enters the assessment). Without an LlmClient the stage is recorded as skipped_no_llm_client
       4. experiment analysis (commit)
       5. evidence materialisation (commit)
       6. the Day-3 assessment run (unchanged service and transaction)
+      7. synthesis and review (Day 5, only with an LlmClient): after the assessment is stored. A synthesis or review failure never
+         changes the assessment or the DDI and never counts as a review pass (D5-08); the decision then stays `assessed`
 
 Each stage writes one agent_runs row. If a stage raises: its transaction is rolled back, a `partial` assessment with
 blocking_reasons = [{"code": "stage_failed", "stage", "message"}] is inserted (assessment metadata still recorded), a failed
@@ -46,11 +51,13 @@ from app.repositories import evidence as evidence_repo
 from app.repositories import experiments as experiments_repo
 from app.repositories.evidence_facts import evidence_fingerprint
 from app.services.assessments import AssessmentService
+from app.services.customer_evidence import CustomerEvidenceService
 from app.services.base import ServiceContext, unit_of_work
 from app.services.evidence_materialization import EvidenceMaterializationService
 from app.services.lifecycle import LifecycleHelpers
+from app.services.synthesis import ReviewerService, SynthesisService
 
-PIPELINE_STAGES = ("dq", "quant", "customer", "experiment", "materialize", "assessment")
+PIPELINE_STAGES = ("dq", "quant", "customer", "experiment", "materialize", "assessment", "synthesis", "review")
 
 
 class _StageFailure(Exception):
@@ -69,6 +76,10 @@ class PipelineResult:
     failed_stage: str | None = None
     error: str | None = None
     analysis_ids: list[uuid.UUID] = field(default_factory=list)
+    # Day 5
+    synthesis: dict | None = None
+    review: dict | None = None
+    pending_approvals: list[dict] = field(default_factory=list)
 
 
 class PipelineService(LifecycleHelpers):
@@ -236,7 +247,11 @@ class PipelineService(LifecycleHelpers):
         return {"outcome": "completed", "analyses": produced, "skipped": []}, "succeeded"
 
     def stage_customer(self, decision: Decision, run: AgentRun) -> tuple[dict, str]:
-        return {"outcome": "skipped_day5", "reason": "customer-theme extraction is Stage 3 and arrives with Day 5"}, "succeeded"
+        if self.ctx.llm is None:
+            return ({"outcome": "skipped_no_llm_client",
+                     "reason": "no LlmClient is configured (set ANTHROPIC_API_KEY); no customer evidence was classified or proposed"},
+                    "succeeded")
+        return CustomerEvidenceService(self.ctx, executor=self.executor).run_stage(decision, run, client=self.ctx.llm)
 
     def stage_experiment(self, decision: Decision, run: AgentRun, analysis_ids: list[uuid.UUID]) -> tuple[dict, str]:
         info = self._decision_info(decision)
@@ -320,4 +335,44 @@ class PipelineService(LifecycleHelpers):
                 model=None, prompt_version=None, latency_ms=int((time.perf_counter() - t0) * 1000), is_synthetic=decision.is_synthetic)
             result.stages.append({"stage": "assessment", "agent_name": "orchestrator", "status": "succeeded", "agent_run_id": str(run.id),
                                   "output": run.output})
+        self._llm_stages(actor, decision_id, assessment, result)
         return result
+
+    # ================================================================ Day 5: synthesis and review after the assessment
+    def _llm_stages(self, actor: Actor, decision_id, assessment: DecisionAssessment, result: PipelineResult) -> None:
+        """Stage 5 and Stage 6. Every failure is recorded and returned as a status. The assessment is already committed and is
+        never touched here, so the DDI is unchanged whatever happens (D5-08)."""
+        with unit_of_work(self.session):
+            decision = self.decision_or_404(actor, decision_id)
+            result.pending_approvals = CustomerEvidenceService(self.ctx, executor=self.executor).pending_approvals(decision)
+        if self.ctx.llm is None:
+            note = {"status": "not_run", "reason": "no LlmClient is configured"}
+            result.synthesis, result.review = dict(note), dict(note)
+            return
+        try:
+            syn = SynthesisService(self.ctx).synthesize(actor, assessment.id, authorize=False)
+        except Exception as exc:  # noqa: BLE001  (an LLM stage must never turn a stored assessment into an error)
+            self.session.rollback()
+            result.synthesis = {"status": "failed", "error_class": getattr(exc, "code", type(exc).__name__), "error": str(exc)[:300]}
+            result.review = {"status": "skipped", "reason": "no succeeded synthesis to review"}
+            result.stages.append({"stage": "synthesis", "agent_name": "evidence_synthesis", "status": "failed", "output": result.synthesis})
+            return
+        result.synthesis = syn.summary()
+        result.stages.append({"stage": "synthesis", "agent_name": "evidence_synthesis",
+                              "status": "succeeded" if syn.status == "succeeded" else "failed",
+                              "agent_run_id": None if syn.synthesis is None else str(syn.synthesis.agent_run_id), "output": result.synthesis})
+        if syn.status != "succeeded":
+            result.review = {"status": "skipped", "reason": f"the synthesis is '{syn.status}': there is nothing to review. "
+                                                             "A human review (with a reason) is required"}
+            return
+        try:
+            rev = ReviewerService(self.ctx).review(actor, syn.synthesis.id, authorize=False)
+        except Exception as exc:  # noqa: BLE001
+            self.session.rollback()
+            result.review = {"status": "failed", "error_class": getattr(exc, "code", type(exc).__name__), "error": str(exc)[:300]}
+            result.stages.append({"stage": "review", "agent_name": "reviewer", "status": "failed", "output": result.review})
+            return
+        result.review = rev.summary()
+        result.stages.append({"stage": "review", "agent_name": "reviewer", "status": "succeeded" if rev.status == "reviewed" else "failed",
+                              "agent_run_id": None if rev.review is None or rev.review.agent_run_id is None else str(rev.review.agent_run_id),
+                              "output": result.review})

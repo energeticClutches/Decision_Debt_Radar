@@ -3,7 +3,7 @@
 import psycopg
 import pytest
 
-from .conftest import new_decision
+from .conftest import new_decision, new_synthesis
 from .test_constraints import ASSESSMENT_META, add_scored_assessment, advance, fails
 from .test_day3_guards import decided
 
@@ -125,8 +125,8 @@ def test_the_views_count_only_active_evidence_and_the_matrix_keeps_every_row(con
     assert conn.execute("SELECT evidence_id FROM v_evidence_freshness WHERE decision_id=%s", (did,)).fetchone()[0] == new
     a = conn.execute("INSERT INTO decision_assessments (decision_id, version, state, ddi_score, ddi_band, params_version, " + ASSESSMENT_META +
                      ", is_synthetic) VALUES (%s,1,'scored',10,'low','v','h','f','2026-10-01',true) RETURNING id", (did,)).fetchone()[0]
-    claim = conn.execute("INSERT INTO claims (assessment_id, claim_text, claim_type, stance, confidence, is_synthetic)"
-                         " VALUES (%s,'c','descriptive','neutral','low',true) RETURNING id", (a,)).fetchone()[0]
+    claim = conn.execute("INSERT INTO claims (assessment_id, synthesis_id, claim_text, claim_type, stance, confidence, is_synthetic)"
+                         " VALUES (%s,%s,'c','descriptive','neutral','low',true) RETURNING id", (a, new_synthesis(conn, a))).fetchone()[0]
     for e in (old, new):
         conn.execute("INSERT INTO claim_evidence (claim_id, evidence_id, is_synthetic) VALUES (%s,%s,true)", (claim, e))
     rows = dict(conn.execute("SELECT evidence_id, evidence_status FROM v_traceability_matrix WHERE claim_id=%s", (claim,)).fetchall())

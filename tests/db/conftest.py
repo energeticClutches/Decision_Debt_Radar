@@ -98,3 +98,14 @@ def new_decision(conn, ids, **over):
          vals["decision_due_date"], vals["risk_level"], vals["criteria"], vals["decision_type"],
          vals.get("expected_direction", "increase"), ids.pm),
     ).fetchone()[0]
+
+
+def new_synthesis(conn, assessment_id, status="succeeded"):
+    """A syntheses row (and the agent run it needs) for an assessment. Migration 0006: every new claim names its synthesis."""
+    did = conn.execute("SELECT decision_id FROM decision_assessments WHERE id=%s", (assessment_id,)).fetchone()[0]
+    run = conn.execute("INSERT INTO agent_runs (decision_id, assessment_id, stage, agent_name, status, purpose, model, is_synthetic)"
+                       " VALUES (%s,%s,'synthesis','evidence_synthesis','succeeded','synthesize','stub:test',true) RETURNING id",
+                       (did, assessment_id)).fetchone()[0]
+    version = conn.execute("SELECT coalesce(max(version),0)+1 FROM syntheses WHERE assessment_id=%s", (assessment_id,)).fetchone()[0]
+    return conn.execute("INSERT INTO syntheses (assessment_id, version, agent_run_id, status, input_sha256, output_sha256, output, is_synthetic)"
+                        " VALUES (%s,%s,%s,%s,'h','h','{}'::jsonb,true) RETURNING id", (assessment_id, version, run, status)).fetchone()[0]

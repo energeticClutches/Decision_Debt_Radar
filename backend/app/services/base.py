@@ -7,7 +7,7 @@ rolls everything back (including the audit row), and database errors surface as 
 from __future__ import annotations
 
 import uuid
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any, TypeVar
@@ -58,6 +58,11 @@ class ServiceContext:
     analytics_params: AnalyticsParams | None = None
     tenant: TenantConfig | None = None
     executor: Any = None
+    # Day 5: the LlmClient (None = no client configured: the LLM stages are recorded as skipped), the model name per purpose
+    # (classify, synthesize, review, primary; the settings default when None) and the prompt version.
+    llm: Any = None
+    llm_models: Mapping[str, str] | None = None
+    prompt_version: str | None = None
 
 
 class BaseService:

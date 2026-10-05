@@ -37,9 +37,9 @@ def test_upgrade_from_empty_database_then_downgrade_to_base(scratch_db):
     up = alembic(env, "upgrade", "head")
     assert up.returncode == 0, up.stderr[-2000:]
     with psycopg.connect(scratch_db) as c:
-        assert c.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0005"
+        assert c.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0006"
         assert c.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE' "
-                         "AND table_name <> 'alembic_version'").fetchone()[0] == 22
+                         "AND table_name <> 'alembic_version'").fetchone()[0] == 25
         assert c.execute("SELECT count(*) FROM information_schema.tables WHERE table_schema='fc_' AND table_type='BASE TABLE'").fetchone()[0] == 9
         assert c.execute("SELECT count(*) FROM information_schema.views WHERE table_schema IN ('public','fc_')").fetchone()[0] == 15
     down = alembic(env, "downgrade", "base")
@@ -106,6 +106,6 @@ def test_t_reg_3_downgrade_0005_to_0004_works_with_day_4_data_and_upgrades_again
         assert c.execute("SELECT has_table_privilege('ddr_readonly', 'public.metric_observations', 'SELECT')").fetchone()[0] is False
     assert alembic(env, "upgrade", "head").returncode == 0
     with psycopg.connect(scratch_db) as c:
-        assert c.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0005"
+        assert c.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0006"
         assert c.execute("SELECT has_table_privilege('ddr_readonly', 'public.metric_observations', 'SELECT')").fetchone()[0] is True
         assert c.execute("SELECT expected_direction FROM decisions").fetchone()[0] == "increase"      # backfilled by the migration

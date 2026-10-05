@@ -5,7 +5,7 @@ import json
 import psycopg
 import pytest
 
-from .conftest import new_decision
+from .conftest import new_decision, new_synthesis
 
 
 def fails(conn, sql, params=None):
@@ -215,8 +215,9 @@ def test_claim_can_only_cite_evidence_of_the_same_decision(conn, ids):
     d1, d2 = new_decision(conn, ids), new_decision(conn, ids, title="Other decision")
     a1 = conn.execute("INSERT INTO decision_assessments (decision_id, version, state, ddi_score, ddi_band, params_version, params_hash, evidence_fingerprint, as_of_date, is_synthetic)"
                       " VALUES (%s,1,'scored',50,'moderate','ddi_params_v0.1','h','f','2026-10-01',true) RETURNING id", (d1,)).fetchone()[0]
-    claim = conn.execute("INSERT INTO claims (assessment_id, claim_text, claim_type, stance, confidence, is_synthetic)"
-                         " VALUES (%s,'c','descriptive','supports','low',true) RETURNING id", (a1,)).fetchone()[0]
+    syn = new_synthesis(conn, a1)                                    # migration 0006: a new claim names its synthesis
+    claim = conn.execute("INSERT INTO claims (assessment_id, synthesis_id, claim_text, claim_type, stance, confidence, is_synthetic)"
+                         " VALUES (%s,%s,'c','descriptive','supports','low',true) RETURNING id", (a1, syn)).fetchone()[0]
     ev = lambda d: conn.execute(  # noqa: E731
         "INSERT INTO evidence (decision_id, evidence_source_id, evidence_type, summary, stance, strength_grade, observed_start,"
         " observed_end, created_by, is_synthetic) VALUES (%s,%s,'behavioral','s','supports','B','2026-09-01','2026-09-30','user',true)"

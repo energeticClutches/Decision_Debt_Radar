@@ -1,0 +1,15 @@
+{
+  "fixture_id": "review_community_v1",
+  "provenance": "stub_not_model_output",
+  "model": "stub:handauthored_review_v1",
+  "purpose": "review",
+  "prompt_version": "v0.1",
+  "scenario_key": "community",
+  "note": "HAND-AUTHORED, not model output. Only a warning and an info finding: by the code-derived rule the verdict is ready.",
+  "output": {
+    "findings": [
+      {"category": "customer_overgeneralization", "severity": "warning", "target_type": "claim", "target_id": "c4", "rationale": "Feedback mentions come from self-selected reviewers and do not describe all users.", "evidence_ids": ["@customer:challenges_motivating"]},
+      {"category": "uncertainty_understated", "severity": "info", "target_type": "section", "target_id": "summary", "rationale": "The summary could name the engagement styles in which the effect differs.", "evidence_ids": ["@behavioral:comparison"]}
+    ]
+  }
+}

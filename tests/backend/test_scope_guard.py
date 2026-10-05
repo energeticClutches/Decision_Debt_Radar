@@ -9,6 +9,8 @@ APP = Path(__file__).resolve().parents[2] / "backend" / "app"
 # Day 4 (O3): sqlglot is allowed only in analytics/sql_guard.py. anthropic and agents stay forbidden everywhere.
 FORBIDDEN_DAY_3 = {"anthropic", "sqlglot", "agents"}
 SQLGLOT_ONLY_IN = "analytics/sql_guard.py"
+# Day 5: `anthropic` is allowed only in the LLM client module (G2 in test_day5_guards.py checks it exactly).
+ANTHROPIC_ONLY_IN = "llm/anthropic_client.py"
 FRAMEWORK_MODULES = {"sqlalchemy", "fastapi", "psycopg", "starlette", "alembic"}
 
 
@@ -29,7 +31,7 @@ def test_32_anthropic_sqlglot_and_agents_are_never_imported_under_backend_app():
     assert len(files) > 30                     # the scan really covers the backend
     for path in files:
         rel = path.relative_to(APP).as_posix()
-        forbidden = FORBIDDEN_DAY_3 - ({"sqlglot"} if rel == SQLGLOT_ONLY_IN else set())
+        forbidden = FORBIDDEN_DAY_3 - ({"sqlglot"} if rel == SQLGLOT_ONLY_IN else set()) - ({"anthropic"} if rel == ANTHROPIC_ONLY_IN else set())
         bad = imported_modules(path) & forbidden
         if bad:
             offenders[rel] = sorted(bad)

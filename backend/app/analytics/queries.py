@@ -223,3 +223,17 @@ def experiment_outcomes_query(max_rows: int = DEFAULT_MAX_ROWS) -> QueryTemplate
         JOIN fc_.v_experiment_outcomes o ON o.experiment_key = a.experiment_key AND o.user_id = a.user_id
         WHERE a.experiment_key = :experiment_key AND o.metric_name = :outcome_key
         GROUP BY a.variant ORDER BY a.variant {_limit(max_rows)}""")
+
+
+# ---------------------------------------------------------------- customer feedback (Day 5, Stage 3)
+def feedback_candidates_query(spec: Mapping, segment_column: str | None, max_rows: int = DEFAULT_MAX_ROWS) -> QueryTemplate:
+    """The feedback rows of the analysis window (created before :window_end, the instant after the as-of day), one row per
+    feedback item, ordered by id. Read ONLY through the allow-listed feedback view; the evaluation ground-truth table is neither
+    allow-listed nor ever named here. `segment` is the configured segment column of the users view (informational counts only)."""
+    view = _view(spec["view"])
+    fid, text_col, ts, source, user = (_ident(spec[k]) for k in ("id_column", "text_column", "ts_column", "source_column", "user_column"))
+    seg = f"u.{_ident(segment_column)}" if segment_column else "CAST(NULL AS text)"
+    join = f" LEFT JOIN fc_.v_users u ON u.user_id = f.{user}" if segment_column else ""
+    return QueryTemplate.build("customer.feedback_candidates", f"""
+        SELECT f.{fid} AS feedback_id, f.{text_col} AS body, f.{ts} AS created_at, f.{source} AS source, {seg} AS segment
+        FROM {view} f{join} WHERE f.{ts} < :window_end ORDER BY f.{fid} {_limit(max_rows)}""")

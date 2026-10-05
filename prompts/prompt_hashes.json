@@ -1,0 +1,16 @@
+{
+  "v0.1": {
+    "classify": {
+      "file": "v0.1/classify.md",
+      "sha256": "fa35910d45a36a92289a59607cea9859b4f24fbbdca5b09c6e1e32eddb4d7eeb"
+    },
+    "review": {
+      "file": "v0.1/review.md",
+      "sha256": "f23d281e9c1453b62272dfd60a0a17aee8d92697d86a00dcfcf8eb5f9ac7e234"
+    },
+    "synthesize": {
+      "file": "v0.1/synthesize.md",
+      "sha256": "8347842bb10108276c58c729e120a251104424da61c9cee70d1e2e508261fa9c"
+    }
+  }
+}

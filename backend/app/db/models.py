@@ -1,4 +1,4 @@
-"""SQLAlchemy 2.0 models mirroring the LIVE schema (migrations 0001-0005).
+"""SQLAlchemy 2.0 models mirroring the LIVE schema (migrations 0001-0006).
 
 The schema is created only by the SQL migrations in database/sql/ (never by Base.metadata.create_all).
 tests/backend/test_models_reflection.py compares these models with the reflected database
@@ -12,7 +12,7 @@ import uuid
 from datetime import date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, SmallInteger, Text, text
+from sqlalchemy import BigInteger, Boolean, Date, DateTime, ForeignKey, Integer, Numeric, SmallInteger, Text, text
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM, JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
@@ -39,6 +39,7 @@ RECOMMENDATION_STATUS = pg_enum("recommendation_status", "proposed", "accepted",
 REVIEW_VERDICT = pg_enum("review_verdict", "ready", "needs_rework")
 DECISION_OUTCOME = pg_enum("decision_outcome", "approve", "reject", "defer", "approve_conditional")
 PIPELINE_STAGE = pg_enum("pipeline_stage", "dq", "quant", "customer", "experiment", "synthesis", "review", "brief")
+CUSTOMER_RELEVANCE = pg_enum("customer_relevance", "direct", "adjacent", "not_relevant")   # migration 0006
 
 UUID_T = UUID(as_uuid=True)
 TS = DateTime(timezone=True)
@@ -236,6 +237,13 @@ class CustomerInsight(Base):
     collected_at: Mapped[datetime | None] = mapped_column(TS)
     is_synthetic: Mapped[bool] = mapped_column(Boolean)
     created_at: Mapped[datetime] = _created()
+    # migration 0006 (D5-05): observed values, stored and displayed. relevance_observed is NOT used by DDI v0.1
+    relevance_observed: Mapped[Decimal | None] = mapped_column(Numeric)
+    source_types: Mapped[list[str] | None] = mapped_column(ARRAY(Text))
+    first_mention_date: Mapped[date | None] = mapped_column(Date)
+    last_mention_date: Mapped[date | None] = mapped_column(Date)
+    taxonomy_version: Mapped[str | None] = mapped_column(Text)
+    segment_counts: Mapped[dict | None] = mapped_column(JSONB)
 
 
 # ---------------------------------------------------------------- assessment layer
@@ -297,6 +305,16 @@ class AgentRun(Base):
     error: Mapped[str | None] = mapped_column(Text)
     is_synthetic: Mapped[bool] = mapped_column(Boolean)
     created_at: Mapped[datetime] = _created()
+    # migration 0006 (section 10): LLM call metadata
+    purpose: Mapped[str | None] = mapped_column(Text)
+    model_fallback: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    prompt_id: Mapped[str | None] = mapped_column(Text)
+    prompt_sha256: Mapped[str | None] = mapped_column(Text)
+    params: Mapped[dict | None] = mapped_column(JSONB)
+    input_sha256: Mapped[str | None] = mapped_column(Text)
+    output_sha256: Mapped[str | None] = mapped_column(Text)
+    request_id: Mapped[str | None] = mapped_column(Text)
+    error_class: Mapped[str | None] = mapped_column(Text)
 
 
 class AnalysisResult(Base):
@@ -349,6 +367,10 @@ class Evidence(Base):
     superseded_at: Mapped[datetime | None] = mapped_column(TS)
     analysis_identity: Mapped[str | None] = mapped_column(Text)
     source_fingerprint: Mapped[str | None] = mapped_column(Text)
+    # migration 0006 (D5-02): status may also be 'proposed' or 'rejected'; the human who actioned a proposed customer item
+    approved_by: Mapped[uuid.UUID | None] = mapped_column(UUID_T, ForeignKey("users.id"))
+    approved_at: Mapped[datetime | None] = mapped_column(TS)
+    approval_note: Mapped[str | None] = mapped_column(Text)
 
 
 class DqCheck(Base):
@@ -388,6 +410,9 @@ class Claim(Base):
     conclusion_ref: Mapped[str | None] = mapped_column(Text)
     is_synthetic: Mapped[bool] = mapped_column(Boolean)
     created_at: Mapped[datetime] = _created()
+    # migration 0006: the synthesis a claim comes from (required for every new row) and its id inside that synthesis
+    synthesis_id: Mapped[uuid.UUID | None] = mapped_column(UUID_T, ForeignKey("syntheses.id"))
+    local_id: Mapped[str | None] = mapped_column(Text)
 
 
 class ClaimEvidence(Base):
@@ -427,6 +452,58 @@ class DecisionReview(Base):
     human_response: Mapped[str | None] = mapped_column(Text)
     is_synthetic: Mapped[bool] = mapped_column(Boolean)
     created_at: Mapped[datetime] = _created()
+    # migration 0006: the synthesis an agent review covers and the agent run that produced it (insert-only table)
+    synthesis_id: Mapped[uuid.UUID | None] = mapped_column(UUID_T, ForeignKey("syntheses.id"))
+    agent_run_id: Mapped[uuid.UUID | None] = mapped_column(UUID_T, ForeignKey("agent_runs.id"))
+
+
+class LlmClassification(Base):
+    """Immutable output of one theme and relevance classification of one feedback row (migration 0006, D5-01)."""
+    __tablename__ = "llm_classifications"
+    id: Mapped[uuid.UUID] = _pk()
+    decision_id: Mapped[uuid.UUID] = mapped_column(UUID_T, ForeignKey("decisions.id"))
+    feedback_id: Mapped[int] = mapped_column(BigInteger)
+    text_sha256: Mapped[str] = mapped_column(Text)
+    taxonomy_version: Mapped[str] = mapped_column(Text)
+    theme: Mapped[str | None] = mapped_column(Text)
+    relevance: Mapped[str] = mapped_column(CUSTOMER_RELEVANCE)
+    prompt_version: Mapped[str] = mapped_column(Text)
+    prompt_sha256: Mapped[str] = mapped_column(Text)
+    model: Mapped[str] = mapped_column(Text)
+    agent_run_id: Mapped[uuid.UUID] = mapped_column(UUID_T, ForeignKey("agent_runs.id"))
+    created_at: Mapped[datetime] = _created()
+    is_synthetic: Mapped[bool] = mapped_column(Boolean)
+
+
+class Synthesis(Base):
+    """One versioned Evidence Synthesis of an assessment (migration 0006). Immutable."""
+    __tablename__ = "syntheses"
+    id: Mapped[uuid.UUID] = _pk()
+    assessment_id: Mapped[uuid.UUID] = mapped_column(UUID_T, ForeignKey("decision_assessments.id"))
+    version: Mapped[int] = mapped_column(Integer)
+    agent_run_id: Mapped[uuid.UUID] = mapped_column(UUID_T, ForeignKey("agent_runs.id"))
+    status: Mapped[str] = mapped_column(Text)
+    input_sha256: Mapped[str] = mapped_column(Text)
+    output_sha256: Mapped[str | None] = mapped_column(Text)
+    output: Mapped[dict | None] = mapped_column(JSONB)
+    validator_report: Mapped[dict] = mapped_column(JSONB, server_default=text("'{}'::jsonb"))
+    claims_dropped: Mapped[int] = mapped_column(Integer, server_default=text("0"))
+    created_at: Mapped[datetime] = _created()
+    is_synthetic: Mapped[bool] = mapped_column(Boolean)
+
+
+class DecisionBrief(Base):
+    """A Validated Decision Brief or a Gated Evidence Summary (migration 0006). Immutable and versioned."""
+    __tablename__ = "decision_briefs"
+    id: Mapped[uuid.UUID] = _pk()
+    assessment_id: Mapped[uuid.UUID] = mapped_column(UUID_T, ForeignKey("decision_assessments.id"))
+    synthesis_id: Mapped[uuid.UUID | None] = mapped_column(UUID_T, ForeignKey("syntheses.id"))
+    kind: Mapped[str] = mapped_column(Text)
+    version: Mapped[int] = mapped_column(Integer)
+    content: Mapped[dict] = mapped_column(JSONB)
+    markdown: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = _created()
+    is_synthetic: Mapped[bool] = mapped_column(Boolean)
 
 
 class AuditLog(Base):

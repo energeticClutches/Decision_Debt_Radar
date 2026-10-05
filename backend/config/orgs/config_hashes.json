@@ -2,5 +2,9 @@
   "fitconnect_analytics_config_v0.1": {
     "file": "orgs/fitconnect/analytics_config.yaml",
     "sha256": "912ba893711b2105cad2fc100f8ede2d28f604aac753f604b48539f96e868bc9"
+  },
+  "fitconnect_analytics_config_v0.2": {
+    "file": "orgs/fitconnect/analytics_config_v0.2.yaml",
+    "sha256": "75ee799085bdca39dda9f846703d229e6c8d89d0201f79c125d8e72a3f7b9f51"
   }
 }

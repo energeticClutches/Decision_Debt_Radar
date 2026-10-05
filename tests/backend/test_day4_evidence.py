@@ -8,7 +8,7 @@ import copy
 from dataclasses import replace
 
 import pytest
-from day4_support import TODAY, clone_decision, no_run, pipeline
+from day4_support import TODAY, clone_decision, insert_synthesis, no_run, pipeline
 from flow import Flow, canvas
 from sqlalchemy import select, text
 
@@ -157,9 +157,9 @@ def test_evd_3_historical_traceability_still_resolves_for_superseded_evidence(se
     assessment = session.scalars(select(m.DecisionAssessment).where(m.DecisionAssessment.decision_id == d.id)).one()
     old = next(e for e in evidence_of(session, d) if e.evidence_type == "experiment")
     claim = session.execute(text(
-        "INSERT INTO claims (assessment_id, claim_text, claim_type, stance, confidence, conclusion_ref, is_synthetic)"
-        " VALUES (:a,'The price test is inconclusive','descriptive','neutral','medium','D4 Experimental Strength',true) RETURNING id"),
-        {"a": assessment.id}).scalar()
+        "INSERT INTO claims (assessment_id, synthesis_id, claim_text, claim_type, stance, confidence, conclusion_ref, is_synthetic)"
+        " VALUES (:a,:s,'The price test is inconclusive','descriptive','neutral','medium','D4 Experimental Strength',true) RETURNING id"),
+        {"a": assessment.id, "s": insert_synthesis(session, assessment)}).scalar()
     session.execute(text("INSERT INTO claim_evidence (claim_id, evidence_id, is_synthetic) VALUES (:c,:e,true)"), {"c": claim, "e": old.id})
     analytics_and_materialize(session, d, pipeline(session, tenant=altered_tenant(paid_conversion_rate=0.05)))
     session.refresh(old)
@@ -267,8 +267,9 @@ def test_evd_6_every_generated_item_resolves_through_its_analysis_to_the_query_t
     assessment = session.scalars(select(m.DecisionAssessment).where(m.DecisionAssessment.decision_id == d.id)).one()
     for e in evidence_of(session, d):
         claim = session.execute(text(
-            "INSERT INTO claims (assessment_id, claim_text, claim_type, stance, confidence, is_synthetic)"
-            " VALUES (:a,'c','descriptive','neutral','low',true) RETURNING id"), {"a": assessment.id}).scalar()
+            "INSERT INTO claims (assessment_id, synthesis_id, claim_text, claim_type, stance, confidence, is_synthetic)"
+            " VALUES (:a,:s,'c','descriptive','neutral','low',true) RETURNING id"),
+            {"a": assessment.id, "s": insert_synthesis(session, assessment)}).scalar()
         session.execute(text("INSERT INTO claim_evidence (claim_id, evidence_id, is_synthetic) VALUES (:c,:e,true)"), {"c": claim, "e": e.id})
     rows = session.execute(text("SELECT analysis_id, analysis_type, query_ref, evidence_status, dq_status FROM v_traceability_matrix"
                                 " WHERE decision_id=:d AND row_type='claim_link'"), {"d": d.id}).all()

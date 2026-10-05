@@ -14,5 +14,9 @@
   "analytics_params_v0.1": {
     "file": "analytics/analytics_params_v0.1.yaml",
     "sha256": "b3dfcee11c9e0d61572f471905f03e19f5641ddbdabc723f61abae62a1fa2e05"
+  },
+  "analytics_params_v0.2": {
+    "file": "analytics/analytics_params_v0.2.yaml",
+    "sha256": "40cdd235713f7d67e2b9cd6115cc0914bb8fe66efff99555b019e144cfb31a3f"
   }
 }

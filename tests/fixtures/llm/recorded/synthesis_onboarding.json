@@ -1,0 +1,33 @@
+{
+  "fixture_id": "synthesis_onboarding_v1",
+  "provenance": "stub_not_model_output",
+  "model": "stub:handauthored_synthesis_v1",
+  "purpose": "synthesize",
+  "prompt_version": "v0.1",
+  "scenario_key": "onboarding",
+  "note": "HAND-AUTHORED, not model output. The Onboarding assessment is INSUFFICIENT EVIDENCE (an open critical data-quality finding blocks scoring): no text shows a DDI number or calls the evidence sufficient.",
+  "output": {
+    "claims": [
+      {"local_id": "c1", "text": "325 relevant feedback mentions describe getting stuck, looping or giving up during setup.", "claim_type": "customer", "stance": "supports", "confidence": "low", "evidence_ids": ["@customer:setup_blocked"], "conclusion_ref": "D5"},
+      {"local_id": "c2", "text": "An open critical data-quality finding on the activation metric blocks scoring, and customer feedback alone cannot lift the block.", "claim_type": "risk", "stance": "neutral", "confidence": "high", "evidence_ids": ["@customer:setup_blocked"], "conclusion_ref": "gate"}
+    ],
+    "uncertainties": [
+      {"text": "Feedback mentions are self-reported and say nothing about how many users are affected.", "evidence_ids": ["@customer:setup_blocked"]}
+    ],
+    "gaps": [
+      {"text": "No behavioral or experiment evidence exists on the success metric while the data-quality finding is open.", "gap_type": "missing_behavioral_evidence"},
+      {"text": "No financial evidence exists for the redesign.", "gap_type": "missing_financial_evidence"}
+    ],
+    "criteria_assessment": [
+      {"criterion_index": 0, "status": "not_testable", "evidence_ids": []},
+      {"criterion_index": 1, "status": "not_testable", "evidence_ids": ["@customer:setup_blocked"]},
+      {"criterion_index": 2, "status": "not_testable", "evidence_ids": []}
+    ],
+    "sections": {
+      "summary": "The assessment has insufficient evidence and no DDI is shown [[c2]]. Customer feedback describes setup problems [[c1]].",
+      "supporting": "Feedback mentions describe customers getting stuck during setup [[c1]].",
+      "contradicting": "No contradicting evidence is available [[c2]].",
+      "uncertainty": "The data-quality finding blocks scoring [[c2]]. Feedback is self-reported [[c1]]."
+    }
+  }
+}

@@ -1,3 +1,9 @@
 backend/config/**/*.yaml -text
 backend/config/params_hashes.json -text
 backend/config/nbe/nbe_params_v0.2.yaml -text
+
+# Day 5: hashed prompts and registries (a changed line ending would change a hash)
+prompts/**/*.md -text
+prompts/prompt_hashes.json -text
+backend/config/orgs/config_hashes.json -text
+tests/fixtures/llm/**/*.json -text

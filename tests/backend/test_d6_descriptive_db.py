@@ -106,9 +106,16 @@ def test_descriptive_evidence_stays_active_evidence_with_its_analysis_link_in_ev
     assert row["status"] == "active" and row["analysis_id"] == str(e.analysis_id) and row["metric_id"] is None
     # ... and the traceability matrix, down to the analysis and its query
     assessment = session.scalars(select(m.DecisionAssessment).where(m.DecisionAssessment.decision_id == d.id)).one()
+    run = session.execute(text(
+        "INSERT INTO agent_runs (decision_id, assessment_id, stage, agent_name, status, purpose, model, is_synthetic)"
+        " VALUES (:d,:a,'synthesis','evidence_synthesis','succeeded','synthesize','stub:test',true) RETURNING id"),
+        {"d": d.id, "a": assessment.id}).scalar()
+    syn = session.execute(text(
+        "INSERT INTO syntheses (assessment_id, version, agent_run_id, status, input_sha256, output_sha256, output, is_synthetic)"
+        " VALUES (:a,1,:r,'succeeded','h','h','{}'::jsonb,true) RETURNING id"), {"a": assessment.id, "r": run}).scalar()
     claim = session.execute(text(
-        "INSERT INTO claims (assessment_id, claim_text, claim_type, stance, confidence, is_synthetic)"
-        " VALUES (:a,'c','descriptive','neutral','low',true) RETURNING id"), {"a": assessment.id}).scalar()
+        "INSERT INTO claims (assessment_id, synthesis_id, claim_text, claim_type, stance, confidence, is_synthetic)"
+        " VALUES (:a,:s,'c','descriptive','neutral','low',true) RETURNING id"), {"a": assessment.id, "s": syn}).scalar()
     session.execute(text("INSERT INTO claim_evidence (claim_id, evidence_id, is_synthetic) VALUES (:c,:e,true)"), {"c": claim, "e": e.id})
     rows = session.execute(text("SELECT analysis_id, analysis_type, query_ref, evidence_status FROM v_traceability_matrix"
                                 " WHERE claim_id = :c"), {"c": claim}).all()

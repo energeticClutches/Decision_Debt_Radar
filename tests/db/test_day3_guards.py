@@ -3,7 +3,7 @@
 import psycopg
 import pytest
 
-from .conftest import new_decision
+from .conftest import new_decision, new_synthesis
 from .test_constraints import ASSESSMENT_META, add_scored_assessment, advance, fails
 
 
@@ -116,8 +116,8 @@ def test_every_guarded_table_rejects_writes_once_the_decision_is_decided(conn, i
                       " target, is_synthetic) VALUES ((SELECT decision_id FROM decision_assessments WHERE id=%s),%s,"
                       "(SELECT id FROM data_sources LIMIT 1),'t','warn','f','k','t',true)", (aid, aid)),
         "analysis_results": ("INSERT INTO analysis_results (decision_id, analysis_type, is_synthetic) VALUES (%s,'trend',true)", (did,)),
-        "claims": ("INSERT INTO claims (assessment_id, claim_text, claim_type, stance, confidence, is_synthetic)"
-                   " VALUES (%s,'c','descriptive','supports','low',true)", (aid,)),
+        "claims": ("INSERT INTO claims (assessment_id, synthesis_id, claim_text, claim_type, stance, confidence, is_synthetic)"
+                   " VALUES (%s,%s,'c','descriptive','supports','low',true)", (aid, new_synthesis(conn, live_a))),
         "agent_runs": ("INSERT INTO agent_runs (decision_id, agent_name, status, is_synthetic) VALUES (%s,'orchestrator','succeeded',true)", (did,)),
     }
     for table, (sql, params) in inserts.items():

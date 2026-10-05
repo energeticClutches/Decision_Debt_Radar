@@ -23,8 +23,16 @@ class Settings(BaseSettings):
     ddi_params_version: str = "ddi_params_v0.1"
     nbe_params_version: str = "nbe_params_v0.2"
     # Day 4: generic analytics parameters and the tenant (organisation) analytics configuration.
-    analytics_params_version: str = "analytics_params_v0.1"
+    # Day 5: analytics_params_v0.2 (v0.1 plus the customer and llm sections) and the tenant configuration v0.2 (plus the customer
+    # taxonomy). v0.1 of both stays released and loadable.
+    analytics_params_version: str = "analytics_params_v0.2"
     tenant_config_key: str = "fitconnect"
+    tenant_config_version: str = "fitconnect_analytics_config_v0.2"
+    # Day 5: the LLM call models and the live-call switch. The API key is read from the environment only and is never stored.
+    prompt_version: str = "v0.1"                     # prompts/<version>/*.md, hash-checked against prompts/prompt_hashes.json
+    llm_model_classify: str | None = None            # default: anthropic_model_primary
+    llm_model_synthesize: str | None = None          # default: anthropic_model_primary
+    llm_model_review: str | None = None              # default: anthropic_model_reviewer
 
     # Optional fixed "as of" date for reproducible demos (ISO date). Unset = the system date.
     ddr_as_of_date: date | None = None

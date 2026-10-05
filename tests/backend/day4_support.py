@@ -83,5 +83,17 @@ def assessment_payload(a, *, with_fingerprint: bool = False) -> dict:
     return payload
 
 
+def insert_synthesis(session, assessment) -> uuid.UUID:
+    """A syntheses row (and its agent run) so a test can insert a claim: since migration 0006 every new claim names its synthesis."""
+    run = session.execute(text(
+        "INSERT INTO agent_runs (decision_id, assessment_id, stage, agent_name, status, purpose, model, is_synthetic)"
+        " VALUES (:d,:a,'synthesis','evidence_synthesis','succeeded','synthesize','stub:test',true) RETURNING id"),
+        {"d": assessment.decision_id, "a": assessment.id}).scalar()
+    version = session.execute(text("SELECT coalesce(max(version),0)+1 FROM syntheses WHERE assessment_id=:a"), {"a": assessment.id}).scalar()
+    return session.execute(text(
+        "INSERT INTO syntheses (assessment_id, version, agent_run_id, status, input_sha256, output_sha256, output, is_synthetic)"
+        " VALUES (:a,:v,:r,'succeeded','h','h','{}'::jsonb,true) RETURNING id"), {"a": assessment.id, "v": version, "r": run}).scalar()
+
+
 def new_id() -> uuid.UUID:
     return uuid.uuid4()

@@ -10,6 +10,9 @@ Day 4 (docs/day-4-implementation-brief.md section 3, the only changes allowed he
   * heterogeneity_flag comes from the LATEST segmentation analysis for the decision's success metric (None if there is none)
   * ExperimentFact.achieved_power comes from the experiment analysis that the evidence item's analysis_id points to (None if none)
   * the evidence fingerprint covers the same inputs
+
+Day 5 (docs/day-5-implementation-brief.md section 4): only evidence with status 'active' enters the facts and the fingerprint.
+'proposed' (awaiting human approval, D5-02), 'rejected' and 'superseded' items are excluded from the DDI and the NBE.
 """
 
 from __future__ import annotations
@@ -85,7 +88,7 @@ def build_facts(session: Session, decision_id: uuid.UUID) -> EvidenceFacts:
     d, metric = _decision_core(session, decision_id)
     rows = session.execute(
         select(m.Evidence, m.EvidenceSource).join(m.EvidenceSource, m.EvidenceSource.id == m.Evidence.evidence_source_id)
-        .where(m.Evidence.decision_id == decision_id, m.Evidence.status != "superseded").order_by(m.Evidence.id)
+        .where(m.Evidence.decision_id == decision_id, m.Evidence.status == "active").order_by(m.Evidence.id)
         .execution_options(populate_existing=True)).all()
 
     # D4-05: DQ checks belong to the decision (a check without an assessment link still counts and gates).
@@ -162,7 +165,7 @@ def evidence_fingerprint(session: Session, decision_id: uuid.UUID) -> str:
                m.Evidence.experiment_id, m.Evidence.insight_id, m.Evidence.updated_at, m.EvidenceSource.reliability_tier,
                m.EvidenceSource.data_source_id, m.Evidence.analysis_id)
         .join(m.EvidenceSource, m.EvidenceSource.id == m.Evidence.evidence_source_id)
-        .where(m.Evidence.decision_id == decision_id, m.Evidence.status != "superseded").order_by(m.Evidence.id)).all()
+        .where(m.Evidence.decision_id == decision_id, m.Evidence.status == "active").order_by(m.Evidence.id)).all()
     exp_ids = [r.experiment_id for r in ev if r.experiment_id is not None]
     ins_ids = [r.insight_id for r in ev if r.insight_id is not None]
     exps = session.execute(select(m.Experiment.id, m.Experiment.design, m.Experiment.primary_metric_id, m.Experiment.mde,

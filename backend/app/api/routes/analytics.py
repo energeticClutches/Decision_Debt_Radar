@@ -40,7 +40,8 @@ def run_pipeline(decision_id: str, actor: Actor = Depends(get_actor), svc: Pipel
                                  is_superseded=False, previous=previous)
     return {"decision_id": str(decision.id), "lifecycle_stage": decision.lifecycle_stage, "partial": result.partial,
             "failed_stage": result.failed_stage, "error": result.error, "stages": result.stages,
-            "analysis_ids": [str(a) for a in result.analysis_ids], "assessment": panel}
+            "analysis_ids": [str(a) for a in result.analysis_ids], "assessment": panel,
+            "pending_approvals": result.pending_approvals, "synthesis": result.synthesis, "review": result.review}
 
 
 @router.get("/decisions/{decision_id}/dq-checks", response_model=list[DqCheckOut])
