@@ -147,3 +147,98 @@ def test_only_proposed_items_can_be_approved(ai_coach, session, seed):
     assert ev.status == "active"
     with pytest.raises(Exception):
         CustomerEvidenceService(ai_coach.ctx).set_approval(seed.ba, ev.id, "reject", "late rejection")
+
+
+# ---------------------------------------------------------------- numeric hallucination, by kind (V-NUM)
+@pytest.mark.parametrize("text", [
+    "The DDI is 87.65 for this decision.",                       # DDI
+    "Retention is 4.73% higher for AI Coach users.",             # percentage
+    "The effect size is 0.3917.",                                # effect
+    "The difference is significant at p = 0.0137.",              # p-value
+    "The interval runs from -0.0731 to 0.4419.",                 # confidence interval
+    "The comparison covers 99,991 users.",                       # sample size
+])
+def test_every_kind_of_invented_number_is_dropped(ai_coach, text):
+    payload, ctx = _ctx(ai_coach)
+    beh = _first(payload, evidence_type="behavioral", stance="supports")
+    claim = _claim(text, "associative", "supports", [beh["id"]], "D1")
+    assert v.check_numbers(claim, ctx) is not None, text
+
+
+def test_a_citation_of_another_decisions_evidence_is_dropped(ai_coach, session, seed):
+    community = Scenario(session, seed, "community").run()
+    other, _ = community.evidence_input()
+    foreign = other["evidence"][0]
+    _, ctx = _ctx(ai_coach)
+    assert foreign["id"] not in ctx.evidence
+    claim = _claim("A foreign item is cited.", foreign["evidence_type"] if foreign["evidence_type"] != "experiment" else "descriptive",
+                   "neutral", [foreign["id"]], "D1")
+    assert v.check_ids(claim, ctx) is not None
+
+
+def test_management_should_invest_is_rejected():
+    assert v.recommendation_hits("Management should invest in AI Coach.")
+
+
+# ---------------------------------------------------------------- deterministic critic checks
+def test_an_omitted_contradiction_is_flagged_blocking(ai_coach):
+    from day5_support import synthesis_output_for
+
+    from app.synthesis.review import code_findings, derive_verdict, enforce_findings
+    payload, _ = ai_coach.evidence_input()
+    full = synthesis_output_for(payload)
+    assert not [f for f in code_findings(full, payload) if f["category"] == "contradiction_ignored"]
+    contradicting = {e["id"] for e in payload["evidence"] if e["stance"] == "contradicts"}
+    assert contradicting
+    omitted = {**full, "claims": [c for c in full["claims"] if not set(c["evidence_ids"]) & contradicting]}
+    found = code_findings(omitted, payload)
+    assert {f["evidence_ids"][0] for f in found if f["category"] == "contradiction_ignored"} == contradicting
+    enforced = enforce_findings(found, evidence_ids={e["id"] for e in payload["evidence"]}, claim_ids=set(), criteria_count=0)
+    assert derive_verdict(enforced) == "needs_rework"
+
+
+def test_an_ignored_critical_dq_issue_is_flagged_blocking(session, seed):
+    from day5_support import synthesis_output_for
+
+    from app.synthesis.review import code_findings
+    onboarding = Scenario(session, seed, "onboarding").run()
+    payload, _ = onboarding.evidence_input()
+    assert any(d["severity"] == "critical" and d["status"] == "open" for d in payload["dq_findings"])
+    silent = synthesis_output_for(payload)
+    assert any(f["category"] == "dq_issue_ignored" for f in code_findings(silent, payload))
+    honest = {**silent, "gaps": [{"text": "An open critical data quality issue blocks the success metric.", "gap_type": "other"}]}
+    assert not any(f["category"] == "dq_issue_ignored" for f in code_findings(honest, payload))
+
+
+def test_high_confidence_on_weak_evidence_is_flagged(ai_coach):
+    from app.synthesis.review import code_findings
+    payload, _ = ai_coach.evidence_input()
+    cust = _first(payload, evidence_type="customer", stance="supports")
+    out = {"claims": [_claim("Customers find it helpful.", "customer", "supports", [cust["id"]], "D5") | {"confidence": "high"}],
+           "uncertainties": [], "gaps": [], "sections": {}}
+    assert any(f["category"] == "evidence_overstated" for f in code_findings(out, payload))
+
+
+def test_stored_reviews_mark_each_finding_with_its_source_and_runs_record_dropped_claims(ai_coach, session):
+    from app.db import models as m
+    from app.repositories import syntheses as syn_repo
+    syn = syn_repo.latest_synthesis(session, ai_coach.assessment.id)
+    review = syn_repo.agent_reviews(session, ai_coach.assessment.id)[-1]
+    assert review.challenges and all(f["source"] in ("model", "code") for f in review.challenges)
+    run = session.get(m.AgentRun, syn.agent_run_id)
+    assert run.output["validator"]["claims_dropped"] == syn.claims_dropped
+
+
+# ---------------------------------------------------------------- classification noise (evaluation-only ground truth, synthetic)
+def test_generic_feedback_is_never_classified_into_a_scenario_theme(session):
+    from stub_classifier import classify_text
+    from test_day5_evals import SCENARIOS, ground_truth_rows
+
+    from app.core.params import get_tenant_config
+    tenant = get_tenant_config()
+    generic = [body for _, body, truth in ground_truth_rows(session) if truth.startswith("generic")]
+    assert len(generic) > 1000
+    for scenario in SCENARIOS:
+        themes = list(tenant.customer_taxonomy(scenario).theme_names)
+        leaked = [b for b in generic if classify_text(b, themes)[0] is not None]
+        assert leaked == [], (scenario, leaked[:3])

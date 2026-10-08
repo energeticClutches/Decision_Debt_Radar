@@ -182,8 +182,31 @@ The implementing agent was stopped before its final report. Verification was red
 1. **V-SEM-STANCE was too weak.** A `supports` claim could cite a contradicting item next to a supporting one (and the reverse). The brief says a supports claim cites no contradicting item. Now mixed citations are dropped; mixed evidence must be a `neutral` claim. No fixture was affected.
 2. **T2.** A decision_brief was allowed for a human-validated *insufficient* assessment. Now refused in the service and in the `ddr_decision_briefs_guard` trigger (migration 0006 edited before its first commit). The Gated Evidence Summary remains available.
 
+**Closed against the PO's Day-5 Definition of Done (2026-10-09, P1):**
+3. **A reviewer failure is now recorded explicitly as `review_failed`.** It is audited as `review.failed` and appears in the pipeline response. It is never `ready`, never "no findings", and writes no review row, so validation still needs a human with a reason.
+4. **Dropped claims are recorded in the LLM run metadata** (`agent_runs.output.validator`), as well as on the synthesis row.
+5. **Deterministic critic checks** (`synthesis/review.py: code_findings`) are added to every review, with each finding marked `source: model | code`:
+   - `contradiction_ignored` (blocking): an active contradicting item is cited by no claim and no uncertainty;
+   - `dq_issue_ignored` (blocking): an open critical DQ finding is not mentioned anywhere in the synthesis;
+   - `evidence_overstated` (warning): high confidence on grade C or D evidence only.
+
+   Omitted contradictions and ignored DQ issues are therefore caught without a live model. The scenario verdicts are unchanged.
+6. **New acceptance tests:**
+   - invented numbers by kind (DDI, percentage, effect, p-value, CI, sample size);
+   - a citation of another decision's evidence;
+   - "Management should invest in AI Coach.";
+   - an omitted contradiction;
+   - an ignored critical DQ issue;
+   - high confidence on weak evidence;
+   - the finding source and the run metadata;
+   - generic feedback never classified into a scenario theme (synthetic, evaluation-only ground truth).
+
 **Documented, not fixed (P2):**
 - V-NUM matches against every number in the DDI payload as well as the cited items, and ignores sign. A wrong number that happens to equal some DDI field (for example a contribution) passes, and so does "decreased 5%" against an effect of +5%. Candidate for Day 7: per-claim-type number sources and a sign check.
 - Pricing moved from critical 100.0 to high 73.7 once its two customer items were approved. This is the frozen engine's output: D4 is unchanged, and the drop comes from the added customer evidence. Present it as such in the demo, never as the experiment becoming stronger.
-- The judgement-based reviewer categories (an ignored contradicting segment, an ignored DQ issue, excessive certainty) are not measurable without a key. The deterministic validators catch unsupported citations, wrong numbers, causal-from-observational claims and recommendation phrasing.
+- Model-reviewer recall is not measurable without a key. Code now covers several faults:
+  - unsupported citations, wrong numbers, causal claims from observational evidence and recommendation phrasing (validators);
+  - omitted contradicting items, an ignored critical DQ issue and high confidence on weak evidence (critic checks).
+
+  Still model-only: an ignored *segment* divergence inside a cited item, and subtler uncertainty understatement.
 - No frontend or Power BI (out of scope).

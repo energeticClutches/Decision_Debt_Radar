@@ -198,7 +198,7 @@ def test_r1_a_review_with_an_unknown_category_fails_and_creates_no_row(session, 
     ctx = ctx5(session, client)
     syn = SynthesisService(ctx).synthesize(seed.pm, a.id)
     rev = ReviewerService(ctx).review(seed.pm, syn.synthesis.id)
-    assert rev.status == "failed" and rev.error_class == "schema_error" and syn_repo.agent_reviews(session, a.id) == []
+    assert rev.status == "review_failed" and rev.error_class == "schema_error" and syn_repo.agent_reviews(session, a.id) == []
     assert flow.stage(d) == "assessed" and runs(session, a, "review")[0].status == "failed"
 
 
@@ -233,7 +233,7 @@ def test_r2_a_reviewer_failure_is_no_pass_validation_needs_a_human_with_a_reason
     ctx = ctx5(session, client)
     syn = SynthesisService(ctx).synthesize(seed.pm, a.id)
     rev = ReviewerService(ctx).review(seed.pm, syn.synthesis.id)
-    assert rev.status == "failed" and rev.error_class == "transport" and rev.review is None
+    assert rev.status == "review_failed" and rev.error_class == "transport" and rev.review is None
     assert syn_repo.agent_reviews(session, a.id) == [] and flow.stage(d) == "assessed"
     with pytest.raises(StateConflict):
         flow.reviews.validate(seed.pm, d.id)                                           # not challenged: nothing validates by itself
@@ -385,7 +385,7 @@ def test_e3_injected_text_in_the_sample_quotes_reaches_the_model_only_wrapped_an
     ctx = ctx5(session, client)
     syn = SynthesisService(ctx).synthesize(seed.pm, a.id, force=True)
     rev = ReviewerService(ctx).review(seed.pm, syn.synthesis.id)
-    assert rev.status == "failed" and rev.error_class == "schema_error"                                 # an extra "verdict" key breaks the schema
+    assert rev.status == "review_failed" and rev.error_class == "schema_error"                                 # an extra "verdict" key breaks the schema
     client2 = RoutedClient({"synthesize": ScriptedClient([good]), "review": ScriptedClient([
         review_output(finding(category="unsupported_claim", severity="info", target_type="claim", target_id="c1"))])})
     ctx2 = ctx5(session, client2)

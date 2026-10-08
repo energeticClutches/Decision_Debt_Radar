@@ -59,7 +59,7 @@ class SynthesisOutcome:
 
 @dataclass
 class ReviewOutcome:
-    status: str                                   # reviewed | failed | skipped
+    status: str                                   # reviewed | review_failed | skipped
     review: DecisionReview | None = None
     reused: bool = False
     error_class: str | None = None
@@ -174,6 +174,10 @@ class SynthesisService(_LlmStageBase):
         report_dict = report.as_dict()
         report_dict["repair_attempted"] = last is not first
         status = "succeeded" if report.status == "passed" else "rejected_by_validators"
+        # the dropped claims are part of the LLM run's metadata too, not only of the synthesis row
+        last.run.output = {**(last.run.output or {}), "validator": {"status": report.status, "claims_total": report.claims_total,
+                                                                     "claims_dropped": report.claims_dropped, "dropped": report.dropped,
+                                                                     "rejections": report.rejections}}
         row = syn_repo.add_synthesis(
             self.session, assessment_id=assessment.id, version=syn_repo.max_version(self.session, assessment.id) + 1,
             agent_run_id=last.run.id, status=status, input_sha256=request.input_sha256,
@@ -241,16 +245,19 @@ class ReviewerService(_LlmStageBase):
         call = call_llm(self.session, client, request, decision_id=decision.id, assessment_id=assessment.id, stage="review",
                         agent_name="reviewer", is_synthetic=decision.is_synthetic, fallback=fallback)
         if not call.ok:
-            return ReviewOutcome(status="failed", error_class=call.error.error_class, error=str(call.error)[:300])
+            return self._failed(decision, assessment, synthesis, call.error.error_class, str(call.error))
         try:
             raw_findings = parse_review(call.response.text)
         except OutputSchemaError as exc:
             mark_run_failed(self.session, call.run, "schema_error", str(exc))
-            return ReviewOutcome(status="failed", error_class="schema_error", error=str(exc)[:300])
+            return self._failed(decision, assessment, synthesis, "schema_error", str(exc))
         claims = syn_repo.claims_for_synthesis(self.session, synthesis.id)
         claim_by_local = {c.local_id: c for c, _ in claims}
-        findings = review_mod.enforce_findings(raw_findings, evidence_ids={e["id"] for e in input_obj["evidence"]},
-                                               claim_ids=set(claim_by_local), criteria_count=len(input_obj["decision"]["criteria"]))
+        enforce = dict(evidence_ids={e["id"] for e in input_obj["evidence"]}, claim_ids=set(claim_by_local),
+                       criteria_count=len(input_obj["decision"]["criteria"]))
+        findings = [{**f, "source": "model"} for f in review_mod.enforce_findings(raw_findings, **enforce)]
+        findings += [{**f, "source": "code"}
+                     for f in review_mod.enforce_findings(review_mod.code_findings(synthesis.output, facts), **enforce)]
         for f in findings:
             if f["target_type"] == "claim" and f["target_id"] in claim_by_local:
                 f["target_local_id"], f["target_id"] = f["target_id"], str(claim_by_local[f["target_id"]].id)
@@ -270,4 +277,13 @@ class ReviewerService(_LlmStageBase):
                                     "model_fallback": bool(call.run.model_fallback), "requested_by": actor.id},
                              is_synthetic=decision.is_synthetic)
         return ReviewOutcome(status="reviewed", review=review, findings=findings)
+
+    def _failed(self, decision, assessment, synthesis, error_class: str, error: str) -> ReviewOutcome:
+        """A reviewer failure is recorded as `review_failed` (audited), never as `ready` and never as "no findings". No review row
+        is written, so validation needs a human review with an explicit reason (R2)."""
+        audit_repo.add_audit(self.session, org_id=decision.org_id, actor_id=None, actor_type="agent", action="review.failed",
+                             entity_type="synthesis", entity_id=synthesis.id, decision_id=decision.id, before=None,
+                             after={"status": "review_failed", "assessment_id": str(assessment.id), "error_class": error_class},
+                             is_synthetic=decision.is_synthetic)
+        return ReviewOutcome(status="review_failed", error_class=error_class, error=error[:300])
 

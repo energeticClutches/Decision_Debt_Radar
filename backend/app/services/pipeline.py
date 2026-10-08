@@ -369,7 +369,7 @@ class PipelineService(LifecycleHelpers):
             rev = ReviewerService(self.ctx).review(actor, syn.synthesis.id, authorize=False)
         except Exception as exc:  # noqa: BLE001
             self.session.rollback()
-            result.review = {"status": "failed", "error_class": getattr(exc, "code", type(exc).__name__), "error": str(exc)[:300]}
+            result.review = {"status": "review_failed", "error_class": getattr(exc, "code", type(exc).__name__), "error": str(exc)[:300]}
             result.stages.append({"stage": "review", "agent_name": "reviewer", "status": "failed", "output": result.review})
             return
         result.review = rev.summary()
