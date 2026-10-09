@@ -14,10 +14,11 @@ from app.services.evidence import EvidenceService
 from app.services.evidence_materialization import EvidenceMaterializationService
 from app.services.lifecycle import apply_transition
 from app.services.pipeline import PipelineService
+from app.services.readmodels import ReadModelService
 from app.services.recommendations import RecommendationService
 from app.services.reviews import ReviewService
 from app.services.synthesis import ReviewerService, SynthesisService
 
 __all__ = ["AnalysisService", "AssessmentService", "AuditService", "BriefService", "CustomerEvidenceService", "DecisionRecordService",
-           "DecisionService", "DqService", "EvidenceMaterializationService", "EvidenceService", "PipelineService", "RecommendationService",
+           "DecisionService", "DqService", "EvidenceMaterializationService", "EvidenceService", "PipelineService", "ReadModelService", "RecommendationService",
            "ReviewerService", "ReviewService", "ServiceContext", "SynthesisService", "apply_transition", "unit_of_work"]

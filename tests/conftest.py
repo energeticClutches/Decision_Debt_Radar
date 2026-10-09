@@ -14,6 +14,11 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "fixtures" / "llm"))
 
+# Day 6 (D6-01): the application default is DDR_LLM_MODE=replay. Existing tests keep their Day-5 semantics (no client unless a test injects
+# one), so the suite forces `off` before any settings are read. The opt-in live tests (marker `llm`) keep their behaviour: with a key they
+# run in live mode.
+os.environ["DDR_LLM_MODE"] = "live" if os.environ.get("ANTHROPIC_API_KEY", "").strip() else "off"
+
 
 def pytest_collection_modifyitems(config, items):
     if os.environ.get("ANTHROPIC_API_KEY", "").strip():

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import date
 from functools import lru_cache
+from typing import Literal
 
 from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -17,6 +18,9 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://ddr:change_me_local_only@127.0.0.1:5432/ddr"
 
     anthropic_api_key: SecretStr | None = None
+    # Day 6 (D6-01): live | replay | off. replay (the local and demo default) serves recorded demo fixtures from backend/demo_fixtures
+    # and needs no key; live needs ANTHROPIC_API_KEY; off gives no client (the Day-5 behaviour without a key).
+    ddr_llm_mode: Literal["live", "replay", "off"] = "replay"
     anthropic_model_primary: str = "claude-sonnet-5-5"
     anthropic_model_reviewer: str = "claude-opus-5-5"
 

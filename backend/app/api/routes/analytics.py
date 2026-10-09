@@ -8,7 +8,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-from app.core.deps import analysis_service, get_actor, get_session, pipeline_service
+from app.core.deps import analysis_service, get_actor, get_session, pipeline_service, readmodel_service
 from app.domain.permissions import Actor
 from app.repositories import assessments as assessments_repo
 from app.schemas.responses import (
@@ -21,14 +21,14 @@ from app.schemas.responses import (
     assessment_panel,
     dq_out,
 )
-from app.services import AnalysisService, PipelineService
+from app.services import AnalysisService, PipelineService, ReadModelService
 
 router = APIRouter(tags=["analytics"])
 
 
 @router.post("/decisions/{decision_id}/pipeline-runs", response_model=PipelineRunOut, status_code=status.HTTP_201_CREATED)
 def run_pipeline(decision_id: str, actor: Actor = Depends(get_actor), svc: PipelineService = Depends(pipeline_service),
-                 session: Session = Depends(get_session)):
+                 session: Session = Depends(get_session), rm: ReadModelService = Depends(readmodel_service)):
     result = svc.run(actor, decision_id)
     decision = svc.decision_or_404(actor, decision_id)
     panel = None
@@ -41,7 +41,8 @@ def run_pipeline(decision_id: str, actor: Actor = Depends(get_actor), svc: Pipel
     return {"decision_id": str(decision.id), "lifecycle_stage": decision.lifecycle_stage, "partial": result.partial,
             "failed_stage": result.failed_stage, "error": result.error, "stages": result.stages,
             "analysis_ids": [str(a) for a in result.analysis_ids], "assessment": panel,
-            "pending_approvals": result.pending_approvals, "synthesis": result.synthesis, "review": result.review}
+            "pending_approvals": result.pending_approvals,
+            "synthesis": rm.annotate_llm_summary(result.synthesis, synthesis=True), "review": rm.annotate_llm_summary(result.review, synthesis=False)}
 
 
 @router.get("/decisions/{decision_id}/dq-checks", response_model=list[DqCheckOut])

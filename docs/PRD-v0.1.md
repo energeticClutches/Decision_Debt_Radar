@@ -587,6 +587,8 @@ Format: Given / When / Then. All must pass for MVP sign-off.
 | **6** | Next.js UI (pipeline view, DDI breakdown, matrix, NBE table, reviewer panel, decision form, role-switcher). **Power BI dashboard on reporting views** | Demoable UI + .pbix |
 | **7** | Eval suite (~20 scenarios) + report, README, demo script, screenshots, polish, buffer. Optional hosting only if everything else is stable | All acceptance criteria evidenced |
 
+> **Amendment (2026-10-09, D6-03):** Power BI portfolio analytics is intentionally deferred to Day 7 to keep Day 6 focused on the core Decision Workspace. Every reporting view stays in the database; only the Power BI file moves from Day 6 to Day 7.
+
 **Cut order if behind (Power BI is NOT cut):** hosted demo → PRD-lite generator → anomaly flag → UI polish (keep functionality) → eval scenario count (never the four core scenarios).
 
 **Key risks:** scope creep, LLM variance (mitigated by structured output + deterministic engine), synthetic data realism (mitigated by seeded manifest), time on Power BI (mitigated by building views on Day 2–3 and mockups early).

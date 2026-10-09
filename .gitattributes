@@ -7,3 +7,6 @@ prompts/**/*.md -text
 prompts/prompt_hashes.json -text
 backend/config/orgs/config_hashes.json -text
 tests/fixtures/llm/**/*.json -text
+
+# Day 6: replay demo fixtures (generated or hand-authored JSON; a changed line ending would change a hash)
+backend/demo_fixtures/**/*.json -text

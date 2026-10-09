@@ -71,6 +71,11 @@ class DecisionOut(BaseModel):
     warnings: list[dict] = []
     current_assessment: AssessmentSummary | None = None
     previous_scored_assessment: AssessmentSummary | None = None
+    # Day 6 (N5): why and when the assessment became stale (the latest stale audit row; null when assessment_stale is false) and
+    # the number of proposed customer evidence items that await a human decision
+    stale_reason: str | None = None
+    stale_at: datetime | None = None
+    pending_approvals: int = 0
 
 
 class EvidenceOut(BaseModel):
@@ -105,6 +110,10 @@ class EvidenceOut(BaseModel):
     approved_by: str | None = None
     approved_at: datetime | None = None
     approval_note: str | None = None
+    # Day 6 (N6): the evidence source, its reliability tier and the freshness of the item (v_evidence_freshness; null unless active)
+    source_name: str | None = None
+    reliability_tier: int | None = None
+    freshness: dict[str, Any] | None = None
 
 
 class AssessmentOut(BaseModel):
@@ -169,6 +178,53 @@ class ReviewOut(BaseModel):
     verdict: str
     human_response: str | None
     created_at: datetime
+
+
+class FindingOut(BaseModel):
+    category: str | None
+    severity: str | None
+    severity_model: str | None
+    source: str
+    target_type: str | None
+    target_id: str | None
+    target_local_id: str | None
+    rationale: str | None
+    evidence_ids: list[str]
+    notes: list[str]
+
+
+class ReviewDetailOut(BaseModel):
+    """N1: a review with its findings and the provenance of the agent run behind it (null for a human review)."""
+    id: str
+    assessment_id: str
+    synthesis_id: str | None
+    agent_run_id: str | None
+    reviewer_type: str
+    reviewer_id: str | None
+    verdict: str
+    human_response: str | None
+    created_at: datetime
+    provenance: str | None
+    model: str | None
+    model_fallback: bool
+    findings: list[FindingOut]
+
+
+class BriefListItemOut(BaseModel):
+    id: str
+    kind: str
+    version: int
+    label: str
+    synthesis_id: str | None
+    created_at: datetime
+
+
+class MetricOut(BaseModel):
+    id: str
+    name: str
+    definition: str
+    unit: str
+    grain: str
 
 
 class DecisionRecordOut(BaseModel):
@@ -273,8 +329,11 @@ def assessment_summary(a, *, is_current: bool, historical: bool = False) -> dict
             "evidence_direction": direction.get("label"), "created_at": a.created_at}
 
 
-def decision_out(d, *, warnings: list[dict] | None = None, current=None, previous=None) -> dict:
+def decision_out(d, *, warnings: list[dict] | None = None, current=None, previous=None, extras: dict | None = None) -> dict:
+    extras = extras or {}
     return {
+        "stale_reason": extras.get("stale_reason"), "stale_at": extras.get("stale_at"),
+        "pending_approvals": int(extras.get("pending_approvals") or 0),
         "id": str(d.id), "org_id": str(d.org_id), "team_id": str(d.team_id), "owner_id": str(d.owner_id),
         "title": d.title, "description": d.description, "hypothesis": d.hypothesis,
         "success_metric_id": str(d.success_metric_id), "decision_due_date": d.decision_due_date,
@@ -291,8 +350,10 @@ def decision_out(d, *, warnings: list[dict] | None = None, current=None, previou
     }
 
 
-def evidence_out(e) -> dict:
-    return {"id": str(e.id), "decision_id": str(e.decision_id), "evidence_source_id": str(e.evidence_source_id),
+def evidence_out(e, extras: dict | None = None) -> dict:
+    extras = extras or {}
+    return {"source_name": extras.get("source_name"), "reliability_tier": extras.get("reliability_tier"),
+            "freshness": extras.get("freshness"), "id": str(e.id), "decision_id": str(e.decision_id), "evidence_source_id": str(e.evidence_source_id),
             "evidence_type": e.evidence_type, "summary": e.summary, "stance": e.stance, "strength_grade": e.strength_grade,
             "observed_start": e.observed_start, "observed_end": e.observed_end, "n_sample": e.n_sample,
             "effect_size": _f(e.effect_size), "ci_low": _f(e.ci_low), "ci_high": _f(e.ci_high),
@@ -434,6 +495,9 @@ class SynthesisOut(BaseModel):
     created_at: datetime
     is_synthetic: bool
     synthetic_notice: str | None
+    # Day 6 (D6-01): live_model_output | stub_not_model_output | recorded_model_output, and the answering model
+    provenance: str | None = None
+    model: str | None = None
 
 
 class SynthesisRunOut(BaseModel):
@@ -464,15 +528,17 @@ def insight_out(i) -> dict:
             "taxonomy_version": i.taxonomy_version, "segment_counts": i.segment_counts, "sample_quotes": list(i.sample_quotes or [])}
 
 
-def customer_evidence_out(data: dict) -> dict:
+def customer_evidence_out(data: dict, extras: dict | None = None) -> dict:
+    extras = extras or {}
     return {"decision_id": str(data["decision"].id), "pending_approvals": data["pending_approvals"],
-            "items": [{"evidence": evidence_out(it["evidence"]), "insight": insight_out(it["insight"]) if it["insight"] else None,
+            "items": [{"evidence": evidence_out(it["evidence"], extras.get(it["evidence"].id)), "insight": insight_out(it["insight"]) if it["insight"] else None,
                        "classification_counts": it["classification_counts"]} for it in data["items"]],
             "classification_counts": data["classification_counts"]}
 
 
-def synthesis_out(s) -> dict:
-    return {"id": str(s.id), "assessment_id": str(s.assessment_id), "version": s.version, "status": s.status,
+def synthesis_out(s, run_info: dict | None = None) -> dict:
+    run_info = run_info or {}
+    return {"provenance": run_info.get("provenance"), "model": run_info.get("model"), "id": str(s.id), "assessment_id": str(s.assessment_id), "version": s.version, "status": s.status,
             "agent_run_id": str(s.agent_run_id), "input_sha256": s.input_sha256, "output_sha256": s.output_sha256, "output": s.output,
             "validator_report": s.validator_report or {}, "claims_dropped": s.claims_dropped, "created_at": s.created_at,
             "is_synthetic": s.is_synthetic, "synthetic_notice": SYNTHETIC_NOTICE if s.is_synthetic else None}

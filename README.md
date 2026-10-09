@@ -10,6 +10,18 @@ Decision Debt Radar (DDR) helps an organization see how well an important busine
 
 ## Status
 
+**Day 6 of 7: the Decision Workspace (product experience).** A Next.js 16 UI over the unchanged engines: portfolio, a decision workspace (overview, canvas, evidence, assessment with "Why this score?", review, traceability, brief and record, audit), a printable brief page, a demo role switcher ("Demo identity only: not authentication") and an explicit stale, gated and partial state for every panel. The frontend only displays stored values: it never computes DDI, NBE, direction, stance or permissions. A stale assessment never looks current; a gated decision shows no DDI number, band or contribution anywhere; an older scored version appears only as "vN, superseded". Backend read models N1 to N6, `DDR_LLM_MODE=live|replay|off` (default `replay`: recorded demo fixtures in `backend/demo_fixtures`, every output marked `stub_not_model_output`, shown in the UI as "Replayed demo fixture, not live model output"), and `scripts/demo_prepare.py` (real API, idempotent). Tests: pytest, Vitest and Playwright. DDI v0.1 and NBE v0.2 are unchanged. **Power BI portfolio analytics is intentionally deferred to Day 7 to keep Day 6 focused on the core Decision Workspace.** See [docs/day-6-implementation-notes.md](docs/day-6-implementation-notes.md) and [docs/day-6-implementation-brief.md](docs/day-6-implementation-brief.md).
+
+Run the demo (no API key needed):
+
+```bash
+docker compose up -d db
+PYTHONPATH="backend;." backend/.venv/Scripts/python scripts/demo_prepare.py --reset      # reseed (about 6 min) and prepare the four decisions
+DDR_LLM_MODE=replay DDR_AS_OF_DATE=2026-10-01 PYTHONPATH="backend;." backend/.venv/Scripts/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+cd frontend && npm run build && npx next start -H 127.0.0.1 -p 3000                       # http://127.0.0.1:3000
+cd frontend && npm test && npm run typecheck && npm run test:e2e                          # Vitest, tsc, Playwright (the e2e run reseeds)
+```
+
 **Day 5 of 7: the first LLM boundary (customer evidence, synthesis, review, brief).** On top of Day 4: Stage 3 classifies customer feedback against a closed, per-decision taxonomy (theme and relevance only) and aggregates it deterministically into **proposed** evidence; a human (BA or product analyst) approves or rejects each (decision, theme) item, and only **active** evidence enters the frozen DDI. Stage 5 writes a schema-validated evidence synthesis, eight deterministic validators run before any claim is stored, and Stage 6 is a Reviewer whose minimum severities and verdict are enforced by code. A Validated Decision Brief exists only after validation; an insufficient assessment can have a Gated Evidence Summary, labelled on every rendering. DDI v0.1 and NBE v0.2 are unchanged (test G1, zero diff against `65caec6`). **No API key exists: every test uses recorded or stub fixtures, all marked `stub_not_model_output`; no live model call has been made and the stub E1 result measures the pipeline, not a model.** See [docs/day-5-implementation-notes.md](docs/day-5-implementation-notes.md) and [docs/day-5-implementation-brief.md](docs/day-5-implementation-brief.md).
 
 **Day 4 of 7: data and analytics foundation (deterministic, no LLM).** On top of Day 3: per-decision data-quality checks reconciled on re-run, experiment statistics (SRM, effect with CI, design power), group comparison, trend, funnel and heterogeneity analyses, evidence generated from analyses with full traceability (identity, supersede), the SQL guard with read-only execution, and a deterministic pipeline (stages 1, 2 and 4 plus the Day-3 assessment) behind `POST /decisions/{id}/pipeline-runs`. The DDI is unchanged and NBE v0.1 is preserved (a test enforces it). **Day 4.1 remediation:** NBE v0.2 (active default) adds the success-metric blocker dependency under an open critical DQ issue, and descriptive trend and funnel evidence no longer counts toward D6. See [docs/day-4-implementation-notes.md](docs/day-4-implementation-notes.md). Still no LLM, agent, frontend feature or Power BI report.
@@ -28,6 +40,8 @@ Decision Debt Radar (DDR) helps an organization see how well an important busine
 | [docs/decision-lifecycle.md](docs/decision-lifecycle.md) | Decision lifecycle |
 | [docs/decision-canvas.md](docs/decision-canvas.md) | Decision Canvas |
 | [docs/ADRs.md](docs/ADRs.md) | Architecture decisions |
+| [docs/day-6-implementation-brief.md](docs/day-6-implementation-brief.md) | Day-6 decisions D6-01 to D6-05, read models N1 to N8, frontend scope, tests |
+| [docs/day-6-implementation-notes.md](docs/day-6-implementation-notes.md) | Day-6 implementation notes (architecture, replay, scenario results, test counts, deviations) |
 | [docs/day-5-implementation-brief.md](docs/day-5-implementation-brief.md) | Day-5 decisions D5-01 to D5-12, the PO tightenings, required tests |
 | [docs/day-5-implementation-notes.md](docs/day-5-implementation-notes.md) | Day-5 implementation notes (architecture, migration 0006, hashes, fixtures, E1, deviations) |
 | [docs/day-4-implementation-brief.md](docs/day-4-implementation-brief.md) | Day-4 decisions D4-01 to D4-25, O1 to O3, required tests |

@@ -1,0 +1,263 @@
+import type { ReactNode } from "react";
+
+import { supersededLabel } from "../../lib/actions";
+import { fmtDateTime, fmtNumber, fmtPercent, fmtValue, titleCase } from "../../lib/format";
+import type { AssessmentOut, DecisionOut, RecommendationOut } from "../../lib/types";
+import { Icon, Pill } from "../ui";
+
+export const DDI_COPY = "Higher = more evidence debt (weaker support). Not a probability the decision is wrong.";
+export const DIRECTION_COPY = "Direction is separate from DDI.";
+
+function bandTone(band: string | null | undefined): "ok" | "warn" | "bad" | "info" {
+  return band === "low" ? "ok" : band === "moderate" ? "info" : band === "high" ? "warn" : "bad";
+}
+
+/** The stale banner. A stale assessment never looks current: this banner and the greyed card always go together. */
+export function StaleBanner({ decision, onRerun, canRerun, rerunHint }: { decision: DecisionOut; onRerun?: () => void; canRerun?: boolean; rerunHint?: string }) {
+  if (!decision.assessment_stale) return null;
+  return (
+    <div className="banner stale" role="status" data-testid="stale-banner">
+      <div><Icon name="clock" /> <strong>Stale: this assessment no longer reflects the current evidence.</strong></div>
+      {decision.stale_reason ? <div className="small" data-testid="stale-reason">Reason: {decision.stale_reason}</div> : null}
+      {decision.stale_at ? <div className="small" data-testid="stale-at">Since {fmtDateTime(decision.stale_at)}</div> : null}
+      {onRerun ? (
+        <div style={{ marginTop: 6 }}>
+          <button className="btn primary small" onClick={onRerun} disabled={!canRerun} data-testid="stale-rerun" title={canRerun ? undefined : rerunHint}>Re-run assessment</button>
+          {!canRerun && rerunHint ? <span className="small muted"> {rerunHint}</span> : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/** The DDI card. Rendered only for a SCORED assessment: the number, the band and every contribution exist nowhere else in the DOM. */
+export function DdiCard({ assessment, stale }: { assessment: AssessmentOut; stale: boolean }) {
+  if (assessment.state !== "scored" || assessment.ddi === null) return null;
+  const sens = assessment.sensitivity;
+  return (
+    <section className={`card${stale ? " stale" : ""}`} data-testid="ddi-card" data-state={stale ? "stale" : "current"} aria-label="Decision Debt Index">
+      <div data-region="ddi">
+        <div className="label">Decision Debt Index {stale ? <Pill tone="stale" testId="ddi-stale-tag"><Icon name="clock" /> Stale</Pill> : null}</div>
+        <div className="row center">
+          <span className="big" data-testid="ddi-value" data-ddi-value={assessment.ddi}>{assessment.ddi.toFixed(1)}</span>
+          <Pill tone={stale ? "stale" : bandTone(assessment.band)} testId="ddi-band">{titleCase(assessment.band)} band</Pill>
+          {assessment.cap_applied ? <Pill tone="warn" testId="ddi-capped">Capped</Pill> : null}
+        </div>
+      </div>
+      <p className="small" style={{ marginTop: 8 }} data-testid="ddi-copy">{DDI_COPY}</p>
+      {sens ? (
+        <p className="small" data-testid="ddi-sensitivity">
+          Sensitivity: {sens.label_text} Range {fmtNumber(sens.range[0], 1)} to {fmtNumber(sens.range[1], 1)} over {sens.count} perturbations ({sens.label}).
+        </p>
+      ) : null}
+      <p className="small muted" data-testid="ddi-params">
+        As of {assessment.as_of_date}. Assessment v{assessment.version}. DDI parameters {assessment.params.ddi_params_version}, NBE parameters {assessment.params.nbe_params_version}.
+      </p>
+    </section>
+  );
+}
+
+/** The gate card of an INSUFFICIENT EVIDENCE assessment: every reason with its code, the DQ links, the missing types and the unblocking actions. */
+export function GateCard({ assessment, recommendations, onOpenDq }: { assessment: AssessmentOut; recommendations: RecommendationOut[]; onOpenDq?: () => void }) {
+  if (assessment.state !== "insufficient_evidence") return null;
+  const unblocking = recommendations.filter((r) => r.group === "unblock_scoring");
+  return (
+    <section className="card" data-testid="gate-card" aria-label="Insufficient evidence">
+      <div data-region="ddi">
+        <div className="label">Decision Debt Index</div>
+        <div className="big" data-testid="gate-label"><Icon name="stop" /> INSUFFICIENT EVIDENCE</div>
+      </div>
+      <p className="small" style={{ marginTop: 8 }}>No DDI is shown. The evidence does not yet meet the minimum needed to score this decision.</p>
+      <h3>Why it is gated</h3>
+      <ul data-testid="gate-reasons" style={{ marginTop: 0 }}>
+        {assessment.blocking_reasons.map((r) => {
+          const missing = (r.detail?.missing_types ?? r.detail?.missing) as unknown;
+          const dq = r.detail?.dq_check_ids as unknown;
+          return (
+            <li key={r.code} data-testid={`gate-reason-${r.code}`}>
+              <span className="mono">{r.code}</span>: {r.message}
+              {Array.isArray(missing) && missing.length ? <div className="small muted">Missing evidence types: {missing.map(String).join(", ")}</div> : null}
+              {Array.isArray(dq) && dq.length ? (
+                <div className="small">
+                  Data-quality issues: {dq.length}{" "}
+                  {onOpenDq ? <button className="chip" onClick={onOpenDq} data-testid="gate-dq-link">open data quality</button> : null}
+                </div>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
+      <h3>What would unblock scoring</h3>
+      {unblocking.length ? (
+        <ul data-testid="gate-unblocking" style={{ marginTop: 0 }}>
+          {unblocking.map((r) => <li key={r.id}>{r.description} <span className="muted small">({r.blockers_resolved === 1 ? "resolves 1 blocker" : `resolves ${r.blockers_resolved} blockers`})</span></li>)}
+        </ul>
+      ) : <p className="small muted">No unblocking action is listed.</p>}
+      {assessment.params ? <p className="small muted">As of {assessment.as_of_date}. Assessment v{assessment.version}.</p> : null}
+    </section>
+  );
+}
+
+export function PartialCard({ assessment }: { assessment: AssessmentOut }) {
+  if (assessment.state !== "partial") return null;
+  return (
+    <section className="card" data-testid="partial-card">
+      <div data-region="ddi"><div className="big"><Icon name="stop" /> PARTIAL ASSESSMENT</div></div>
+      <p>A pipeline stage failed, so no score exists for this version. Re-run the assessment after the cause is fixed.</p>
+      {assessment.blocking_reasons.map((r) => <p key={r.code} className="small"><span className="mono">{r.code}</span>: {r.message}</p>)}
+      {assessment.previous_scored_assessment ? (
+        <p className="small muted" data-testid="previous-scored">{supersededLabel(assessment.previous_scored_assessment.version)}</p>
+      ) : null}
+    </section>
+  );
+}
+
+export function DirectionCard({ assessment }: { assessment: AssessmentOut }) {
+  const d = assessment.evidence_direction;
+  if (!d) return null;
+  return (
+    <section className="card" data-testid="direction-card" aria-label="Evidence direction">
+      <div className="label">Evidence direction</div>
+      <div className="row center">
+        <span className="big" style={{ fontSize: "1.6rem" }} data-testid="direction-label">{titleCase(d.label)}</span>
+      </div>
+      <p className="small" data-testid="direction-copy">{DIRECTION_COPY}</p>
+      <p className="small">
+        Supporting {fmtPercent(d.supporting_share, 0)}, contradicting {fmtPercent(d.contradicting_share, 0)} of the direction-bearing evidence.
+        Direction-bearing items: {d.direction_bearing_items}. Threshold {fmtPercent(d.threshold, 0)}.
+      </p>
+      {d.explanation ? <p className="small muted">{d.explanation}</p> : null}
+    </section>
+  );
+}
+
+/** The next-best-evidence table. When the assessment is gated, the reduction column is replaced by "Resolves N blockers". */
+export function NbeTable({ recommendations, gated, stale, limit }: { recommendations: RecommendationOut[]; gated: boolean; stale?: boolean; limit?: number }) {
+  const rows = limit ? recommendations.slice(0, limit) : recommendations;
+  if (!rows.length) return <div className="card muted" data-testid="nbe-empty">No next-best-evidence action is listed for this assessment.</div>;
+  return (
+    <div className={`card${stale ? " stale" : ""}`} data-testid="nbe-table" data-gated={gated ? "true" : "false"}>
+      <h3>Next best evidence {stale ? <Pill tone="stale">Stale</Pill> : null}</h3>
+      <p className="small muted">{rows[0].note}</p>
+      <div className="tbl-wrap">
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th>#</th><th>Action</th><th>Why this</th><th>Effort (days)</th>
+              {gated ? <th data-testid="nbe-resolves-head">Resolves</th> : <th data-testid="nbe-reduction-head">Potential DDI reduction</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id} data-testid="nbe-row">
+                <td>{r.rank}</td>
+                <td>{r.description}</td>
+                <td className="small">{r.why_this}</td>
+                <td>{fmtNumber(r.effort_days, 1)}</td>
+                {gated || r.group === "unblock_scoring" ? (
+                  <td data-testid="nbe-resolves">{r.blockers_resolved === 1 ? "Resolves 1 blocker" : `Resolves ${r.blockers_resolved} blockers`}</td>
+                ) : (
+                  <td data-region="nbe-reduction" data-testid="nbe-reduction">{fmtNumber(r.potential_ddi_reduction, 1)}</td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function InputList({ inputs }: { inputs: Array<{ name: string; value: unknown; source: string; default_reason: string | null }> }) {
+  if (!inputs.length) return <span className="muted small">none</span>;
+  return (
+    <ul style={{ margin: 0, paddingLeft: 16 }}>
+      {inputs.map((i) => (
+        <li key={i.name} className="small">
+          <span className="mono">{i.name}</span> = {fmtValue(i.value)}{" "}
+          {i.source === "default" ? <Pill tone="warn">Defaulted</Pill> : <Pill tone="ok">Observed</Pill>}
+          {i.source === "default" && i.default_reason ? <span className="muted"> ({i.default_reason})</span> : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Details({ details }: { details: Record<string, unknown> }) {
+  const scalars = Object.entries(details).filter(([, v]) => v === null || ["string", "number", "boolean"].includes(typeof v));
+  if (!scalars.length) return null;
+  return <div className="small muted">{scalars.map(([k, v]) => `${k}: ${fmtValue(v)}`).join("; ")}</div>;
+}
+
+/** "Why this score?" Everything is read from the stored assessment: D1 to D7, support, the penalty multiplier (P1, P2), uncapped, cap, displayed, band. */
+export function WhyThisScore({ assessment }: { assessment: AssessmentOut }): ReactNode {
+  if (assessment.state !== "scored") return null;
+  return (
+    <section className="card" data-testid="why-score">
+      <h3>Why this score?</h3>
+      <p className="small muted">Read from the stored assessment; nothing is recomputed in the browser.</p>
+      <div className="tbl-wrap">
+        <table className="tbl" data-testid="dimension-table">
+          <thead><tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Contribution</th><th>Inputs</th><th>Explanation</th></tr></thead>
+          <tbody>
+            {assessment.dimensions.map((d) => (
+              <tr key={d.id} data-testid={`dimension-${d.id}`}>
+                <td><strong>{d.id}</strong> {d.name}{d.applicable ? "" : " (not applicable)"}</td>
+                <td>{fmtNumber(d.score, 3)}</td>
+                <td>{fmtNumber(d.weight, 3)}</td>
+                <td>{fmtNumber(d.display_contribution, 2)}</td>
+                <td><InputList inputs={d.inputs} /></td>
+                <td className="small">{d.explanation}<Details details={d.details} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <h3 style={{ marginTop: 12 }}>From dimensions to the displayed value</h3>
+      <ol data-testid="score-chain">
+        <li>Support: {fmtNumber(assessment.support, 4)}</li>
+        <li>
+          Penalty multiplier: {fmtNumber(assessment.penalty_multiplier, 4)}
+          <div className="tbl-wrap">
+            <table className="tbl" data-testid="penalty-table">
+              <thead><tr><th>Penalty</th><th>Score</th><th>Coefficient</th><th>Contribution</th><th>Inputs and floor</th></tr></thead>
+              <tbody>
+                {assessment.penalties.map((p) => (
+                  <tr key={p.id} data-testid={`penalty-${p.id}`}>
+                    <td><strong>{p.id}</strong> {p.name}</td>
+                    <td>{fmtNumber(p.score, 3)}</td>
+                    <td>{fmtNumber(p.coefficient, 3)}</td>
+                    <td>{fmtNumber(p.display_contribution, 2)}</td>
+                    <td><InputList inputs={p.inputs} /><Details details={p.details} /><div className="small">{p.explanation}</div></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </li>
+        <li>Uncapped: {fmtNumber(assessment.uncapped_ddi, 2)}</li>
+        <li>Cap applied: {assessment.cap_applied ? "yes" : "no"}</li>
+        <li>Displayed: {assessment.ddi === null ? "n/a" : assessment.ddi.toFixed(1)}</li>
+        <li>Band: {titleCase(assessment.band)}</li>
+      </ol>
+      {assessment.what_drove_this_result ? <p className="small" data-testid="what-drove">{assessment.what_drove_this_result}</p> : null}
+    </section>
+  );
+}
+
+/** Version history. Older versions appear only as "vN, superseded" (a date and a state, never a score). */
+export function VersionHistory({ versions, currentVersion }: { versions: Array<{ id: string; version: number; state: string; created_at: string }>; currentVersion: number | null }) {
+  return (
+    <section className="card" data-testid="version-history">
+      <h3>Version history</h3>
+      <ul style={{ margin: 0, paddingLeft: 18 }}>
+        {versions.map((v) => (
+          <li key={v.id} data-testid="version-row">
+            {v.version === currentVersion ? <strong>{`v${v.version}, current`}</strong> : supersededLabel(v.version)}
+            <span className="muted small"> {titleCase(v.state)} · {fmtDateTime(v.created_at)}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}

@@ -1,0 +1,37 @@
+{
+  "fixture_id": "synthesis_community_v1",
+  "provenance": "stub_not_model_output",
+  "model": "stub:handauthored_synthesis_v1",
+  "purpose": "synthesize",
+  "prompt_version": "v0.1",
+  "scenario_key": "community",
+  "note": "HAND-AUTHORED, not model output. Written from the deterministic synthesis input of the Community scenario after the customer evidence was approved (as-of 2026-10-01). The heterogeneity flag is true: the synthesis discusses the aggregate versus the segments qualitatively, and the notification complaints are cited as contradicting evidence.",
+  "output": {
+    "claims": [
+      {"local_id": "c1", "text": "Users who joined a challenge show 37.8% D90 retention against 23.3% for all other users, a difference of +14.5% (95% CI +13.4% to +15.6%) in an observational comparison.", "claim_type": "associative", "stance": "supports", "confidence": "medium", "evidence_ids": ["@behavioral:comparison"], "conclusion_ref": "D6"},
+      {"local_id": "c2", "text": "The aggregate difference may mask opposite effects across engagement styles: the heterogeneity analysis flagged segments whose within-segment effects differ in direction, so the pooled figure should not be read as applying to every user.", "claim_type": "risk", "stance": "neutral", "confidence": "high", "evidence_ids": ["@behavioral:comparison", "@customer:notifications_unwanted"], "conclusion_ref": "P1"},
+      {"local_id": "c3", "text": "184 relevant feedback mentions complain that challenge notifications or reminders are too frequent, pushy or stressful.", "claim_type": "customer", "stance": "contradicts", "confidence": "medium", "evidence_ids": ["@customer:notifications_unwanted"], "conclusion_ref": "P1"},
+      {"local_id": "c4", "text": "970 relevant feedback mentions say that challenges keep the customer motivated.", "claim_type": "customer", "stance": "supports", "confidence": "low", "evidence_ids": ["@customer:challenges_motivating"], "conclusion_ref": "D5"},
+      {"local_id": "c5", "text": "210 relevant feedback mentions describe challenges as not particularly useful to the customer.", "claim_type": "customer", "stance": "neutral", "confidence": "low", "evidence_ids": ["@customer:challenges_indifferent"], "conclusion_ref": "D5"},
+      {"local_id": "c6", "text": "The weekly D90 retention series is flat, 27.2% over the last 4 weeks against 26.0% before, in a descriptive view without a test.", "claim_type": "descriptive", "stance": "neutral", "confidence": "low", "evidence_ids": ["@behavioral:trend"], "conclusion_ref": "D1"}
+    ],
+    "uncertainties": [
+      {"text": "Participation in challenges is self-selected, so the comparison cannot separate the effect of challenges from the type of user who joins.", "evidence_ids": ["@behavioral:comparison"]}
+    ],
+    "gaps": [
+      {"text": "No experiment evidence exists for the retention effect of challenges.", "gap_type": "missing_experiment_evidence"},
+      {"text": "No financial evidence exists for the cost of the challenges.", "gap_type": "missing_financial_evidence"}
+    ],
+    "criteria_assessment": [
+      {"criterion_index": 0, "status": "not_met", "evidence_ids": ["@behavioral:comparison"]},
+      {"criterion_index": 1, "status": "not_testable", "evidence_ids": []},
+      {"criterion_index": 2, "status": "not_testable", "evidence_ids": []}
+    ],
+    "sections": {
+      "summary": "Challenge participants retain better at 90 days in the aggregate [[c1]]. The aggregate may mask segments that move in opposite directions [[c2]]. Customers also complain about challenge notifications [[c3]].",
+      "supporting": "The aggregate comparison favours challenge participants [[c1]]. Many feedback mentions say challenges motivate customers [[c4]].",
+      "contradicting": "Feedback mentions complain about challenge notifications [[c3]]. Segments may differ in direction from the aggregate [[c2]].",
+      "uncertainty": "Joining a challenge is self-selected [[c2]]. The weekly retention series is descriptive only [[c6]]."
+    }
+  }
+}

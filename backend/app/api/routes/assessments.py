@@ -8,6 +8,7 @@ from app.core.deps import (
     dq_service,
     get_actor,
     get_session,
+    readmodel_service,
     recommendation_service,
     review_service,
 )
@@ -16,15 +17,17 @@ from app.repositories import assessments as assessments_repo
 from app.schemas import requests as rq
 from app.schemas.responses import (
     AssessmentOut,
+    BriefListItemOut,
     DqCheckOut,
     RecommendationOut,
+    ReviewDetailOut,
     ReviewOut,
     assessment_panel,
     dq_out,
     recommendation_out,
     review_out,
 )
-from app.services import AssessmentService, DqService, RecommendationService, ReviewService
+from app.services import AssessmentService, DqService, ReadModelService, RecommendationService, ReviewService
 
 router = APIRouter(tags=["assessments"])
 
@@ -68,3 +71,21 @@ def patch_recommendation(recommendation_id: str, body: rq.RecommendationPatch, a
 def patch_dq_check(check_id: str, body: rq.DqPatch, actor: Actor = Depends(get_actor),
                    svc: DqService = Depends(dq_service)):
     return dq_out(svc.set_status(actor, check_id, body.status, body.note))
+
+
+@router.get("/assessments/{assessment_id}/reviews", response_model=list[ReviewDetailOut])
+def list_reviews(assessment_id: str, actor: Actor = Depends(get_actor), rm: ReadModelService = Depends(readmodel_service)):
+    """N1: the reviews of an assessment (agent and human), oldest first, with their findings and the provenance of the agent run."""
+    return rm.reviews(actor, assessment_id)
+
+
+@router.get("/assessments/{assessment_id}/briefs", response_model=list[BriefListItemOut])
+def list_briefs(assessment_id: str, actor: Actor = Depends(get_actor), rm: ReadModelService = Depends(readmodel_service)):
+    """N3: the briefs of an assessment without their content (GET /briefs/{id} returns the content)."""
+    return rm.briefs(actor, assessment_id)
+
+
+@router.get("/assessments/{assessment_id}/traceability", response_model=list[dict])
+def assessment_traceability(assessment_id: str, actor: Actor = Depends(get_actor), rm: ReadModelService = Depends(readmodel_service)):
+    """N4: the rows of v_traceability_matrix for the assessment, gap rows included. A read model: no scoring."""
+    return rm.traceability(actor, assessment_id)

@@ -1,0 +1,14 @@
+{
+  "fixture_id": "review_onboarding_v1",
+  "provenance": "stub_not_model_output",
+  "model": "stub:handauthored_review_v1",
+  "purpose": "review",
+  "prompt_version": "v0.1",
+  "scenario_key": "onboarding",
+  "note": "HAND-AUTHORED, not model output. No blocking finding: the verdict is ready, but the assessment stays INSUFFICIENT EVIDENCE (the review does not lift the gate).",
+  "output": {
+    "findings": [
+      {"category": "missing_evidence", "severity": "info", "target_type": "synthesis", "target_id": "synthesis", "rationale": "No quantitative evidence exists while the data-quality finding is open.", "evidence_ids": []}
+    ]
+  }
+}

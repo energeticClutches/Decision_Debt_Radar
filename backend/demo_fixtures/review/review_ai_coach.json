@@ -1,0 +1,15 @@
+{
+  "fixture_id": "review_ai_coach_v1",
+  "provenance": "stub_not_model_output",
+  "model": "stub:handauthored_review_v1",
+  "purpose": "review",
+  "prompt_version": "v0.1",
+  "scenario_key": "ai_coach",
+  "note": "HAND-AUTHORED, not model output. Flags the injected causal overclaim c7 with severity 'warning' on purpose: the application raises it to blocking by the minimum-severity rule, and derives the verdict itself.",
+  "output": {
+    "findings": [
+      {"category": "causal_from_observational", "severity": "warning", "target_type": "claim", "target_id": "c7", "rationale": "The claim states that the coach causes the retention difference, but the cited comparison is observational and not randomised.", "evidence_ids": ["@behavioral:comparison"]},
+      {"category": "uncertainty_understated", "severity": "info", "target_type": "section", "target_id": "summary", "rationale": "The summary could state that the holdout experiment is imbalanced.", "evidence_ids": ["@experiment"]}
+    ]
+  }
+}

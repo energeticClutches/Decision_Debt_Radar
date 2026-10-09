@@ -45,6 +45,7 @@ from app.repositories import evidence as evidence_repo
 from app.repositories.users import parse_uuid
 from app.services.base import ServiceContext, unit_of_work
 from app.services.lifecycle import LifecycleHelpers
+from app.services.readmodels import ReadModelService
 
 APPROVAL_ACTIONS = ("approve", "reject")
 
@@ -235,13 +236,19 @@ class CustomerEvidenceService(LifecycleHelpers):
         decision = self.decision_or_404(actor, decision_id)
         items = []
         taxonomies: list[str] = []
+        readmodels = ReadModelService(self.ctx)
+
+        def counts_for(tax_id: str) -> dict:
+            # Day 6 (D6-01): every classification summary names the provenance and the model of the runs behind it
+            return {**customer_repo.classification_counts(self.session, decision.id, tax_id),
+                    **readmodels.classification_provenance(decision.id, tax_id)}
+
         for ev, insight in customer_repo.customer_items(self.session, decision.id):
             tax_id = insight.taxonomy_version if insight else None
             if tax_id and tax_id not in taxonomies:
                 taxonomies.append(tax_id)
-            items.append({"evidence": ev, "insight": insight, "classification_counts":
-                          customer_repo.classification_counts(self.session, decision.id, tax_id) if tax_id else None})
-        counts = [customer_repo.classification_counts(self.session, decision.id, t) for t in customer_repo.classification_taxonomies(self.session, decision.id)]
+            items.append({"evidence": ev, "insight": insight, "classification_counts": counts_for(tax_id) if tax_id else None})
+        counts = [counts_for(t) for t in customer_repo.classification_taxonomies(self.session, decision.id)]
         return {"decision": decision, "items": items, "classification_counts": counts,
                 "pending_approvals": sum(1 for it in items if it["evidence"].status == "proposed")}
 
@@ -272,7 +279,7 @@ class CustomerEvidenceService(LifecycleHelpers):
             self.audit(actor, "evidence.approved" if action == "approve" else "evidence.rejected", "evidence", ev.id, decision,
                        before=before, after={"status": ev.status, "approval_note": ev.approval_note, "evidence_type": ev.evidence_type,
                                              "stance": ev.stance, "strength_grade": ev.strength_grade})
-            self.mark_stale_if_needed(actor, decision, f"customer evidence {ev.status} after the assessment")
+            self.mark_stale_if_needed(actor, decision, f"customer evidence {'approved' if action == 'approve' else 'rejected'} after the assessment")
             return ev
 
 

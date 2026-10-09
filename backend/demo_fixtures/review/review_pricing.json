@@ -1,0 +1,14 @@
+{
+  "fixture_id": "review_pricing_v1",
+  "provenance": "stub_not_model_output",
+  "model": "stub:handauthored_review_v1",
+  "purpose": "review",
+  "prompt_version": "v0.1",
+  "scenario_key": "pricing",
+  "note": "HAND-AUTHORED, not model output. Flags the injected 'no harm' claim c6.",
+  "output": {
+    "findings": [
+      {"category": "statistical_misinterpretation", "severity": "blocking", "target_type": "claim", "target_id": "c6", "rationale": "An inconclusive, underpowered test whose interval spans zero does not show the absence of harm.", "evidence_ids": ["@experiment"]}
+    ]
+  }
+}

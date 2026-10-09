@@ -30,6 +30,7 @@ from app.services import (
     DqService,
     EvidenceService,
     PipelineService,
+    ReadModelService,
     RecommendationService,
     ReviewerService,
     ReviewService,
@@ -60,12 +61,17 @@ def get_actor(x_demo_user: str | None = Header(default=None, alias=DEMO_HEADER),
 
 
 def get_llm():
-    """The LlmClient (None when no ANTHROPIC_API_KEY is configured: the LLM stages are then skipped or refused). Tests override it."""
+    """The LlmClient for DDR_LLM_MODE (None in off mode, or in live mode without a key: the LLM stages are then skipped or refused).
+    Tests override it."""
     return get_llm_client()
 
 
 def get_llm_models():
-    """Model names per purpose (None = the settings defaults). Tests override it with the stub model names."""
+    """Model names per purpose (None = the settings defaults). Replay mode returns the stub names, so a replayed fixture is never stored
+    as if a real model had been requested. Tests override it with the stub model names."""
+    if get_settings().ddr_llm_mode == "replay":
+        from app.llm.replay import REPLAY_MODELS
+        return dict(REPLAY_MODELS)
     return None
 
 
@@ -129,3 +135,7 @@ def reviewer_service(ctx: ServiceContext = Depends(get_ctx)) -> ReviewerService:
 
 def brief_service(ctx: ServiceContext = Depends(get_ctx)) -> BriefService:
     return BriefService(ctx)
+
+
+def readmodel_service(ctx: ServiceContext = Depends(get_ctx)) -> ReadModelService:
+    return ReadModelService(ctx)
