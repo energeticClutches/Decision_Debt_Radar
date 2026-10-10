@@ -3,13 +3,15 @@ import type { ReactNode } from "react";
 import { supersededLabel } from "../../lib/actions";
 import { fmtDateTime, fmtNumber, fmtPercent, fmtValue, titleCase } from "../../lib/format";
 import type { AssessmentOut, DecisionOut, DimensionOut, PenaltyOut, RecommendationOut } from "../../lib/types";
-import { Icon, Pill } from "../ui";
+import { SvgIcon } from "../icons";
+import { Icon, Pill, type Tone } from "../ui";
 
 export const DDI_COPY = "Higher = more evidence debt (weaker support). Not a probability the decision is wrong.";
 export const DIRECTION_COPY = "Direction is separate from DDI.";
 
-function bandTone(band: string | null | undefined): "ok" | "warn" | "bad" | "info" {
-  return band === "low" ? "ok" : band === "moderate" ? "info" : band === "high" ? "warn" : "bad";
+/** Debt bands run on the slate-to-indigo scale; they are never red or green (the badge also names the band in words). */
+export function bandTone(band: string | null | undefined): Tone {
+  return band === "low" ? "band-low" : band === "moderate" ? "band-moderate" : band === "high" ? "band-high" : "band-critical";
 }
 
 /** The stale banner. A stale assessment never looks current: this banner and the greyed card always go together. */
@@ -37,20 +39,20 @@ export function DdiCard({ assessment, stale }: { assessment: AssessmentOut; stal
   return (
     <section className={`card${stale ? " stale" : ""}`} data-testid="ddi-card" data-state={stale ? "stale" : "current"} aria-label="Decision Debt Index">
       <div data-region="ddi">
-        <div className="label">Decision Debt Index {stale ? <Pill tone="stale" testId="ddi-stale-tag"><Icon name="clock" /> Stale</Pill> : null}</div>
-        <div className="row center">
+        <div className="card-title"><SvgIcon name="chart" size={16} />Decision Debt Index {stale ? <Pill tone="stale" testId="ddi-stale-tag"><Icon name="clock" /> Stale</Pill> : null}</div>
+        <div className="row center" style={{ gap: 14 }}>
           <span className="big" data-testid="ddi-value" data-ddi-value={assessment.ddi}>{assessment.ddi.toFixed(1)}</span>
           <Pill tone={stale ? "stale" : bandTone(assessment.band)} testId="ddi-band">{titleCase(assessment.band)} band</Pill>
           {assessment.cap_applied ? <Pill tone="warn" testId="ddi-capped">Capped</Pill> : null}
         </div>
       </div>
-      <p className="small" style={{ marginTop: 8 }} data-testid="ddi-copy">{DDI_COPY}</p>
+      <p className="callout" data-testid="ddi-copy">{DDI_COPY}</p>
       {sens ? (
         <p className="small" data-testid="ddi-sensitivity">
           Sensitivity: {sens.label_text} Range {fmtNumber(sens.range[0], 1)} to {fmtNumber(sens.range[1], 1)} over {sens.count} perturbations ({sens.label}).
         </p>
       ) : null}
-      <p className="small muted" data-testid="ddi-params">
+      <p className="card-foot" data-testid="ddi-params">
         As of {assessment.as_of_date}. Assessment v{assessment.version}. DDI parameters {assessment.params.ddi_params_version}, NBE parameters {assessment.params.nbe_params_version}.
       </p>
     </section>
@@ -64,10 +66,10 @@ export function GateCard({ assessment, recommendations, onOpenDq }: { assessment
   return (
     <section className="card" data-testid="gate-card" aria-label="Insufficient evidence">
       <div data-region="ddi">
-        <div className="label">Decision Debt Index</div>
-        <div className="big" data-testid="gate-label"><Icon name="stop" /> INSUFFICIENT EVIDENCE</div>
+        <div className="card-title"><SvgIcon name="chart" size={16} />Decision Debt Index</div>
+        <div className="big gate" data-testid="gate-label"><Icon name="stop" size={24} /> INSUFFICIENT EVIDENCE</div>
       </div>
-      <p className="small" style={{ marginTop: 8 }}>No DDI is shown. The evidence does not yet meet the minimum needed to score this decision.</p>
+      <p className="callout">No DDI is shown. The evidence does not yet meet the minimum needed to score this decision.</p>
       <h3>Why it is gated</h3>
       <ul data-testid="gate-reasons" style={{ marginTop: 0 }}>
         {assessment.blocking_reasons.map((r) => {
@@ -102,7 +104,7 @@ export function PartialCard({ assessment }: { assessment: AssessmentOut }) {
   if (assessment.state !== "partial") return null;
   return (
     <section className="card" data-testid="partial-card">
-      <div data-region="ddi"><div className="big"><Icon name="stop" /> PARTIAL ASSESSMENT</div></div>
+      <div data-region="ddi"><div className="big gate"><Icon name="stop" size={24} /> PARTIAL ASSESSMENT</div></div>
       <p>A pipeline stage failed, so no score exists for this version. Re-run the assessment after the cause is fixed.</p>
       {assessment.blocking_reasons.map((r) => <p key={r.code} className="small"><span className="mono">{r.code}</span>: {r.message}</p>)}
       {assessment.previous_scored_assessment ? (
@@ -115,18 +117,33 @@ export function PartialCard({ assessment }: { assessment: AssessmentOut }) {
 export function DirectionCard({ assessment }: { assessment: AssessmentOut }) {
   const d = assessment.evidence_direction;
   if (!d) return null;
+  const clamp = (v: number | null | undefined) => (v === null || v === undefined || Number.isNaN(v) ? null : Math.max(0, Math.min(1, v)));
+  const sup = clamp(d.supporting_share) ?? 0;
+  const con = clamp(d.contradicting_share) ?? 0;
+  const thr = clamp(d.threshold);
+  // No direction is claimed for a gated assessment: the stored shares stay as plain text below, but the prominent bar and tiles
+  // are not drawn, so they cannot read as support (Opus verification of the restyle).
+  const claimed = assessment.state === "scored";
   return (
     <section className="card" data-testid="direction-card" aria-label="Evidence direction">
-      <div className="label">Evidence direction</div>
-      <div className="row center">
-        <span className="big" style={{ fontSize: "1.6rem" }} data-testid="direction-label">{titleCase(d.label)}</span>
-      </div>
-      <p className="small" data-testid="direction-copy">{DIRECTION_COPY}</p>
-      <p className="small">
+      <div className="card-title"><SvgIcon name="arrows" size={16} />Evidence direction</div>
+      <div className="big sm" data-testid="direction-label">{titleCase(d.label)}</div>
+      {claimed ? <div className="splitbar" role="img" aria-label={`Supporting ${fmtPercent(d.supporting_share, 0)}, contradicting ${fmtPercent(d.contradicting_share, 0)}${thr === null ? "" : `, threshold ${fmtPercent(d.threshold, 0)}`}`}>
+        <span className="seg-support" style={{ width: `${sup * 100}%` }} />
+        <span className="seg-contradict" style={{ width: `${con * 100}%` }} />
+        {thr === null ? null : <span className="tick" style={{ left: `${thr * 100}%` }} />}
+      </div> : null}
+      <p className="callout" data-testid="direction-copy">{DIRECTION_COPY}</p>
+      {claimed ? <div className="tiles" aria-hidden="true">
+        <div className="tile"><div className="label"><span className="swatch" style={{ background: "var(--accent)" }} />Supporting</div><div className="value">{fmtPercent(d.supporting_share, 0)}</div></div>
+        <div className="tile"><div className="label"><span className="swatch" style={{ background: "var(--faint)" }} />Contradicting</div><div className="value">{fmtPercent(d.contradicting_share, 0)}</div></div>
+        <div className="tile"><div className="label">Items</div><div className="value">{d.direction_bearing_items}</div><div className="sub">Threshold {fmtPercent(d.threshold, 0)}</div></div>
+      </div> : null}
+      <p className="small" style={{ marginTop: 16 }}>
         Supporting {fmtPercent(d.supporting_share, 0)}, contradicting {fmtPercent(d.contradicting_share, 0)} of the direction-bearing evidence.
         Direction-bearing items: {d.direction_bearing_items}. Threshold {fmtPercent(d.threshold, 0)}.
       </p>
-      {d.explanation ? <p className="small muted">{d.explanation}</p> : null}
+      {d.explanation ? <p className="small muted card-foot">{d.explanation}</p> : null}
     </section>
   );
 }
@@ -137,27 +154,27 @@ export function NbeTable({ recommendations, gated, stale, limit }: { recommendat
   if (!rows.length) return <div className="card muted" data-testid="nbe-empty">No next-best-evidence action is listed for this assessment.</div>;
   return (
     <div className={`card${stale ? " stale" : ""}`} data-testid="nbe-table" data-gated={gated ? "true" : "false"}>
-      <h3>Next best evidence {stale ? <Pill tone="stale">Stale</Pill> : null}</h3>
+      <div className="card-title"><SvgIcon name="bolt" size={16} />Next best evidence {stale ? <Pill tone="stale">Stale</Pill> : null}</div>
       <p className="small muted">{rows[0].note}</p>
       <div className="tbl-wrap">
         <table className="tbl">
           <thead>
             <tr>
-              <th>#</th><th>Action</th><th>Why this</th><th>Effort (days)</th>
-              {gated ? <th data-testid="nbe-resolves-head">Resolves</th> : <th data-testid="nbe-reduction-head">Potential DDI reduction</th>}
+              <th className="num">#</th><th>Action</th><th>Why this</th><th className="num">Effort (days)</th>
+              {gated ? <th data-testid="nbe-resolves-head" className="num">Resolves</th> : <th data-testid="nbe-reduction-head" className="num">Potential DDI reduction</th>}
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id} data-testid="nbe-row">
-                <td>{r.rank}</td>
+                <td className="num">{r.rank}</td>
                 <td>{r.description}</td>
                 <td className="small">{r.why_this}</td>
-                <td>{fmtNumber(r.effort_days, 1)}</td>
+                <td className="num">{fmtNumber(r.effort_days, 1)}</td>
                 {gated || r.group === "unblock_scoring" ? (
-                  <td data-testid="nbe-resolves">{r.blockers_resolved === 1 ? "Resolves 1 blocker" : `Resolves ${r.blockers_resolved} blockers`}</td>
+                  <td className="num" data-testid="nbe-resolves">{r.blockers_resolved === 1 ? "Resolves 1 blocker" : `Resolves ${r.blockers_resolved} blockers`}</td>
                 ) : (
-                  <td data-region="nbe-reduction" data-testid="nbe-reduction">{fmtNumber(r.potential_ddi_reduction, 1)}</td>
+                  <td className="num" data-region="nbe-reduction" data-testid="nbe-reduction">{fmtNumber(r.potential_ddi_reduction, 1)}</td>
                 )}
               </tr>
             ))}
@@ -198,14 +215,14 @@ export function WhyThisScore({ assessment }: { assessment: AssessmentOut }): Rea
       <p className="small muted">Read from the stored assessment; nothing is recomputed in the browser.</p>
       <div className="tbl-wrap">
         <table className="tbl" data-testid="dimension-table">
-          <thead><tr><th>Dimension</th><th>Score</th><th>Weight</th><th>Contribution</th><th>Inputs</th><th>Explanation</th></tr></thead>
+          <thead><tr><th>Dimension</th><th className="num">Score</th><th className="num">Weight</th><th className="num">Contribution</th><th>Inputs</th><th>Explanation</th></tr></thead>
           <tbody>
             {assessment.dimensions.map((d) => (
               <tr key={d.id} data-testid={`dimension-${d.id}`}>
                 <td><strong>{d.id}</strong> {d.name}{d.applicable ? "" : " (not applicable)"}</td>
-                <td>{fmtNumber(d.score, 3)}</td>
-                <td>{fmtNumber(d.weight, 3)}</td>
-                <td>{fmtNumber(d.display_contribution, 2)}</td>
+                <td className="num">{fmtNumber(d.score, 3)}</td>
+                <td className="num">{fmtNumber(d.weight, 3)}</td>
+                <td className="num">{fmtNumber(d.display_contribution, 2)}</td>
                 <td><InputList inputs={d.inputs} /></td>
                 <td className="small">{d.explanation}<Details details={d.details} /></td>
               </tr>
@@ -220,14 +237,14 @@ export function WhyThisScore({ assessment }: { assessment: AssessmentOut }): Rea
           Penalty multiplier: {fmtNumber(assessment.penalty_multiplier, 4)}
           <div className="tbl-wrap">
             <table className="tbl" data-testid="penalty-table">
-              <thead><tr><th>Penalty</th><th>Score</th><th>Coefficient</th><th>Contribution</th><th>Inputs and floor</th></tr></thead>
+              <thead><tr><th>Penalty</th><th className="num">Score</th><th className="num">Coefficient</th><th className="num">Contribution</th><th>Inputs and floor</th></tr></thead>
               <tbody>
                 {assessment.penalties.map((p) => (
                   <tr key={p.id} data-testid={`penalty-${p.id}`}>
                     <td><strong>{p.id}</strong> {p.name}</td>
-                    <td>{fmtNumber(p.score, 3)}</td>
-                    <td>{fmtNumber(p.coefficient, 3)}</td>
-                    <td>{fmtNumber(p.display_contribution, 2)}</td>
+                    <td className="num">{fmtNumber(p.score, 3)}</td>
+                    <td className="num">{fmtNumber(p.coefficient, 3)}</td>
+                    <td className="num">{fmtNumber(p.display_contribution, 2)}</td>
                     <td><InputList inputs={p.inputs} /><Details details={p.details} /><div className="small">{p.explanation}</div></td>
                   </tr>
                 ))}

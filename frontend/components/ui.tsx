@@ -5,33 +5,35 @@ import { useEffect, type ReactNode } from "react";
 
 import { ApiError } from "../lib/api";
 import { isReplayProvenance, REPLAY_NOTICE, roleName, titleCase } from "../lib/format";
+import { SvgIcon } from "./icons";
 
-const ICONS: Record<string, string> = { lock: "⚿", clock: "◷", stop: "⊘", alert: "⚠", hourglass: "⧖", check: "✓", info: "ℹ" };
-
-export function Icon({ name }: { name: string }) {
-  return <span aria-hidden="true">{ICONS[name] ?? "•"}</span>;
+/** A decorative inline SVG (the text beside it carries the meaning). */
+export function Icon({ name, size = 14 }: { name: string; size?: number }) {
+  return <SvgIcon name={name} size={size} />;
 }
 
+export type Tone = "ok" | "warn" | "bad" | "info" | "stale" | "band-low" | "band-moderate" | "band-high" | "band-critical";
+
 /** Status is never colour alone: a glyph and a word always come with the colour. */
-export function Pill({ tone, children, testId }: { tone?: "ok" | "warn" | "bad" | "info" | "stale"; children: ReactNode; testId?: string }) {
+export function Pill({ tone, children, testId }: { tone?: Tone; children: ReactNode; testId?: string }) {
   return <span className={`badge ${tone ?? ""}`} data-testid={testId}>{children}</span>;
 }
 
 export function StancePill({ stance }: { stance: string | null | undefined }) {
   if (!stance) return null;
   const tone = stance === "supports" ? "ok" : stance === "contradicts" ? "bad" : "info";
-  const glyph = stance === "supports" ? "+" : stance === "contradicts" ? "−" : "∼";
-  return <Pill tone={tone}>{glyph} {titleCase(stance)}</Pill>;
+  const glyph = stance === "supports" ? "up" : stance === "contradicts" ? "down" : "minus";
+  return <Pill tone={tone}><Icon name={glyph} size={12} /> {titleCase(stance)}</Pill>;
 }
 
 export function SeverityPill({ severity }: { severity: string | null | undefined }) {
   const tone = severity === "blocking" ? "bad" : severity === "warning" ? "warn" : "info";
-  const glyph = severity === "blocking" ? "⊘" : severity === "warning" ? "⚠" : "ℹ";
-  return <Pill tone={tone}>{glyph} {titleCase(severity)}</Pill>;
+  const glyph = severity === "blocking" ? "stop" : severity === "warning" ? "alert" : "info";
+  return <Pill tone={tone}><Icon name={glyph} size={12} /> {titleCase(severity)}</Pill>;
 }
 
 export function Loading({ label = "Loading" }: { label?: string }) {
-  return <div className="card muted" role="status" data-testid="loading">{label}...</div>;
+  return <div className="card muted loading" role="status" data-testid="loading">{label}...</div>;
 }
 
 export function Empty({ children, testId }: { children: ReactNode; testId?: string }) {
@@ -82,7 +84,7 @@ export function Modal({ title, onClose, children, testId }: { title: string; onC
   return (
     <div className="modal-backdrop" role="presentation">
       <div className="modal" role="dialog" aria-modal="true" aria-label={title} data-testid={testId}>
-        <h2>{title}</h2>
+        <h2 className="dialog-title">{title}</h2>
         {children}
       </div>
     </div>
@@ -99,11 +101,11 @@ export function Drawer({ title, onClose, children, testId }: { title: string; on
   }, [onClose]);
   return (
     <aside className="drawer" role="dialog" aria-label={title} data-testid={testId ?? "drawer"}>
-      <div className="row center">
+      <div className="row center drawer-head">
         <h2 style={{ margin: 0 }}>{title}</h2>
         <button className="btn small right" onClick={onClose} data-testid="drawer-close">Close</button>
       </div>
-      <div className="stack" style={{ marginTop: 10 }}>{children}</div>
+      <div className="stack drawer-body">{children}</div>
     </aside>
   );
 }

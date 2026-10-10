@@ -20,7 +20,7 @@ import { PipelinePanel } from "./PipelinePanel";
 import { ReviewTab, ValidateDialog } from "./ReviewTab";
 import { TraceabilityTab } from "./TraceabilityTab";
 import type { ItemKind, Result, WorkspaceActions, WorkspaceData } from "./types";
-import { WorkspaceHeader } from "./WorkspaceHeader";
+import { WorkspaceHeader, WorkspaceTabs } from "./WorkspaceHeader";
 
 export const TABS: Array<[TabId, string]> = [
   ["overview", "Overview"], ["canvas", "Canvas"], ["evidence", "Evidence"], ["assessment", "Assessment"], ["review", "Review"],
@@ -152,11 +152,7 @@ export function Workspace({ id }: { id: string }) {
       {busy ? <div className="banner info" role="status" data-testid="busy">{busy}...</div> : null}
       {actionError ? <ErrorBox error={actionError} onDismiss={() => setActionError(null)} onRetry={refresh} /> : null}
       {panelError ? <ErrorBox error={panelError} onRetry={refresh} /> : null}
-      <nav role="tablist" aria-label="Workspace sections" className="row" style={{ gap: 6 }}>
-        {TABS.map(([t, label]) => (
-          <button key={t} role="tab" aria-selected={tab === t} className={`btn${tab === t ? " primary" : ""}`} onClick={() => act.goTab(t)} data-testid={`tab-${t}`}>{label}</button>
-        ))}
-      </nav>
+      <WorkspaceTabs tabs={TABS} tab={tab} onSelect={act.goTab} />
       <div role="tabpanel" aria-label={tab}>
         {tab === "overview" ? <OverviewTab {...common} /> : null}
         {tab === "canvas" ? <CanvasTab {...common} /> : null}

@@ -8,6 +8,7 @@ import { sentences } from "../../lib/claims";
 import { fmtDateTime, titleCase } from "../../lib/format";
 import type { Finding, ReviewDetail, SynthesisOut } from "../../lib/types";
 import { ClaimText } from "../ClaimText";
+import { SvgIcon } from "../icons";
 import { Empty, ErrorBox, Field, Modal, Pill, ProvenanceNotice, SeverityPill, StancePill } from "../ui";
 import { Guarded } from "./Guarded";
 import { ValidatedBadge, REVIEWER_COPY } from "./OverviewTab";
@@ -18,7 +19,8 @@ export const VALIDATE_CHECKBOX = "I understand this validates the evidence asses
 
 export function SynthesisHeader({ synthesis }: { synthesis: SynthesisOut }) {
   return (
-    <div className="row center" data-testid="synthesis-header">
+    <div className="ai-kicker" data-testid="synthesis-header">
+      <SvgIcon name="sparkle" size={14} />
       <strong>{`${SYNTHESIS_HEADER} ${synthesis.version}`}</strong>
       <ProvenanceNotice provenance={synthesis.provenance} model={synthesis.model} />
     </div>
@@ -34,7 +36,7 @@ export function SynthesisView({ synthesis, criteria, onOpenClaim }: { synthesis:
   if (!out) return null;
   const known = new Set(out.claims.map((c) => c.local_id));
   return (
-    <section className="card" data-testid="synthesis-view">
+    <section className="card ai-panel" data-testid="synthesis-view">
       <SynthesisHeader synthesis={synthesis} />
       {SECTION_TITLES.map(([key, title]) => (
         <div key={key} data-testid={`synthesis-${key}`}>
@@ -95,7 +97,7 @@ export function FindingsView({ review, onOpen }: { review: ReviewDetail; onOpen?
     <section className="card" data-testid="findings">
       <div className="row center">
         <h3 style={{ margin: 0 }}>Reviewer findings</h3>
-        <Pill tone={review.verdict === "ready" ? "ok" : "bad"} testId="reviewer-verdict">{review.verdict === "ready" ? "✓ Verdict: ready" : "⊘ Verdict: needs rework"}</Pill>
+        <Pill tone={review.verdict === "ready" ? "ok" : "bad"} testId="reviewer-verdict"><SvgIcon name={review.verdict === "ready" ? "check" : "stop"} size={12} /> {review.verdict === "ready" ? "Verdict: ready" : "Verdict: needs rework"}</Pill>
         <ProvenanceNotice provenance={review.provenance} model={review.model} />
       </div>
       <p className="small muted" data-testid="reviewer-copy">{REVIEWER_COPY}</p>
@@ -114,7 +116,7 @@ export function FindingsView({ review, onOpen }: { review: ReviewDetail; onOpen?
 
 function FindingRow({ f, index, onOpen }: { f: Finding; index: number; onOpen?: (index: number) => void }) {
   return (
-    <div className="banner" style={{ marginBottom: 6 }} data-testid={`finding-${f.severity}`} data-category={f.category ?? ""}>
+    <div className={`banner ${f.severity === "blocking" ? "bad" : f.severity === "warning" ? "warn" : "info"}`} style={{ marginBottom: 6 }} data-testid={`finding-${f.severity}`} data-category={f.category ?? ""}>
       <div className="row center">
         <SeverityPill severity={f.severity} />
         <Pill tone={f.source === "code" ? "info" : undefined} testId="finding-source">{f.source === "code" ? "Automated check" : "Reviewer"}</Pill>

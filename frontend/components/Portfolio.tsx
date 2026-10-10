@@ -25,13 +25,13 @@ export function PortfolioCard({ decision }: { decision: DecisionOut }) {
       </div>
       <div className="row center" style={{ marginTop: 8 }}>
         {h.kind === "scored" ? (
-          <span className="big" data-testid="headline" data-ddi-value={cur?.ddi ?? undefined}>{h.text}</span>
+          <span className="big sm" data-testid="headline" data-ddi-value={cur?.ddi ?? undefined}>{h.text}</span>
         ) : h.kind === "gated" ? (
-          <span className="big" data-testid="headline"><Icon name="stop" /> {h.text}</span>
+          <span className="big sm" data-testid="headline"><Icon name="stop" size={24} /> {h.text}</span>
         ) : h.kind === "stale" ? (
-          <span className="big" data-testid="headline"><Icon name="clock" /> {h.text}</span>
+          <span className="big sm" data-testid="headline"><Icon name="clock" size={24} /> {h.text}</span>
         ) : (
-          <span className="big muted" data-testid="headline">{h.text}</span>
+          <span className="big sm muted" data-testid="headline">{h.text}</span>
         )}
       </div>
       <div className="row small muted" style={{ marginTop: 8 }}>

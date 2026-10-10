@@ -1,0 +1,656 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_standard" name="shell-type"><title>Decision Debt Radar</title><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "secondary-fixed-dim": "#c3c0ff",
+          "on-error-container": "#93000a",
+          "on-secondary": "#ffffff",
+          "primary-fixed": "#dbe1ff",
+          "background": "#f8f9ff",
+          "surface-dim": "#cbdbf5",
+          "on-background": "#0b1c30",
+          "primary-container": "#2563eb",
+          "on-error": "#ffffff",
+          "on-surface": "#0b1c30",
+          "surface-tint": "#0053db",
+          "surface-container": "#e5eeff",
+          "outline": "#737686",
+          "primary-fixed-dim": "#b4c5ff",
+          "on-primary-container": "#eeefff",
+          "inverse-on-surface": "#eaf1ff",
+          "on-tertiary": "#ffffff",
+          "on-tertiary-fixed-variant": "#004b73",
+          "on-secondary-container": "#fffbff",
+          "surface-container-high": "#dce9ff",
+          "tertiary-fixed-dim": "#93ccff",
+          "inverse-primary": "#b4c5ff",
+          "surface-container-low": "#eff4ff",
+          "secondary": "#4b41e1",
+          "on-surface-variant": "#434655",
+          "error-container": "#ffdad6",
+          "outline-variant": "#c3c6d7",
+          "on-primary-fixed-variant": "#003ea8",
+          "error": "#ba1a1a",
+          "on-primary-fixed": "#00174b",
+          "on-secondary-fixed": "#0f0069",
+          "on-secondary-fixed-variant": "#3323cc",
+          "secondary-container": "#645efb",
+          "on-primary": "#ffffff",
+          "primary": "#004ac6",
+          "on-tertiary-fixed": "#001d31",
+          "surface-container-highest": "#d3e4fe",
+          "tertiary-fixed": "#cce5ff",
+          "on-tertiary-container": "#e7f2ff",
+          "tertiary": "#005a89",
+          "inverse-surface": "#213145",
+          "surface-variant": "#d3e4fe",
+          "surface-bright": "#f8f9ff",
+          "surface-container-lowest": "#ffffff",
+          "tertiary-container": "#0073ae",
+          "secondary-fixed": "#e2dfff",
+          "surface": "#f8f9ff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-sm": "0.5rem",
+          "space-md": "1rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1.5rem",
+          "gutter": "1rem",
+          "margin-desktop": "2rem",
+          "margin": "1rem",
+          "space-xl": "2rem",
+          "gutter-desktop": "1.5rem"
+        },
+        "fontFamily": {
+          "headline-md": ["Inter"],
+          "mono-metric-md": ["Inter"],
+          "body-lg": ["Inter"],
+          "body-sm": ["Inter"],
+          "headline-lg": ["Inter"],
+          "label-sm": ["Inter"],
+          "headline-xl": ["Inter"],
+          "label-md": ["Inter"],
+          "body-md": ["Inter"],
+          "headline-xl-mobile": ["Inter"],
+          "mono-metric-lg": ["Inter"],
+          "headline-sm": ["Inter"]
+        },
+        "fontSize": {
+          "headline-md": ["1.25rem", {"lineHeight": "1.75rem", "letterSpacing": "-0.015em", "fontWeight": "600"}],
+          "mono-metric-md": ["0.875rem", {"lineHeight": "1.25rem", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+          "body-lg": ["1rem", {"lineHeight": "1.5rem", "letterSpacing": "-0.005em", "fontWeight": "400"}],
+          "body-sm": ["0.75rem", {"lineHeight": "1rem", "letterSpacing": "0em", "fontWeight": "400"}],
+          "headline-lg": ["1.5rem", {"lineHeight": "2rem", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+          "label-sm": ["0.6875rem", {"lineHeight": "0.875rem", "letterSpacing": "0.06em", "fontWeight": "600"}],
+          "headline-xl": ["2rem", {"lineHeight": "2.5rem", "letterSpacing": "-0.025em", "fontWeight": "600"}],
+          "label-md": ["0.8125rem", {"lineHeight": "1.125rem", "letterSpacing": "0em", "fontWeight": "500"}],
+          "body-md": ["0.875rem", {"lineHeight": "1.25rem", "letterSpacing": "0em", "fontWeight": "400"}],
+          "headline-xl-mobile": ["1.5rem", {"lineHeight": "2rem", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+          "mono-metric-lg": ["1.75rem", {"lineHeight": "2rem", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+          "headline-sm": ["1rem", {"lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+        }
+      }
+    }
+  }</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen flex flex-col"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/95 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-24 max-w-7xl mx-auto px-margin-desktop flex flex-col justify-between pt-space-sm"><div class="flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-sm"><div class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[20px]">radar</span></div><span class="font-headline-sm text-headline-sm text-on-surface">Decision Debt Radar</span></div><div class="hidden sm:flex items-center gap-space-xs"><span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Synthetic data</span><span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">Demo mode: replayed fixtures</span></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex flex-col items-end"><span class="font-label-sm text-label-sm text-outline uppercase tracking-wider">Demo identity only: not authentication</span><button class="inline-flex items-center gap-space-xs font-label-md text-label-md text-on-surface hover:text-primary transition-colors" type="button"><span class="text-outline font-normal">Acting as:</span><span class="font-medium">Product Manager / Lead Analyst</span><span class="material-symbols-outlined text-[16px] text-outline">unfold_more</span></button></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div><nav class="flex items-center gap-space-lg overflow-x-auto h-10" data-active-classes="text-on-surface font-semibold border-b-2 border-primary-container"><a aria-current="page" class="transition-colors pb-2 -mb-[1px] shrink-0 text-on-surface font-semibold border-b-2 border-primary-container" data-path="overview" href="#">Overview</a><a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors pb-2 -mb-[1px] shrink-0" data-path="canvas" href="#">Canvas</a><a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors pb-2 -mb-[1px] shrink-0" data-path="evidence" href="#">Evidence</a><a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors pb-2 -mb-[1px] shrink-0" data-path="assessment" href="#">Assessment</a><a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors pb-2 -mb-[1px] shrink-0" data-path="review" href="#">Review</a><a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors pb-2 -mb-[1px] shrink-0" data-path="traceability" href="#">Traceability</a><a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors pb-2 -mb-[1px] shrink-0" data-path="brief-and-record" href="#">Brief &amp; Record</a><a class="text-on-surface-variant hover:text-on-surface font-label-md text-label-md transition-colors pb-2 -mb-[1px] shrink-0" data-path="audit" href="#">Audit</a></nav></div></header><main class="w-full pt-24 max-w-7xl mx-auto px-margin-desktop bg-surface flex-1"><div class="flex flex-col w-full">
+<!-- Top Utility Context Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm mb-space-md pb-space-sm">
+<div class="flex items-center gap-space-xs text-on-surface-variant font-body-sm text-body-sm">
+<span class="inline-flex items-center gap-1 font-mono-metric-md text-mono-metric-md text-primary font-medium">
+<span class="material-symbols-outlined text-[16px]">folder_special</span>
+        WORKSPACE / INFRA-CORE
+      </span>
+<span class="text-outline">/</span>
+<span class="font-mono-metric-md text-mono-metric-md text-on-surface font-semibold">DEC-2024-089</span>
+<span class="inline-flex items-center px-1.5 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface-variant uppercase ml-space-xs">v3.2 Draft</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-pulse"></span>
+        Ledger Audit Synchronized (12m ago)
+      </span>
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded bg-surface-container-lowest shadow-sm hover:bg-surface-container-low text-on-surface font-label-md text-label-md transition-all" type="button">
+<span class="material-symbols-outlined text-[16px] text-outline">history</span>
+        Changelog (14)
+      </button>
+</div>
+</div>
+<!-- SECTION 1: Decision Header Card -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-sm p-6 mb-space-lg">
+<!-- Header Top Row: Title, Metadata, Action -->
+<div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-space-md mb-space-md">
+<div class="flex-1 min-w-0">
+<div class="flex flex-wrap items-center gap-space-xs mb-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container font-mono-metric-md text-mono-metric-md font-semibold text-primary">DEC-2024-089</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high font-label-sm text-label-sm uppercase text-on-surface-variant tracking-wider">Tier-1 Architectural Shift</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface font-semibold tracking-tight text-balance mb-2">
+          Migrate Core Billing Engine to Ledger-Backed Microservice
+        </h1>
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="font-medium text-on-surface">Sarah Chen (Head of Product Infrastructure)</span>
+<span class="text-outline">•</span>
+<span>Created Oct 14, 2024</span>
+<span class="text-outline">•</span>
+<span class="font-mono-metric-md text-mono-metric-md text-on-surface">Target: Q1 2025</span>
+</div>
+</div>
+<div class="flex items-center gap-space-sm self-start lg:self-auto shrink-0">
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-outline">share</span>
+          Export Brief
+        </button>
+<button class="inline-flex items-center gap-1.5 px-4 h-9 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md shadow-sm transition-all active:scale-[0.99]" type="button">
+<span class="material-symbols-outlined text-[18px]">rule_folder</span>
+          Submit for Re-evaluation
+        </button>
+</div>
+</div>
+<!-- Hypothesis Statement Box -->
+<div class="p-3.5 bg-surface-container-low rounded-lg mb-6">
+<div class="flex items-start gap-2.5">
+<span class="material-symbols-outlined text-[18px] text-primary mt-0.5 shrink-0">lightbulb</span>
+<div class="text-on-surface-variant font-body-md text-body-md leading-relaxed">
+<span class="font-semibold text-on-surface">Hypothesis:</span> Decoupling billing into an immutable ledger will eliminate reconciliation anomalies below 0.001% without adding &gt;15ms P99 latency.
+        </div>
+</div>
+</div>
+<!-- 6-step lifecycle stepper chips connected with a subtle line -->
+<div class="relative w-full pt-2 pb-3 mb-5 overflow-x-auto">
+<div class="min-w-[680px] flex items-center justify-between relative">
+<!-- Connecting Line Behind Nodes -->
+<div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-[2px] bg-surface-container-high z-0"></div>
+<div class="absolute left-6 top-1/2 -translate-y-1/2 h-[2px] bg-primary z-0" style="width: 58%;"></div>
+<!-- 1. Created (Completed) -->
+<div class="relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md shadow-sm">
+<div class="w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[12px]">check</span>
+</div>
+<span class="font-medium">1. Created</span>
+</div>
+<!-- 2. Evidence (Completed) -->
+<div class="relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md shadow-sm">
+<div class="w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[12px]">check</span>
+</div>
+<span class="font-medium">2. Evidence</span>
+</div>
+<!-- 3. Assessed (Completed) -->
+<div class="relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-on-surface font-label-md text-label-md shadow-sm">
+<div class="w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[12px]">check</span>
+</div>
+<span class="font-medium">3. Assessed</span>
+</div>
+<!-- 4. Challenged (Current Active) -->
+<div class="relative z-10 flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-md ring-4 ring-primary-fixed">
+<span class="w-2 h-2 rounded-full bg-surface-container-lowest animate-ping"></span>
+<span class="font-semibold">4. Challenged</span>
+</div>
+<!-- 5. Validated (Upcoming) -->
+<div class="relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest text-outline font-label-md text-label-md shadow-sm">
+<span class="w-4 h-4 rounded-full bg-surface-container flex items-center justify-center text-label-sm font-semibold text-outline">5</span>
+<span>Validated</span>
+</div>
+<!-- 6. Decided (Upcoming) -->
+<div class="relative z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-lowest text-outline font-label-md text-label-md shadow-sm">
+<span class="w-4 h-4 rounded-full bg-surface-container flex items-center justify-center text-label-sm font-semibold text-outline">6</span>
+<span>Decided</span>
+</div>
+</div>
+</div>
+<!-- Status banner inside/below header: Left accent bar (warning amber) -->
+<div class="flex items-center gap-3 p-3.5 bg-surface-container-low rounded-lg relative overflow-hidden shadow-sm">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-500"></div>
+<span class="material-symbols-outlined text-[20px] text-amber-600 pl-1">warning</span>
+<div class="flex-1 min-w-0 flex flex-wrap items-center justify-between gap-2">
+<p class="font-body-md text-body-md text-on-surface font-medium">
+          Review verdict: needs rework — 2 blocking validator findings identified in reliability claims
+        </p>
+<a class="inline-flex items-center gap-1 font-label-md text-label-md text-primary font-semibold hover:underline" href="#">
+          View Audit Logs
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- SECTION 2: Two-Column Card Grid (Aligned Baselines, 24px Gap, 24px Card Padding) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-space-lg items-stretch">
+<!-- LEFT COLUMN: DECISION DEBT INDEX (DDI) CARD -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">analytics</span>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">
+              DECISION DEBT INDEX (DDI)
+            </span>
+</div>
+<button class="text-outline hover:text-on-surface transition-colors" title="DDI measures evidential uncertainty and unverified assumptions." type="button">
+<span class="material-symbols-outlined text-[18px]">info</span>
+</button>
+</div>
+<!-- Metric Display & Band Badge -->
+<div class="flex items-baseline gap-4 mb-3">
+<span class="font-mono-metric-lg text-[2.75rem] leading-none font-bold tracking-tight text-on-surface">68.4</span>
+<div class="flex flex-col gap-1">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm font-semibold uppercase tracking-wider">
+              High band
+            </span>
+<span class="font-body-sm text-body-sm text-outline">Upper limit: 100.0</span>
+</div>
+</div>
+<!-- Mandatory Trust Text -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6 bg-surface-container-low p-2.5 rounded-md">
+          Higher = more evidence debt (weaker support). Not a probability the decision is wrong.
+        </p>
+<!-- Dimensional Micro-bars breakdown -->
+<div class="space-y-3 pt-1 mb-6">
+<div>
+<div class="flex justify-between items-center mb-1 font-body-sm text-body-sm">
+<span class="text-on-surface-variant">Evidence Coverage</span>
+<span class="font-mono-metric-md text-mono-metric-md font-semibold text-on-surface">42%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 42%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-1 font-body-sm text-body-sm">
+<span class="text-on-surface-variant">Rigor Gap Penalty</span>
+<span class="font-mono-metric-md text-mono-metric-md font-semibold text-secondary">+26.4</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 62%;"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-1 font-body-sm text-body-sm">
+<span class="text-on-surface-variant">Telemetry Freshness Decay</span>
+<span class="font-mono-metric-md text-mono-metric-md font-semibold text-on-surface-variant">+8.2</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-outline rounded-full" style="width: 24%;"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Context Baseline -->
+<div class="pt-3 border-t-0 flex items-center justify-between text-outline font-body-sm text-body-sm">
+<span>Historical infra median: 38.2</span>
+<span class="inline-flex items-center text-primary font-medium hover:underline cursor-pointer">
+          View formula breakdown →
+        </span>
+</div>
+</div>
+<!-- RIGHT COLUMN: EVIDENCE DIRECTION CARD -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-tertiary">swap_horiz</span>
+<span class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface-variant">
+              EVIDENCE DIRECTION
+            </span>
+</div>
+<span class="font-mono-metric-md text-mono-metric-md text-outline">13 CLAIMS TOTAL</span>
+</div>
+<!-- Direction Indicator -->
+<div class="mb-4">
+<div class="flex items-center gap-2 mb-1.5">
+<span class="material-symbols-outlined text-[24px] text-primary">trending_up</span>
+<span class="font-headline-md text-headline-md text-on-surface font-semibold">
+              Leaning Positive / Supports (+0.38 net balance)
+            </span>
+</div>
+<div class="w-full bg-surface-container h-2.5 rounded-full overflow-hidden flex">
+<div class="bg-primary h-full" style="width: 64%;" title="Supports (64%)"></div>
+<div class="bg-outline h-full" style="width: 12%;" title="Inconclusive (12%)"></div>
+<div class="bg-secondary-container h-full" style="width: 24%;" title="Contradicts (24%)"></div>
+</div>
+</div>
+<!-- Mandatory Trust Text -->
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed mb-6 bg-surface-container-low p-2.5 rounded-md">
+          Direction is separate from DDI.
+        </p>
+<!-- Stance Pills with metrics -->
+<div class="grid grid-cols-3 gap-2 mb-6">
+<div class="bg-surface-container-low rounded-lg p-3 text-center">
+<div class="flex items-center justify-center gap-1 text-primary mb-1">
+<span class="material-symbols-outlined text-[16px]">thumb_up</span>
+<span class="font-label-sm text-label-sm font-semibold uppercase">Supports</span>
+</div>
+<div class="font-mono-metric-lg text-headline-sm font-bold text-on-surface">8</div>
+<div class="font-body-sm text-body-sm text-outline">64% of items</div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 text-center">
+<div class="flex items-center justify-center gap-1 text-secondary-container mb-1">
+<span class="material-symbols-outlined text-[16px]">thumb_down</span>
+<span class="font-label-sm text-label-sm font-semibold uppercase">Contradicts</span>
+</div>
+<div class="font-mono-metric-lg text-headline-sm font-bold text-on-surface">3</div>
+<div class="font-body-sm text-body-sm text-outline">24% of items</div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-3 text-center">
+<div class="flex items-center justify-center gap-1 text-outline mb-1">
+<span class="material-symbols-outlined text-[16px]">help_outline</span>
+<span class="font-label-sm text-label-sm font-semibold uppercase">Inconclusive</span>
+</div>
+<div class="font-mono-metric-lg text-headline-sm font-bold text-on-surface">2</div>
+<div class="font-body-sm text-body-sm text-outline">12% of items</div>
+</div>
+</div>
+</div>
+<!-- Small Secondary Note -->
+<div class="pt-3 flex items-center gap-2 text-outline font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary shrink-0">data_check</span>
+<span>Synthesized from 13 verified claims across customer and technical telemetry.</span>
+</div>
+</div>
+</div>
+<!-- SECTION 3: Next Best Evidence Table (Full-Width Card) -->
+<div class="w-full bg-surface-container-lowest rounded-xl shadow-sm p-6 mb-space-lg">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-2">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px] text-primary">bolt</span>
+<h2 class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface">
+            NEXT BEST EVIDENCE
+          </h2>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+          Highest leverage evidence items to reduce DDI score
+        </p>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-outline uppercase">Queue Sort:</span>
+<span class="font-label-md text-label-md text-on-surface font-medium bg-surface-container-low px-2 py-1 rounded">
+          Impact Ratio ↓
+        </span>
+</div>
+</div>
+<!-- Responsive Table Wrapper -->
+<div class="overflow-x-auto -mx-6 px-6">
+<table class="w-full text-left border-collapse min-w-[840px]">
+<thead>
+<tr class="bg-surface-container-low h-9">
+<th class="py-2 px-3 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant rounded-l">
+              EVIDENCE DEFICIT / TEST
+            </th>
+<th class="py-2 px-3 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+              CLAIM AFFECTED
+            </th>
+<th class="py-2 px-3 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant text-right">
+              POTENTIAL DDI IMPACT
+            </th>
+<th class="py-2 px-3 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant">
+              EFFORT ESTIMATE
+            </th>
+<th class="py-2 px-3 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant max-w-xs">
+              WHY THIS (RECOMMENDATION)
+            </th>
+<th class="py-2 px-3 font-label-sm text-label-sm font-semibold uppercase tracking-wider text-on-surface-variant text-right rounded-r">
+              ACTION
+            </th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Row 1 -->
+<tr class="h-16 hover:bg-surface-container-low/60 transition-colors">
+<td class="py-3 px-3">
+<div class="font-body-md text-body-md font-semibold text-on-surface">Dual-Write P99 Latency Benchmark</div>
+<div class="font-body-sm text-body-sm text-outline">Chaos soak test with simulated 50k writes/sec</div>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container text-primary font-mono-metric-md text-mono-metric-md font-medium">[c1]</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-primary font-mono-metric-md text-mono-metric-md font-medium">[c3]</span>
+</div>
+</td>
+<td class="py-3 px-3 text-right">
+<span class="font-mono-metric-md text-mono-metric-md font-bold text-primary bg-primary-fixed/40 px-2 py-1 rounded">
+                -14.2 DDI
+              </span>
+</td>
+<td class="py-3 px-3 font-body-sm text-body-sm text-on-surface">
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-outline">schedule</span>
+                3 Days / 0.5 Sprint
+              </span>
+</td>
+<td class="py-3 px-3 max-w-xs">
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Validates the critical &lt;15ms constraint which is currently backed only by theoretical mock estimates.
+              </p>
+</td>
+<td class="py-3 px-3 text-right">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-outline">add_task</span>
+                Assign
+              </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="h-16 hover:bg-surface-container-low/60 transition-colors">
+<td class="py-3 px-3">
+<div class="font-body-md text-body-md font-semibold text-on-surface">End-of-Month Shadow Reconciliation Run</div>
+<div class="font-body-sm text-body-sm text-outline">Production replay across 2.4M enterprise invoices</div>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container text-primary font-mono-metric-md text-mono-metric-md font-medium">[c2]</span>
+</div>
+</td>
+<td class="py-3 px-3 text-right">
+<span class="font-mono-metric-md text-mono-metric-md font-bold text-primary bg-primary-fixed/40 px-2 py-1 rounded">
+                -9.8 DDI
+              </span>
+</td>
+<td class="py-3 px-3 font-body-sm text-body-sm text-on-surface">
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-outline">schedule</span>
+                5 Days / 1.0 Sprint
+              </span>
+</td>
+<td class="py-3 px-3 max-w-xs">
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Converts disputed claim on float variance to audited empirical measurement before code freeze.
+              </p>
+</td>
+<td class="py-3 px-3 text-right">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-outline">note_add</span>
+                Log Evidence
+              </button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-16 hover:bg-surface-container-low/60 transition-colors">
+<td class="py-3 px-3">
+<div class="font-body-md text-body-md font-semibold text-on-surface">Multi-Region Partition Recovery Validation</div>
+<div class="font-body-sm text-body-sm text-outline">Simulated split-brain across US-East and EU-Central</div>
+</td>
+<td class="py-3 px-3">
+<div class="flex items-center gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container text-primary font-mono-metric-md text-mono-metric-md font-medium">[c4]</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-primary font-mono-metric-md text-mono-metric-md font-medium">[c7]</span>
+</div>
+</td>
+<td class="py-3 px-3 text-right">
+<span class="font-mono-metric-md text-mono-metric-md font-bold text-primary bg-primary-fixed/40 px-2 py-1 rounded">
+                -6.5 DDI
+              </span>
+</td>
+<td class="py-3 px-3 font-body-sm text-body-sm text-on-surface">
+<span class="inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-outline">schedule</span>
+                2 Days / 0.3 Sprint
+              </span>
+</td>
+<td class="py-3 px-3 max-w-xs">
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Required to resolve the outstanding blocking audit finding regarding consensus ledger failover.
+              </p>
+</td>
+<td class="py-3 px-3 text-right">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-md text-label-md transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px] text-outline">add_task</span>
+                Assign
+              </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- SECTION 4: Review Summary & Top Evidence Grid (2 Columns below table) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+<!-- LEFT CARD: REVIEW SUMMARY & FINDINGS -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">fact_check</span>
+<h3 class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface">
+              REVIEW SUMMARY &amp; FINDINGS
+            </h3>
+</div>
+<span class="font-mono-metric-md text-mono-metric-md text-outline">SYNTHESIS ENGINE</span>
+</div>
+<!-- Categorized Summary Badges -->
+<div class="grid grid-cols-3 gap-3 mb-4">
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm font-semibold uppercase text-secondary">Blocking</span>
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+</div>
+<span class="font-mono-metric-lg text-headline-sm font-bold text-on-surface">1</span>
+<span class="font-body-sm text-body-sm text-outline">Halts sign-off</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm font-semibold uppercase text-on-surface-variant">Warning</span>
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+</div>
+<span class="font-mono-metric-lg text-headline-sm font-bold text-on-surface">2</span>
+<span class="font-body-sm text-body-sm text-outline">Action recommended</span>
+</div>
+<div class="p-3 rounded-lg bg-surface-container-low flex flex-col">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-sm text-label-sm font-semibold uppercase text-outline">Info</span>
+<span class="w-2 h-2 rounded-full bg-surface-dim"></span>
+</div>
+<span class="font-mono-metric-lg text-headline-sm font-bold text-on-surface">3</span>
+<span class="font-body-sm text-body-sm text-outline">Contextual telemetry</span>
+</div>
+</div>
+<!-- Mandatory Trust Text -->
+<div class="p-2.5 bg-surface-container-low rounded-md mb-5 text-on-surface-variant font-body-sm text-body-sm">
+          Verdict derived by code from finding severities.
+        </div>
+<!-- Subtle AI section with single quiet label at top -->
+<div class="bg-surface-container-low rounded-lg p-4">
+<div class="flex items-center gap-1.5 mb-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary">psychology</span>
+<span class="font-label-sm text-label-sm font-semibold uppercase tracking-wider text-tertiary">
+              AI-generated interpretation
+            </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed mb-3">
+            Primary governance friction stems from the lack of telemetry verification regarding partition-tolerant consensus during peak traffic bursts. While structural code quality and architectural decoupling are rated favorably, data continuity under node degradation remains speculative.
+          </p>
+<!-- Mandatory AI Trust Statement -->
+<div class="flex items-center gap-1.5 text-outline font-body-sm text-body-sm pt-2">
+<span class="material-symbols-outlined text-[14px]">history_edu</span>
+<span>Replayed demo fixture, not live model output</span>
+</div>
+</div>
+</div>
+<div class="pt-4 flex items-center justify-between text-outline font-body-sm text-body-sm">
+<span>Evaluated against: Architecture Standard v4.8</span>
+<a class="text-primary font-medium hover:underline" href="#">View 6 findings →</a>
+</div>
+</div>
+<!-- RIGHT CARD: TOP SUPPORTING & CONTRADICTING EVIDENCE -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">balance</span>
+<h3 class="font-label-sm text-label-sm font-bold uppercase tracking-wider text-on-surface">
+              TOP SUPPORTING &amp; CONTRADICTING EVIDENCE
+            </h3>
+</div>
+<span class="font-label-sm text-label-sm uppercase text-outline">Key Signals</span>
+</div>
+<!-- Supporting Section -->
+<div class="mb-5">
+<div class="flex items-center justify-between mb-2">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm font-bold uppercase text-primary">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+              Supports
+            </span>
+<span class="font-mono-metric-md text-mono-metric-md text-outline">Rigor Score: 9.4/10</span>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg space-y-2">
+<div class="flex items-start justify-between gap-2">
+<p class="font-body-sm text-body-sm text-on-surface font-medium">
+                Production Synthetic Shadow Run: Zero Drift
+              </p>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-primary font-mono-metric-md text-mono-metric-md text-[11px] shrink-0">[c1]</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Replayed 14-day write volume against prototype ledger; exactly 0 ledger divergence observed across 1.1M test batches.
+            </p>
+</div>
+</div>
+<!-- Contradicting Section -->
+<div class="mb-4">
+<div class="flex items-center justify-between mb-2">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm font-bold uppercase text-secondary">
+<span class="material-symbols-outlined text-[14px]">cancel</span>
+              Contradicts
+            </span>
+<span class="font-mono-metric-md text-mono-metric-md text-outline">Rigor Score: 8.8/10</span>
+</div>
+<div class="p-3 bg-surface-container-low rounded-lg space-y-2">
+<div class="flex items-start justify-between gap-2">
+<p class="font-body-sm text-body-sm text-on-surface font-medium">
+                SRE Tail-Latency Benchmark: P99 Violation
+              </p>
+<span class="px-1.5 py-0.5 rounded bg-surface-container text-primary font-mono-metric-md text-mono-metric-md text-[11px] shrink-0">[c3]</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Consensus replication across cross-region VPC links added +28ms to P99, exceeding the mandated 15ms ceiling.
+            </p>
+</div>
+</div>
+</div>
+<div class="pt-3 flex items-center justify-between text-outline font-body-sm text-body-sm">
+<span>Displaying top 2 of 13 evidential fixtures</span>
+<a class="text-primary font-medium hover:underline" href="#">Inspect all evidence →</a>
+</div>
+</div>
+</div>
+</div>
+<script>
+  // Simple micro-interaction for responsive action triggers
+  document.querySelectorAll('button').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      if (this.innerText.includes('Submit for Re-evaluation')) {
+        const originalText = this.innerHTML;
+        this.innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Submitting...';
+        setTimeout(() => {
+          this.innerHTML = originalText;
+        }, 1200);
+      }
+    });
+  });
+</script></main><footer class="w-full bg-surface-container-lowest mt-space-xl py-space-md"><div class="max-w-7xl mx-auto px-margin-desktop flex flex-col sm:flex-row items-center justify-between gap-space-sm font-body-sm text-body-sm text-outline"><span>Decision Debt Radar · Analytical Precision Platform</span><span class="font-mono-metric-md text-mono-metric-md">Workspace Engine v2.4.1-prod</span></div></footer></body></html>

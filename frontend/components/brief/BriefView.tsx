@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { fmtDateTime, fmtNumber, fmtPercent, REPLAY_NOTICE, titleCase } from "../../lib/format";
 import type { BriefContent, BriefOut } from "../../lib/types";
+import { bandTone } from "../assessment/Cards";
 import { Icon, Pill, StancePill } from "../ui";
 import styles from "./BriefView.module.css";
 
@@ -124,7 +125,7 @@ export function BriefView({ brief }: { brief: BriefOut }) {
             <h2>Decision Debt Index and direction</h2>
             <div data-region="ddi">
               <span className="big" data-testid="ddi-value" data-ddi-value={c.ddi_panel.ddi ?? undefined}>{c.ddi_panel.ddi?.toFixed(1)}</span>{" "}
-              <Pill testId="ddi-band">{titleCase(c.ddi_panel.band)} band</Pill>
+              <Pill tone={bandTone(c.ddi_panel.band)} testId="ddi-band">{titleCase(c.ddi_panel.band)} band</Pill>
             </div>
             <p className="small">Higher = more evidence debt (weaker support). Not a probability the decision is wrong.</p>
             <p className="small muted">{c.ddi_panel.positioning}</p>
@@ -144,7 +145,7 @@ export function BriefView({ brief }: { brief: BriefOut }) {
         ) : (
           <>
             <h2>Why there is no score</h2>
-            <div data-region="ddi"><div className="big" data-testid="gate-label"><Icon name="stop" /> INSUFFICIENT EVIDENCE</div></div>
+            <div data-region="ddi"><div className="big gate" data-testid="gate-label"><Icon name="stop" size={24} /> INSUFFICIENT EVIDENCE</div></div>
             <p className="small">No DDI, band, dimension or penalty exists for this assessment.</p>
             <ul data-testid="brief-gate-reasons">
               {c.gate_reasons.map((r) => <li key={r.code} className="small"><span className="mono">{r.code}</span>: {r.message}</li>)}

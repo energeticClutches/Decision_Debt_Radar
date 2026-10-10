@@ -1,8 +1,12 @@
 "use client";
 
+import { createPortal } from "react-dom";
+
 import { nextAction, statusStrip, type NextAction, type StatusStrip } from "../../lib/actions";
 import { STAGES } from "../../lib/format";
 import type { DecisionOut, LifecycleStage, ReviewDetail, UserOut, AssessmentOut } from "../../lib/types";
+import { SvgIcon } from "../icons";
+import { useTabsSlot } from "../AppShell";
 import { Icon } from "../ui";
 
 const STEP_NAMES: Record<LifecycleStage, string> = {
@@ -13,15 +17,17 @@ export function Stepper({ decision }: { decision: Pick<DecisionOut, "lifecycle_s
   const current = STAGES.indexOf(decision.lifecycle_stage);
   return (
     <div data-testid="stepper" data-stage={decision.lifecycle_stage}>
-      <ol style={{ display: "flex", flexWrap: "wrap", gap: 6, listStyle: "none", padding: 0, margin: 0 }} aria-label="Decision lifecycle">
+      <ol className="stepper" aria-label="Decision lifecycle">
         {STAGES.map((s, i) => (
-          <li key={s} aria-current={i === current ? "step" : undefined} data-step={s} data-state={i < current ? "done" : i === current ? "current" : "todo"}
-            className={`badge ${i < current ? "ok" : i === current ? "info" : ""}`}>
-            {i < current ? "✓ " : i === current ? "▶ " : ""}{STEP_NAMES[s]}
+          <li key={s} aria-current={i === current ? "step" : undefined} data-step={s} data-state={i < current ? "done" : i === current ? "current" : "todo"}>
+            <span className="step">
+              <span className="node" aria-hidden="true">{i < current ? <SvgIcon name="check" size={12} /> : i + 1}</span>
+              <span className="step-label">{STEP_NAMES[s]}</span>
+            </span>
           </li>
         ))}
       </ol>
-      <div className="small muted" data-testid="lifecycle-label">{decision.lifecycle_label}</div>
+      <div className="small muted lifecycle-label" data-testid="lifecycle-label">{decision.lifecycle_label}</div>
     </div>
   );
 }
@@ -48,26 +54,42 @@ export function WorkspaceHeader({ decision, assessment, reviews, me, owner, busy
   const strip = statusStrip(decision, assessment, reviews);
   const next = nextAction(decision, assessment, reviews, me);
   return (
-    <div className="card" style={{ position: "sticky", top: 0, zIndex: 30 }} data-testid="workspace-header">
-      <div className="row center">
-        <h1 style={{ margin: 0 }} data-testid="workspace-title">{decision.title}</h1>
-        <span className="small muted">{owner ? `Owner: ${owner.name}${owner.team_name ? `, ${owner.team_name}` : ""}` : ""}</span>
+    <div className="card" data-testid="workspace-header">
+      <div className="ws-head">
+        <div className="titles">
+          <h1 data-testid="workspace-title">{decision.title}</h1>
+          <div className="meta">{owner ? `Owner: ${owner.name}${owner.team_name ? `, ${owner.team_name}` : ""}` : ""}</div>
+        </div>
+        <div className="action">
+          {next ? (
+            <>
+              <button className="btn primary" disabled={!next.enabled || busy} onClick={() => onNext(next)} data-testid="next-action" data-action={next.id} title={next.disabledReason ?? undefined}>
+                {next.label}
+              </button>
+              {next.disabledReason ? <span className="small muted" data-testid="next-action-reason">{next.disabledReason}</span> : null}
+            </>
+          ) : <span className="badge info" data-testid="next-action-none"><Icon name="lock" /> No further action</span>}
+        </div>
       </div>
-      <p className="small muted" style={{ margin: "4px 0 8px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={decision.hypothesis} data-testid="workspace-hypothesis">{decision.hypothesis}</p>
-      <div className="row center">
-        <div className="grow"><Stepper decision={decision} /></div>
+      <div className="callout hypothesis">
+        <SvgIcon name="bulb" size={16} />
+        <span className="text" title={decision.hypothesis} data-testid="workspace-hypothesis">{decision.hypothesis}</span>
       </div>
-      <div className="row center" style={{ marginTop: 8 }}>
-        <div className="grow"><StripView strip={strip} /></div>
-        {next ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <button className="btn primary" disabled={!next.enabled || busy} onClick={() => onNext(next)} data-testid="next-action" data-action={next.id} title={next.disabledReason ?? undefined}>
-              {next.label}
-            </button>
-            {next.disabledReason ? <span className="small muted" data-testid="next-action-reason">{next.disabledReason}</span> : null}
-          </div>
-        ) : <span className="badge info" data-testid="next-action-none"><Icon name="lock" /> No further action</span>}
-      </div>
+      <Stepper decision={decision} />
+      <div className="ws-status"><StripView strip={strip} /></div>
     </div>
   );
+}
+
+/** The workspace tabs. They are rendered into the top bar as underline tabs (a portal) and fall back to an inline row where there is no bar. */
+export function WorkspaceTabs<T extends string>({ tabs, tab, onSelect }: { tabs: ReadonlyArray<readonly [T, string]>; tab: T; onSelect: (t: T) => void }) {
+  const { slot } = useTabsSlot();
+  const nav = (
+    <nav role="tablist" aria-label="Workspace sections" className={`tabs${slot ? "" : " inline"}`}>
+      {tabs.map(([t, label]) => (
+        <button key={t} role="tab" aria-selected={tab === t} className="tab" onClick={() => onSelect(t)} data-testid={`tab-${t}`}>{label}</button>
+      ))}
+    </nav>
+  );
+  return slot ? createPortal(nav, slot) : nav;
 }
