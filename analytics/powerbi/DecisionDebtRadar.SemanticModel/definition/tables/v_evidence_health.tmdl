@@ -1,0 +1,72 @@
+table v_evidence_health
+	lineageTag: 49efc185-f580-5428-a92e-41c789037cc9
+
+	column org_id
+		dataType: string
+		lineageTag: d9859666-cdb7-5703-b0a3-14980900d8cb
+		summarizeBy: none
+		sourceColumn: org_id
+
+	column team_id
+		dataType: string
+		lineageTag: fb9dd50b-762b-511f-a68b-d6e6353c6852
+		summarizeBy: none
+		sourceColumn: team_id
+
+	column decision_type
+		dataType: string
+		lineageTag: 325b816e-30a2-5bbc-af7b-d641cd492c55
+		summarizeBy: none
+		sourceColumn: decision_type
+
+	column dimension
+		dataType: string
+		lineageTag: 25bc2df9-3e02-5b3a-a058-b7dca9746b20
+		summarizeBy: none
+		sourceColumn: dimension
+
+	column metric_name
+		dataType: string
+		lineageTag: 6d856adb-281a-5bda-aebd-bf80502a30d9
+		summarizeBy: none
+		sourceColumn: metric_name
+
+	column value
+		dataType: double
+		lineageTag: c89a0f7e-2ddc-523f-b560-aff801122ddf
+		summarizeBy: none
+		sourceColumn: value
+
+	column indicator
+		dataType: string
+		lineageTag: 3065e1bd-dab9-5bbf-a3f3-0b9b8be90766
+		summarizeBy: none
+		sourceColumn: indicator
+
+	column as_of_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 66887566-6fcf-572b-abb4-9f564a47ef01
+		summarizeBy: none
+		sourceColumn: as_of_date
+
+	column is_synthetic
+		dataType: boolean
+		lineageTag: 9619d151-0776-5e53-8471-443c31b480e3
+		summarizeBy: none
+		sourceColumn: is_synthetic
+
+	partition v_evidence_health = m
+		mode: import
+		source =
+				let
+				    Raw = Csv.Document(File.Contents(DataFolder & "\v_evidence_health.csv"), [Delimiter = ",", Columns = 9, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Raw, [PromoteAllScalars = true]),
+				    Clean = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Live = PostgreSQL.Database(PgServer, PgDatabase, [Query = "SELECT org_id, team_id, decision_type, dimension, metric_name, value, indicator, as_of_date, is_synthetic FROM v_evidence_health"]),
+				    Chosen = if DataSource = "postgres" then Live else Clean,
+				    Typed = Table.TransformColumnTypes(Chosen, {{"value", type number}, {"as_of_date", type date}, {"is_synthetic", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,77 @@
+table eval_metrics
+	lineageTag: 523b3f8a-3198-587e-aa8a-062bc49f1045
+
+	measure 'Not evidenced metrics' = CALCULATE(COUNTROWS(eval_metrics), eval_metrics[status] = "NOT EVIDENCED")
+		formatString: 0
+		lineageTag: 7541f81c-e8d8-598a-a3b3-f5536f8df26e
+
+	measure 'Measured metrics' = CALCULATE(COUNTROWS(eval_metrics), eval_metrics[status] <> "NOT EVIDENCED")
+		formatString: 0
+		lineageTag: d1f04cf0-d3bf-5079-a88d-3e54a3295492
+
+	column metric_id
+		dataType: string
+		lineageTag: 7923463b-d869-55d7-b9fe-46fbd4f9e13d
+		summarizeBy: none
+		sourceColumn: metric_id
+
+	column metric
+		dataType: string
+		lineageTag: cfef9062-f131-53b0-94a6-b0a0e4838caf
+		summarizeBy: none
+		sourceColumn: metric
+
+	column value
+		dataType: string
+		lineageTag: 3878958c-a441-569b-9ff8-4f45e668af80
+		summarizeBy: none
+		sourceColumn: value
+
+	column target
+		dataType: string
+		lineageTag: fc4a4b60-fb9d-5e29-a223-704809f73cf0
+		summarizeBy: none
+		sourceColumn: target
+
+	column status
+		dataType: string
+		lineageTag: 2f338992-b1d4-5cb1-8645-c28b0bf53085
+		summarizeBy: none
+		sourceColumn: status
+
+	column stub_not_model_output
+		dataType: boolean
+		lineageTag: 2cbc5cb5-e7af-5242-a812-1c5da0a0813e
+		summarizeBy: none
+		sourceColumn: stub_not_model_output
+
+	column note
+		dataType: string
+		lineageTag: 5d848e29-7070-580d-a084-ce74f0e81c7e
+		summarizeBy: none
+		sourceColumn: note
+
+	column is_synthetic
+		dataType: boolean
+		lineageTag: 93aeca00-76f2-5d77-a081-89605f9bf2e3
+		summarizeBy: none
+		sourceColumn: is_synthetic
+
+	column provenance_label = IF(eval_metrics[status] = "NOT EVIDENCED", "not measured: no live model", IF(eval_metrics[stub_not_model_output] = TRUE(), "stub, not model output", "deterministic"))
+		dataType: string
+		lineageTag: 2995b0a7-5b74-543f-bd82-c7e46c77d687
+		summarizeBy: none
+
+	partition eval_metrics = m
+		mode: import
+		source =
+				let
+				    Raw = Csv.Document(File.Contents(DataFolder & "\eval_metrics.csv"), [Delimiter = ",", Columns = 8, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Raw, [PromoteAllScalars = true]),
+				    Clean = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Chosen = Clean,
+				    Typed = Table.TransformColumnTypes(Chosen, {{"stub_not_model_output", type logical}, {"is_synthetic", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

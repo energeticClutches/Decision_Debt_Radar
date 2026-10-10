@@ -1,0 +1,1226 @@
+{
+  "synthetic": true,
+  "label": "Synthetic data. Code-layer seeded-flaw suite on syntheses built from real payloads; no model is involved. Reviewer recall and false-flag rate are NOT EVIDENCED (no live model; replay fixtures are hand-authored).",
+  "controls": [
+    {
+      "scenario": "ai_coach",
+      "validator_rules": [],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "flagged": false
+    },
+    {
+      "scenario": "community",
+      "validator_rules": [],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 5,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "flagged": false
+    },
+    {
+      "scenario": "onboarding",
+      "validator_rules": [],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 1,
+      "claims_valid_before_filter": 1,
+      "claims_surviving": 1,
+      "claims_valid_after_filter": 1,
+      "flagged": false
+    },
+    {
+      "scenario": "pricing",
+      "validator_rules": [],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 5,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "flagged": false
+    }
+  ],
+  "instances": [
+    {
+      "id": "M01",
+      "flaw": "unsupported_claim",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-ID",
+      "caught": true,
+      "validator_rules": [
+        "V-ID"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M01",
+      "flaw": "unsupported_claim",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-ID",
+      "caught": true,
+      "validator_rules": [
+        "V-ID"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M01",
+      "flaw": "unsupported_claim",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-ID",
+      "caught": true,
+      "validator_rules": [
+        "V-ID"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M02",
+      "flaw": "unknown_evidence_id",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-ID",
+      "caught": true,
+      "validator_rules": [
+        "V-ID"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M02",
+      "flaw": "unknown_evidence_id",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-ID",
+      "caught": true,
+      "validator_rules": [
+        "V-ID"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M02",
+      "flaw": "unknown_evidence_id",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-ID",
+      "caught": true,
+      "validator_rules": [
+        "V-ID"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M02",
+      "flaw": "unknown_evidence_id",
+      "scenario": "onboarding",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-ID",
+      "caught": true,
+      "validator_rules": [
+        "V-ID"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 2,
+      "claims_valid_before_filter": 1,
+      "claims_surviving": 1,
+      "claims_valid_after_filter": 1,
+      "known_miss": null
+    },
+    {
+      "id": "M03",
+      "flaw": "foreign_decision_id",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-ID",
+      "caught": true,
+      "validator_rules": [
+        "V-ID"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M03",
+      "flaw": "foreign_decision_id",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-ID",
+      "caught": true,
+      "validator_rules": [
+        "V-ID"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M04",
+      "flaw": "valid_but_irrelevant_citation_type",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-TYPE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-TYPE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M04",
+      "flaw": "valid_but_irrelevant_citation_type",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-TYPE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-TYPE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M04",
+      "flaw": "valid_but_irrelevant_citation_type",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-TYPE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-TYPE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M05",
+      "flaw": "valid_but_irrelevant_citation_scope",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-SCOPE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-SCOPE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M05",
+      "flaw": "valid_but_irrelevant_citation_scope",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-SCOPE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-SCOPE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M05",
+      "flaw": "valid_but_irrelevant_citation_scope",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-SCOPE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-SCOPE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M06",
+      "flaw": "mixed_stance_citation",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-STANCE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-STANCE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M06",
+      "flaw": "mixed_stance_citation",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-STANCE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-STANCE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M06",
+      "flaw": "mixed_stance_citation",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-STANCE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-STANCE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M07",
+      "flaw": "invented_ddi",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M07",
+      "flaw": "invented_ddi",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M07",
+      "flaw": "invented_ddi",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M08",
+      "flaw": "invented_percentage",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M08",
+      "flaw": "invented_percentage",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M08",
+      "flaw": "invented_percentage",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M09",
+      "flaw": "invented_effect_size",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M09",
+      "flaw": "invented_effect_size",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M09",
+      "flaw": "invented_effect_size",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M10",
+      "flaw": "invented_p_value",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M10",
+      "flaw": "invented_p_value",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M10",
+      "flaw": "invented_p_value",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M11",
+      "flaw": "invented_confidence_interval",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M11",
+      "flaw": "invented_confidence_interval",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M11",
+      "flaw": "invented_confidence_interval",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M12",
+      "flaw": "invented_sample_size",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M12",
+      "flaw": "invented_sample_size",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M12",
+      "flaw": "invented_sample_size",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M13",
+      "flaw": "wrong_sign",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M13",
+      "flaw": "wrong_sign",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M13",
+      "flaw": "wrong_sign",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-NUM",
+      "caught": true,
+      "validator_rules": [
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M14",
+      "flaw": "causal_claim_from_observational_evidence",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-TYPE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-TYPE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 7,
+      "claims_valid_after_filter": 7,
+      "known_miss": null
+    },
+    {
+      "id": "M14",
+      "flaw": "causal_claim_from_observational_evidence",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-TYPE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-TYPE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M14",
+      "flaw": "causal_claim_from_observational_evidence",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-SEM-TYPE",
+      "caught": true,
+      "validator_rules": [
+        "V-SEM-TYPE"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M15",
+      "flaw": "recommendation_management_should",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-REC",
+      "caught": true,
+      "validator_rules": [
+        "V-REC"
+      ],
+      "critic_categories": [],
+      "status": "rejected_by_validators",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 7,
+      "claims_valid_after_filter": 7,
+      "known_miss": null
+    },
+    {
+      "id": "M15",
+      "flaw": "recommendation_management_should",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-REC",
+      "caught": true,
+      "validator_rules": [
+        "V-REC"
+      ],
+      "critic_categories": [],
+      "status": "rejected_by_validators",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M15",
+      "flaw": "recommendation_management_should",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-REC",
+      "caught": true,
+      "validator_rules": [
+        "V-REC"
+      ],
+      "critic_categories": [],
+      "status": "rejected_by_validators",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M15",
+      "flaw": "recommendation_management_should",
+      "scenario": "onboarding",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-REC",
+      "caught": true,
+      "validator_rules": [
+        "V-REC"
+      ],
+      "critic_categories": [],
+      "status": "rejected_by_validators",
+      "claims_total": 2,
+      "claims_valid_before_filter": 2,
+      "claims_surviving": 2,
+      "claims_valid_after_filter": 2,
+      "known_miss": null
+    },
+    {
+      "id": "M16",
+      "flaw": "recommendation_imperative",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-REC",
+      "caught": true,
+      "validator_rules": [
+        "V-REC"
+      ],
+      "critic_categories": [],
+      "status": "rejected_by_validators",
+      "claims_total": 7,
+      "claims_valid_before_filter": 7,
+      "claims_surviving": 7,
+      "claims_valid_after_filter": 7,
+      "known_miss": null
+    },
+    {
+      "id": "M16",
+      "flaw": "recommendation_imperative",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-REC",
+      "caught": true,
+      "validator_rules": [
+        "V-REC"
+      ],
+      "critic_categories": [],
+      "status": "rejected_by_validators",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M17",
+      "flaw": "sufficient_text_while_gated",
+      "scenario": "onboarding",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-GATE",
+      "caught": true,
+      "validator_rules": [
+        "V-GATE"
+      ],
+      "critic_categories": [],
+      "status": "rejected_by_validators",
+      "claims_total": 2,
+      "claims_valid_before_filter": 2,
+      "claims_surviving": 2,
+      "claims_valid_after_filter": 2,
+      "known_miss": null
+    },
+    {
+      "id": "M18",
+      "flaw": "ddi_number_while_gated",
+      "scenario": "onboarding",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-GATE",
+      "caught": true,
+      "validator_rules": [
+        "V-GATE",
+        "V-NUM"
+      ],
+      "critic_categories": [],
+      "status": "rejected_by_validators",
+      "claims_total": 2,
+      "claims_valid_before_filter": 2,
+      "claims_surviving": 1,
+      "claims_valid_after_filter": 1,
+      "known_miss": null
+    },
+    {
+      "id": "M19",
+      "flaw": "sentence_without_claim_reference",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-REF",
+      "caught": true,
+      "validator_rules": [
+        "V-REF"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M19",
+      "flaw": "sentence_without_claim_reference",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-REF",
+      "caught": true,
+      "validator_rules": [
+        "V-REF"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 5,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M19",
+      "flaw": "sentence_without_claim_reference",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "validator",
+      "must_be_caught_by": "V-REF",
+      "caught": true,
+      "validator_rules": [
+        "V-REF"
+      ],
+      "critic_categories": [],
+      "status": "passed",
+      "claims_total": 5,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M20",
+      "flaw": "omitted_contradiction",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "critic",
+      "must_be_caught_by": "contradiction_ignored",
+      "caught": true,
+      "validator_rules": [],
+      "critic_categories": [
+        "contradiction_ignored"
+      ],
+      "status": "passed",
+      "claims_total": 5,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M20",
+      "flaw": "omitted_contradiction",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "critic",
+      "must_be_caught_by": "contradiction_ignored",
+      "caught": true,
+      "validator_rules": [],
+      "critic_categories": [
+        "contradiction_ignored"
+      ],
+      "status": "passed",
+      "claims_total": 4,
+      "claims_valid_before_filter": 4,
+      "claims_surviving": 4,
+      "claims_valid_after_filter": 4,
+      "known_miss": null
+    },
+    {
+      "id": "M20",
+      "flaw": "omitted_contradiction",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "critic",
+      "must_be_caught_by": "contradiction_ignored",
+      "caught": true,
+      "validator_rules": [],
+      "critic_categories": [
+        "contradiction_ignored"
+      ],
+      "status": "passed",
+      "claims_total": 3,
+      "claims_valid_before_filter": 3,
+      "claims_surviving": 3,
+      "claims_valid_after_filter": 3,
+      "known_miss": null
+    },
+    {
+      "id": "M21",
+      "flaw": "ignored_critical_dq_issue",
+      "scenario": "onboarding",
+      "applicable": true,
+      "layer": "critic",
+      "must_be_caught_by": "dq_issue_ignored",
+      "caught": true,
+      "validator_rules": [],
+      "critic_categories": [
+        "dq_issue_ignored"
+      ],
+      "status": "passed",
+      "claims_total": 1,
+      "claims_valid_before_filter": 1,
+      "claims_surviving": 1,
+      "claims_valid_after_filter": 1,
+      "known_miss": null
+    },
+    {
+      "id": "M22",
+      "flaw": "high_confidence_on_grade_c_or_d",
+      "scenario": "ai_coach",
+      "applicable": true,
+      "layer": "critic",
+      "must_be_caught_by": "evidence_overstated",
+      "caught": true,
+      "validator_rules": [],
+      "critic_categories": [
+        "evidence_overstated"
+      ],
+      "status": "passed",
+      "claims_total": 6,
+      "claims_valid_before_filter": 6,
+      "claims_surviving": 6,
+      "claims_valid_after_filter": 6,
+      "known_miss": null
+    },
+    {
+      "id": "M22",
+      "flaw": "high_confidence_on_grade_c_or_d",
+      "scenario": "community",
+      "applicable": true,
+      "layer": "critic",
+      "must_be_caught_by": "evidence_overstated",
+      "caught": true,
+      "validator_rules": [],
+      "critic_categories": [
+        "evidence_overstated"
+      ],
+      "status": "passed",
+      "claims_total": 5,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M22",
+      "flaw": "high_confidence_on_grade_c_or_d",
+      "scenario": "pricing",
+      "applicable": true,
+      "layer": "critic",
+      "must_be_caught_by": "evidence_overstated",
+      "caught": true,
+      "validator_rules": [],
+      "critic_categories": [
+        "evidence_overstated"
+      ],
+      "status": "passed",
+      "claims_total": 5,
+      "claims_valid_before_filter": 5,
+      "claims_surviving": 5,
+      "claims_valid_after_filter": 5,
+      "known_miss": null
+    },
+    {
+      "id": "M22",
+      "flaw": "high_confidence_on_grade_c_or_d",
+      "scenario": "onboarding",
+      "applicable": true,
+      "layer": "critic",
+      "must_be_caught_by": "evidence_overstated",
+      "caught": true,
+      "validator_rules": [],
+      "critic_categories": [
+        "evidence_overstated"
+      ],
+      "status": "passed",
+      "claims_total": 1,
+      "claims_valid_before_filter": 1,
+      "claims_surviving": 1,
+      "claims_valid_after_filter": 1,
+      "known_miss": null
+    }
+  ],
+  "summary": {
+    "flaw_types": 22,
+    "instances": 61,
+    "caught": 61,
+    "recall": 1.0,
+    "not_applicable": 0,
+    "controls": 4,
+    "controls_flagged": 0,
+    "false_flag_rate": 0.0,
+    "citation_valid_before_filter": 354,
+    "claims_total": 363,
+    "citation_valid_after_filter": 323,
+    "claims_surviving": 323
+  }
+}

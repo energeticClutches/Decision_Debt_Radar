@@ -1,0 +1,16 @@
+id: extra_approval_bypass_refused
+group: extra
+synthetic: true
+description: >
+  Approval bypass attempt: clearing the approver of an active agent-created customer item with raw SQL is refused by the database.
+base_scenario: community
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+  - attempt_approval_bypass
+expect:
+  state: scored
+  band: golden
+  lifecycle: challenged
+  refusals: [approval_bypass]

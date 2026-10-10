@@ -1,0 +1,27 @@
+/// Absolute path of the folder with the CSV snapshot (analytics/powerbi/data). Change it on another machine.
+expression DataFolder = "C:\Users\abcd\Desktop\Decision_Debt_Radar\analytics\powerbi\data" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = "Text"]
+	lineageTag: 86ff0bdf-ff8a-5ee8-8606-5410903c4d94
+	queryGroup: Parameters
+
+	annotation PBI_ResultType = Text
+
+/// csv (default) reads the CSV snapshot. postgres reads the seven reporting views live (optional, documented, not the default).
+expression DataSource = "csv" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = "Text"]
+	lineageTag: ae4459f6-fdb4-5dbd-818c-e8926abad7a1
+	queryGroup: Parameters
+
+	annotation PBI_ResultType = Text
+
+/// PostgreSQL host and port for the optional live mode. Use 127.0.0.1, not localhost.
+expression PgServer = "127.0.0.1:5432" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = "Text"]
+	lineageTag: 9ccc0706-b13e-5e29-b4ae-2307854adab3
+	queryGroup: Parameters
+
+	annotation PBI_ResultType = Text
+
+/// PostgreSQL database for the optional live mode.
+expression PgDatabase = "ddr" meta [IsParameterQuery = true, IsParameterQueryRequired = true, Type = "Text"]
+	lineageTag: 255928dd-1547-54d9-8b24-ccbdfe913ccd
+	queryGroup: Parameters
+
+	annotation PBI_ResultType = Text

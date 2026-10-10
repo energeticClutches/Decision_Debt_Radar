@@ -1,0 +1,16 @@
+id: var_empty_evidence
+group: variant
+synthetic: true
+description: >
+  PRD section 19 variant: a decision with no evidence at all. The gate returns INSUFFICIENT EVIDENCE with three reasons and no number.
+base_scenario: new
+mutations:
+  - create_decision
+  - confirm_evidence
+  - run_assessment
+expect:
+  state: insufficient_evidence
+  blocking_reasons: [min_items, min_types, success_metric_evidence]
+  no_ddi: true
+  lifecycle: assessed
+  properties: [no_ddi_number]

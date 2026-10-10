@@ -1,0 +1,18 @@
+id: extra_needs_rework_override
+group: extra
+synthetic: true
+description: >
+  The replayed reviewer returns needs_rework. Validation is refused until a human overrides with a written reason (BR-13); then the
+  decision is validated.
+base_scenario: ai_coach
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+  - validate: {expect_status: 409}
+  - human_review: {verdict: ready, response: "Reviewed by hand: the causal wording was reclassified to associative by the validators."}
+  - validate
+expect:
+  state: scored
+  band: golden
+  lifecycle: validated

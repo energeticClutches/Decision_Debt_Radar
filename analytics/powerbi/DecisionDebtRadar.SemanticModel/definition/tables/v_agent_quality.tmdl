@@ -1,0 +1,106 @@
+table v_agent_quality
+	lineageTag: d508d783-e2de-5390-a634-7c34b15ca677
+
+	column agent_name
+		dataType: string
+		lineageTag: bf11ee44-c098-5665-a9ff-f7d64ecbaad5
+		summarizeBy: none
+		sourceColumn: agent_name
+
+	column stage
+		dataType: string
+		lineageTag: c9c18af6-5087-56ae-b91b-64d501a493f3
+		summarizeBy: none
+		sourceColumn: stage
+
+	column model
+		dataType: string
+		lineageTag: 029ef677-1b0d-55ea-85cb-fd5718d5b46d
+		summarizeBy: none
+		sourceColumn: model
+
+	column prompt_version
+		dataType: string
+		lineageTag: e2eccd9d-c7c1-5537-b5b7-413e8156d707
+		summarizeBy: none
+		sourceColumn: prompt_version
+
+	column runs
+		dataType: int64
+		lineageTag: 078c0b5a-211b-5c70-be9e-52df7471b9b4
+		summarizeBy: none
+		sourceColumn: runs
+
+	column succeeded
+		dataType: int64
+		lineageTag: 36b49616-327f-569e-9805-ea075d0a8e99
+		summarizeBy: none
+		sourceColumn: succeeded
+
+	column failed
+		dataType: int64
+		lineageTag: c82cbe67-c59b-5687-8a5f-6685f14a3019
+		summarizeBy: none
+		sourceColumn: failed
+
+	column partial
+		dataType: int64
+		lineageTag: ec1e4e95-b14a-5249-a8d4-a315302830f3
+		summarizeBy: none
+		sourceColumn: partial
+
+	column runs_with_error
+		dataType: int64
+		lineageTag: 99626245-f802-575a-ba64-1fe06a695e7a
+		summarizeBy: none
+		sourceColumn: runs_with_error
+
+	column avg_latency_ms
+		dataType: double
+		lineageTag: 30b29a2d-4008-5faf-a12b-440f314c6221
+		summarizeBy: none
+		sourceColumn: avg_latency_ms
+
+	column tokens_in
+		dataType: int64
+		lineageTag: e52e481f-bccb-589d-b3e0-9106377e5026
+		summarizeBy: none
+		sourceColumn: tokens_in
+
+	column tokens_out
+		dataType: int64
+		lineageTag: 41b34c1e-5923-591a-8262-1e94727036a1
+		summarizeBy: none
+		sourceColumn: tokens_out
+
+	column claims_dropped
+		dataType: int64
+		lineageTag: 28b51811-d56e-51bb-95ab-2500d25c0e26
+		summarizeBy: none
+		sourceColumn: claims_dropped
+
+	column is_synthetic
+		dataType: boolean
+		lineageTag: d0c9da53-0164-5257-b68f-7b3942eff68a
+		summarizeBy: none
+		sourceColumn: is_synthetic
+
+	column provenance_label = IF(LEFT(v_agent_quality[model], 5) = "stub:", "stub, not model output", IF(ISBLANK(v_agent_quality[model]), "deterministic stage (no model)", "model output"))
+		dataType: string
+		lineageTag: d6c3cd1f-3531-538d-843f-152e69a4c7b0
+		summarizeBy: none
+
+	partition v_agent_quality = m
+		mode: import
+		source =
+				let
+				    Raw = Csv.Document(File.Contents(DataFolder & "\v_agent_quality.csv"), [Delimiter = ",", Columns = 14, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Raw, [PromoteAllScalars = true]),
+				    Clean = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Live = PostgreSQL.Database(PgServer, PgDatabase, [Query = "SELECT agent_name, stage::text AS stage, model, prompt_version, runs, succeeded, failed, partial, runs_with_error, avg_latency_ms, tokens_in, tokens_out, claims_dropped, is_synthetic FROM v_agent_quality"]),
+				    Chosen = if DataSource = "postgres" then Live else Clean,
+				    Typed = Table.TransformColumnTypes(Chosen, {{"runs", Int64.Type}, {"succeeded", Int64.Type}, {"failed", Int64.Type}, {"partial", Int64.Type}, {"runs_with_error", Int64.Type}, {"avg_latency_ms", type number}, {"tokens_in", Int64.Type}, {"tokens_out", Int64.Type}, {"claims_dropped", Int64.Type}, {"is_synthetic", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

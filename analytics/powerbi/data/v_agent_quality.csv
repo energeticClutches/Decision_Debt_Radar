@@ -1,0 +1,9 @@
+agent_name,stage,model,prompt_version,runs,succeeded,failed,partial,runs_with_error,avg_latency_ms,tokens_in,tokens_out,claims_dropped,is_synthetic
+data_analytics,dq,,,8,8,0,0,0,2804,,,,true
+data_analytics,experiment,,,8,8,0,0,0,25,,,,true
+data_analytics,quant,,,8,6,0,2,0,209,,,,true
+evidence_synthesis,customer,stub:keyword_rules_v1,v0.1,16,16,0,0,0,0,,,,true
+evidence_synthesis,synthesis,stub:handauthored_synthesis_v1,v0.1,8,4,4,0,4,0,,,,true
+orchestrator,,,,16,16,0,0,0,46,,,,true
+orchestrator,customer,,,8,8,0,0,0,2795,,,,true
+reviewer,review,stub:handauthored_review_v1,v0.1,4,4,0,0,0,0,,,,true

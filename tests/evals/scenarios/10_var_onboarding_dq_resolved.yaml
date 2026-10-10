@@ -1,0 +1,21 @@
+id: var_onboarding_dq_resolved
+group: variant
+synthetic: true
+description: >
+  PRD section 19 variant: Onboarding with the data-quality issue marked resolved (PATCH /dq-checks as the BA) and the Day-3 assessment
+  re-run on the stored state. The gate ignores a resolved check, so open_critical_dq disappears; no evidence exists for the success metric,
+  so the assessment stays INSUFFICIENT for the remaining reasons. Marking an issue resolved does not create evidence.
+base_scenario: onboarding
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+  - resolve_dq
+  - run_assessment
+expect:
+  state: insufficient_evidence
+  blocking_reasons: [min_items, min_types, success_metric_evidence]
+  no_ddi: true
+  lifecycle: assessed
+  nbe_must_include: [extend_observation_or_refresh_data]
+  properties: [no_ddi_number]

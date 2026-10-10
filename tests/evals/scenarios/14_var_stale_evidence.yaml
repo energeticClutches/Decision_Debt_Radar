@@ -1,0 +1,22 @@
+id: var_stale_evidence
+group: variant
+synthetic: true
+description: >
+  PRD section 19 variant: the same evidence assessed again with the as-of date moved forward by 365 days (a canvas edit returns the
+  decision to evidence_gathered first). Aged evidence must not lower the debt.
+base_scenario: new
+mutations:
+  - create_decision
+  - confirm_evidence
+  - add_evidence: {kind: behavioral, stance: supports, grade: B, age_days: 60, n_sample: 12000, effect_size: 0.05, ci_low: 0.03, ci_high: 0.07}
+  - add_evidence: {kind: customer, stance: supports, grade: B, age_days: 60, n_sample: 600}
+  - add_evidence: {kind: financial, stance: supports, grade: B, age_days: 60, effect_size: 1.2, ci_low: 0.9, ci_high: 1.5}
+  - run_assessment
+  - edit_canvas: {current_evidence_notes: "Re-assessing a year later with the same evidence."}
+  - set_as_of: {to: "2027-10-01"}
+  - run_assessment
+expect:
+  state: scored
+  band: golden
+  lifecycle: assessed
+  properties: [ddi_not_lower_when_older]

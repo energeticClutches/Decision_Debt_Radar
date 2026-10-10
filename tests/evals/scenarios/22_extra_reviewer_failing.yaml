@@ -1,0 +1,17 @@
+id: extra_reviewer_failing
+group: extra
+synthetic: true
+description: >
+  The Reviewer call fails (transport error). It never counts as a review pass: no review row, the decision stays assessed, the DDI is
+  unchanged and validation is refused.
+base_scenario: pricing
+mutations:
+  - use_llm: review_fails
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+expect:
+  state: scored
+  band: golden
+  lifecycle: assessed
+  properties: [review_not_ready]

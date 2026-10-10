@@ -1,0 +1,19 @@
+id: core_ai_coach
+group: core
+synthetic: true
+description: >
+  AI Coach, the demo path: pipeline, human approval of the three proposed customer items, pipeline again. The frozen engine scores it;
+  a causal claim is reclassified by the validators; the replayed reviewer (a hand-authored fixture, not a model) returns needs_rework.
+base_scenario: ai_coach
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+expect:
+  state: scored
+  blocking_reasons: []
+  band: golden
+  lifecycle: challenged
+  nbe_must_include: [powered_holdout_test]
+  code_findings_must_include: [V-SEM-TYPE]
+  properties: [stance_from_map, review_not_ready]

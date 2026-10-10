@@ -1,0 +1,35 @@
+relationship 06e0fbb9-a358-56fb-97f7-12566f139485
+	fromColumn: v_debt_radar.decision_id
+	toColumn: decisions_lifecycle.decision_id
+
+relationship 68388ee8-44e7-5d84-8dcf-485fffc9f6d5
+	fromColumn: v_evidence_freshness.decision_id
+	toColumn: decisions_lifecycle.decision_id
+
+relationship b5f56a31-b498-5876-b1a4-67cc407c772a
+	fromColumn: v_nbe_ranking.decision_id
+	toColumn: decisions_lifecycle.decision_id
+
+relationship a63ab48d-60af-5b0a-bb86-db32038e9170
+	fromColumn: v_traceability_matrix.decision_id
+	toColumn: decisions_lifecycle.decision_id
+
+relationship 4ccc52a9-11a7-536f-b538-637ed8127e8d
+	fromColumn: decisions_lifecycle.team_id
+	toColumn: Teams.team_id
+
+relationship 50336532-0058-5390-bde9-67967554fde7
+	fromColumn: decisions_lifecycle.decision_type
+	toColumn: DecisionTypes.decision_type
+
+relationship 87963330-fcfa-5ed0-b85d-a668c9e4e517
+	fromColumn: v_evidence_health.team_id
+	toColumn: Teams.team_id
+
+relationship 06339589-209c-5bb0-b3cd-e332038b6109
+	fromColumn: v_evidence_health.decision_type
+	toColumn: DecisionTypes.decision_type
+
+relationship 42e899e0-5d67-5fe2-aa7b-5c5170228abf
+	fromColumn: v_coverage_checklist.decision_type
+	toColumn: DecisionTypes.decision_type

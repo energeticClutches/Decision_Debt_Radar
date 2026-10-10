@@ -1,0 +1,25 @@
+id: core_community
+group: core
+synthetic: true
+description: >
+  Community, the demo path. Segment effects diverge, so the heterogeneity flag fires and the contradiction penalty floor applies. The
+  manifest (data/generated/manifest.json) expects the NBE to include segment_level_analysis and powered_holdout_test.
+base_scenario: community
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+expect:
+  state: scored
+  blocking_reasons: []
+  band: golden
+  lifecycle: challenged
+  nbe_must_include: [powered_holdout_test, segment_level_analysis]
+  properties: [stance_from_map]
+known_gaps:
+  - check: "nbe_includes:segment_level_analysis"
+    reason: >
+      OBSERVED GAP, not tuned away. The manifest expects segment-aware validation, but the frozen NBE excludes an action at or above its
+      ceiling (NBE spec R9): Community D6 is 0.60, equal to the 0.6 ceiling of segment_level_analysis, so the action would reduce nothing
+      and is not listed, although the heterogeneity flag fires. The AC-5 clause "NBE recommends segment-aware validation" is therefore
+      NOT MET by the frozen NBE v0.2 (Day-7 report, acceptance matrix AC-5).

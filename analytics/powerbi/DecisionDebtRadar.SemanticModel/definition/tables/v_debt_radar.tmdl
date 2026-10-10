@@ -1,0 +1,144 @@
+table v_debt_radar
+	lineageTag: b29fb633-d21c-5229-ad13-5d6ad36186f4
+
+	column decision_id
+		dataType: string
+		lineageTag: 7b0a0d70-17ed-5dd7-b95f-a4d6a7024a2d
+		summarizeBy: none
+		sourceColumn: decision_id
+
+	column org_id
+		dataType: string
+		lineageTag: 530b36d4-da52-56d2-a98f-5c94b7de4af2
+		summarizeBy: none
+		sourceColumn: org_id
+
+	column team_id
+		dataType: string
+		lineageTag: 4cfb714c-c9c3-5f6e-ba55-67931c8364b5
+		summarizeBy: none
+		sourceColumn: team_id
+
+	column team_name
+		dataType: string
+		lineageTag: 99105246-8b2e-5522-927f-29f2b1e1dec7
+		summarizeBy: none
+		sourceColumn: team_name
+
+	column title
+		dataType: string
+		lineageTag: fd841a42-29a1-5c39-b499-a47afc451d8b
+		summarizeBy: none
+		sourceColumn: title
+
+	column decision_type
+		dataType: string
+		lineageTag: b3bce270-4fc7-53f1-a7a0-c1a63307881e
+		summarizeBy: none
+		sourceColumn: decision_type
+
+	column risk_level
+		dataType: string
+		lineageTag: e3292e52-f24a-5577-8e7b-f3c25d2cbc74
+		summarizeBy: none
+		sourceColumn: risk_level
+
+	column lifecycle_stage
+		dataType: string
+		lineageTag: 299efab0-29df-589f-8423-337d6ac3d689
+		summarizeBy: none
+		sourceColumn: lifecycle_stage
+
+	column assessment_stale
+		dataType: boolean
+		lineageTag: 4c63ae0c-2521-5470-b459-0b8bda21da87
+		summarizeBy: none
+		sourceColumn: assessment_stale
+
+	column decision_due_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 5b8648d4-50a5-545d-89b3-a871f8b5d3f5
+		summarizeBy: none
+		sourceColumn: decision_due_date
+
+	column assessment_id
+		dataType: string
+		lineageTag: c08c760b-adb7-5022-a54b-3fc483808856
+		summarizeBy: none
+		sourceColumn: assessment_id
+
+	column assessment_version
+		dataType: int64
+		lineageTag: 9f623401-1982-589a-9165-de9ffcf07aed
+		summarizeBy: none
+		sourceColumn: assessment_version
+
+	column assessment_state
+		dataType: string
+		lineageTag: b2c59a46-d7d0-58c7-a686-7895adb6ad01
+		summarizeBy: none
+		sourceColumn: assessment_state
+
+	column ddi_score
+		dataType: double
+		lineageTag: 6dbe73d2-124c-56b3-b563-24441c576e51
+		summarizeBy: none
+		sourceColumn: ddi_score
+
+	column ddi_band
+		dataType: string
+		lineageTag: 3bfe988e-727c-5e65-b5e1-20283268df45
+		summarizeBy: none
+		sourceColumn: ddi_band
+
+	column band_stable
+		dataType: boolean
+		lineageTag: 3d49ec40-4bd1-55ce-9bc7-283df5f7e355
+		summarizeBy: none
+		sourceColumn: band_stable
+
+	column robustness_label
+		dataType: string
+		lineageTag: f467c455-11ec-5a55-b79d-fec065ef3d86
+		summarizeBy: none
+		sourceColumn: robustness_label
+
+	column params_version
+		dataType: string
+		lineageTag: 1fc185de-b83c-55ca-9caf-82e9a0044d54
+		summarizeBy: none
+		sourceColumn: params_version
+
+	column last_assessed_at
+		dataType: string
+		lineageTag: f53a546f-ca55-539f-ad2a-90d0b3ffe654
+		summarizeBy: none
+		sourceColumn: last_assessed_at
+
+	column days_since_assessed
+		dataType: int64
+		lineageTag: 828ef3ff-bdc4-5c3f-a3c4-fb95d94b07db
+		summarizeBy: none
+		sourceColumn: days_since_assessed
+
+	column is_synthetic
+		dataType: boolean
+		lineageTag: a08f3544-41a9-51d4-b787-7a3f209ebea0
+		summarizeBy: none
+		sourceColumn: is_synthetic
+
+	partition v_debt_radar = m
+		mode: import
+		source =
+				let
+				    Raw = Csv.Document(File.Contents(DataFolder & "\v_debt_radar.csv"), [Delimiter = ",", Columns = 21, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Raw, [PromoteAllScalars = true]),
+				    Clean = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Live = PostgreSQL.Database(PgServer, PgDatabase, [Query = "SELECT decision_id, org_id, team_id, team_name, title, decision_type, risk_level::text AS risk_level, lifecycle_stage::text AS lifecycle_stage, assessment_stale, decision_due_date, assessment_id, assessment_version, assessment_state::text AS assessment_state, ddi_score, ddi_band::text AS ddi_band, band_stable, robustness_label, params_version, last_assessed_at, days_since_assessed, is_synthetic FROM v_debt_radar"]),
+				    Chosen = if DataSource = "postgres" then Live else Clean,
+				    Typed = Table.TransformColumnTypes(Chosen, {{"assessment_stale", type logical}, {"decision_due_date", type date}, {"assessment_version", Int64.Type}, {"ddi_score", type number}, {"band_stable", type logical}, {"days_since_assessed", Int64.Type}, {"is_synthetic", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

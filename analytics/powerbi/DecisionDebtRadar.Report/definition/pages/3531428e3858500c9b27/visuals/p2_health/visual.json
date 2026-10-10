@@ -1,0 +1,129 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "p2_health",
+  "position": {
+    "x": 16,
+    "y": 370,
+    "z": 1006,
+    "height": 306,
+    "width": 760,
+    "tabOrder": 1006
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_evidence_health"
+                    }
+                  },
+                  "Property": "decision_type"
+                }
+              },
+              "queryRef": "v_evidence_health.decision_type",
+              "nativeQueryRef": "decision_type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_evidence_health"
+                    }
+                  },
+                  "Property": "dimension"
+                }
+              },
+              "queryRef": "v_evidence_health.dimension",
+              "nativeQueryRef": "dimension"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_evidence_health"
+                    }
+                  },
+                  "Property": "metric_name"
+                }
+              },
+              "queryRef": "v_evidence_health.metric_name",
+              "nativeQueryRef": "metric_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_evidence_health"
+                    }
+                  },
+                  "Property": "value"
+                }
+              },
+              "queryRef": "v_evidence_health.value",
+              "nativeQueryRef": "value"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_evidence_health"
+                    }
+                  },
+                  "Property": "indicator"
+                }
+              },
+              "queryRef": "v_evidence_health.indicator",
+              "nativeQueryRef": "indicator"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Evidence health dimensions (no combined score)'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Seven evidence-health dimensions by decision type'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

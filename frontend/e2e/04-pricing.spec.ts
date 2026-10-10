@@ -38,4 +38,17 @@ test.describe("Pricing: an inconclusive experiment and a blocking 'no harm' find
     await expect(page.getByTestId("ddi-card")).toHaveAttribute("data-state", "current");
     await expect(page.getByTestId("ddi-value")).toHaveText((d.current_assessment?.ddi as number).toFixed(1));
   });
+
+  test("the version comparison shows D4 unchanged between v1 and v2, from stored data only", async ({ page, request }) => {
+    await loginAs(page, request, "pm2");
+    await openWorkspace(page, id, "assessment");
+    await expect(page.getByTestId("version-history")).toContainText("v1, superseded");
+    await page.getByTestId("compare-v1").click();
+    const panel = page.getByTestId("version-compare");
+    await expect(panel).toContainText("v1 (superseded) compared with v2 (current)");
+    await expect(panel.locator('[data-testid="compare-row"][data-dim="D4"]')).toHaveAttribute("data-unchanged", "true");
+    await expect(panel.locator('[data-testid="compare-row"][data-dim="D5"]')).toHaveAttribute("data-unchanged", "false");
+    await expect(panel.locator('[data-testid="compare-row"][data-dim="P1"]')).toBeVisible();
+    await expect(panel).toContainText("Synthetic data");
+  });
 });

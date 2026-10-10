@@ -1,0 +1,21 @@
+id: var_clean_strong_evidence
+group: variant
+synthetic: true
+description: >
+  PRD section 19 variant: a clean, strongly evidenced decision. Four evidence types, all grade A, fresh, all supporting, the
+  behavioral item linked to the success metric. The band is whatever the frozen engine returns (D7-01). The decision has no registered
+  experiment record, so the engine experiment dimension runs on defaults: this variant measures the engine, not a real experiment.
+base_scenario: new
+mutations:
+  - create_decision: {metric: d90_retention, decision_type: product_feature_investment, expected_direction: increase}
+  - confirm_evidence
+  - add_evidence: {kind: behavioral, stance: supports, grade: A, age_days: 20, n_sample: 20000, effect_size: 0.06, ci_low: 0.04, ci_high: 0.08}
+  - add_evidence: {kind: experiment, stance: supports, grade: A, age_days: 25, n_sample: 8000, effect_size: 0.05, ci_low: 0.03, ci_high: 0.07}
+  - add_evidence: {kind: customer, stance: supports, grade: A, age_days: 30, n_sample: 900}
+  - add_evidence: {kind: financial, stance: supports, grade: A, age_days: 40, effect_size: 1.4, ci_low: 1.1, ci_high: 1.7}
+  - run_assessment
+expect:
+  state: scored
+  blocking_reasons: []
+  band: golden
+  lifecycle: assessed

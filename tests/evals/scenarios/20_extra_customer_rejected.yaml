@@ -1,0 +1,14 @@
+id: extra_customer_rejected
+group: extra
+synthetic: true
+description: >
+  Customer evidence rejected by the BA: the items never enter the facts, so the assessment is built from the other evidence only.
+base_scenario: ai_coach
+mutations:
+  - run_pipeline
+  - reject_customer_evidence: all
+  - run_pipeline
+expect:
+  state: scored
+  band: golden
+  properties: [proposed_excluded_from_facts]

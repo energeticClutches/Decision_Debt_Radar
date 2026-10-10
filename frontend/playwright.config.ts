@@ -15,6 +15,8 @@ const reuse = process.env.E2E_REUSE_SERVERS === "1";
 
 export default defineConfig({
   testDir: "./e2e",
+  // Day 7: the README screenshots run on demand only (SCREENSHOTS=1 runs just that spec).
+  ...(process.env.SCREENSHOTS === "1" ? { testMatch: "**/screenshots.spec.ts" } : { testIgnore: "**/screenshots.spec.ts" }),
   timeout: 90_000,
   expect: { timeout: 15_000 },
   workers: 1,

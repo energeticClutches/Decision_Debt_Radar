@@ -533,7 +533,7 @@ Format: Given / When / Then. All must pass for MVP sign-off.
 
 | ID | Criterion |
 |---|---|
-| AC-1 | **Given** a registered decision with sufficient evidence, **when** I run an assessment, **then** all 7 stages appear in the UI with status, and a DDI with a 9-dimension breakdown is shown. |
+| AC-1 | **Given** a registered decision with sufficient evidence, **when** I run an assessment, **then** all 7 stages appear in the UI with status, and a DDI with its 7-dimension and 2-penalty breakdown is shown. *(Wording amended 2026-10-10, Day 7, D7-06: the implemented DDI v0.1 has seven dimensions D1 to D7 and two penalties P1 and P2; "9-dimension" was a Day-1 miscount.)* |
 | AC-2 | **Given** the Onboarding scenario with the seeded tracking defect, **when** I run an assessment, **then** the state is INSUFFICIENT EVIDENCE, no numeric DDI is displayed, the blocking DQ finding is named, and NBE ranks the instrumentation fix. |
 | AC-3 | **Given** any generated claim, **when** I open the traceability matrix, **then** the claim resolves to ≥1 evidence ID and a source (and an analysis if quantitative). |
 | AC-4 | **Given** the AI Coach scenario, **when** the Reviewer runs, **then** it flags correlation-vs-causation and selection bias, and the brief does not use causal language. |

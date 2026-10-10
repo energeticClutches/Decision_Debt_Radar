@@ -1,0 +1,121 @@
+table v_evidence_freshness
+	lineageTag: 0b67683f-1468-5dbd-8c3c-40b9128421ea
+
+	measure 'Evidence items' = COUNTROWS(v_evidence_freshness)
+		formatString: 0
+		lineageTag: 64b1a1de-6a4b-533e-b7ff-c7f47c54ca86
+
+	measure 'Share within half-life' = DIVIDE(CALCULATE(COUNTROWS(v_evidence_freshness), v_evidence_freshness[within_half_life] = TRUE()), COUNTROWS(v_evidence_freshness))
+		formatString: 0%
+		lineageTag: 967ade3a-47de-527d-9738-7c79aef2bac4
+
+	column evidence_id
+		dataType: string
+		lineageTag: 73e99939-a995-5faf-bfe0-5952af80d8f3
+		summarizeBy: none
+		sourceColumn: evidence_id
+
+	column decision_id
+		dataType: string
+		lineageTag: 4778a074-2263-59f3-87f0-e230fceb77d3
+		summarizeBy: none
+		sourceColumn: decision_id
+
+	column org_id
+		dataType: string
+		lineageTag: ce2df764-6db4-5a42-8dea-2bedccece6fb
+		summarizeBy: none
+		sourceColumn: org_id
+
+	column team_id
+		dataType: string
+		lineageTag: 8c15c002-b3c5-594a-8a6b-808807f27035
+		summarizeBy: none
+		sourceColumn: team_id
+
+	column decision_type
+		dataType: string
+		lineageTag: 485356ce-8cb5-563c-bb28-70812120dd9f
+		summarizeBy: none
+		sourceColumn: decision_type
+
+	column evidence_type
+		dataType: string
+		lineageTag: 504443a6-242a-5ea8-a08f-a01114884808
+		summarizeBy: none
+		sourceColumn: evidence_type
+
+	column observed_end
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: e12aa73e-9fd5-5139-b8e3-2a4a6fc60e9f
+		summarizeBy: none
+		sourceColumn: observed_end
+
+	column age_days
+		dataType: int64
+		lineageTag: 6f9582f0-a091-52eb-a267-ae5712d394d8
+		summarizeBy: none
+		sourceColumn: age_days
+
+	column half_life_days
+		dataType: int64
+		lineageTag: a5cc0008-969c-5789-bb49-6dfa6fbe4ab0
+		summarizeBy: none
+		sourceColumn: half_life_days
+
+	column within_half_life
+		dataType: boolean
+		lineageTag: b60b93b5-180a-5e5c-9a31-3f08a4dfc008
+		summarizeBy: none
+		sourceColumn: within_half_life
+
+	column evidence_source_id
+		dataType: string
+		lineageTag: 29d44b29-4899-58c8-890f-9aaa54bab1e6
+		summarizeBy: none
+		sourceColumn: evidence_source_id
+
+	column reliability_tier
+		dataType: int64
+		lineageTag: 0fff45e6-dcea-5954-b60a-693a8ee9888b
+		summarizeBy: none
+		sourceColumn: reliability_tier
+
+	column last_loaded_at
+		dataType: string
+		lineageTag: 6079e051-123a-5abc-958f-14ca761c0ef8
+		summarizeBy: none
+		sourceColumn: last_loaded_at
+
+	column days_since_source_load
+		dataType: int64
+		lineageTag: 3d336d0d-cca0-5345-a9b9-9ca108843044
+		summarizeBy: none
+		sourceColumn: days_since_source_load
+
+	column is_synthetic
+		dataType: boolean
+		lineageTag: 2591dd52-43c6-5bd2-adaf-b81186114f63
+		summarizeBy: none
+		sourceColumn: is_synthetic
+
+	column age_bucket = SWITCH(TRUE(), v_evidence_freshness[age_days] <= 30, "0-30 days", v_evidence_freshness[age_days] <= 90, "31-90 days", v_evidence_freshness[age_days] <= 180, "91-180 days", "Over 180 days")
+		dataType: string
+		lineageTag: 0996a7cc-fc26-5278-a10a-a6bb3cccb69a
+		summarizeBy: none
+
+	partition v_evidence_freshness = m
+		mode: import
+		source =
+				let
+				    Raw = Csv.Document(File.Contents(DataFolder & "\v_evidence_freshness.csv"), [Delimiter = ",", Columns = 15, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Raw, [PromoteAllScalars = true]),
+				    Clean = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Live = PostgreSQL.Database(PgServer, PgDatabase, [Query = "SELECT evidence_id, decision_id, org_id, team_id, decision_type, evidence_type::text AS evidence_type, observed_end, age_days, half_life_days, within_half_life, evidence_source_id, reliability_tier, last_loaded_at, days_since_source_load, is_synthetic FROM v_evidence_freshness"]),
+				    Chosen = if DataSource = "postgres" then Live else Clean,
+				    Typed = Table.TransformColumnTypes(Chosen, {{"observed_end", type date}, {"age_days", Int64.Type}, {"half_life_days", Int64.Type}, {"within_half_life", type logical}, {"reliability_tier", Int64.Type}, {"days_since_source_load", Int64.Type}, {"is_synthetic", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

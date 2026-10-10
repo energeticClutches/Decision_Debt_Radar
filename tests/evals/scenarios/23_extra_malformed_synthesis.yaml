@@ -1,0 +1,18 @@
+id: extra_malformed_synthesis
+group: extra
+synthetic: true
+description: >
+  Malformed synthesis output (not JSON) on the call and on the repair call: the synthesis is recorded as failed, nothing is stored as a
+  claim, the DDI is unchanged and the decision stays assessed.
+base_scenario: pricing
+mutations:
+  - use_llm: malformed_synthesis
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+expect:
+  state: scored
+  band: golden
+  lifecycle: assessed
+  code_findings_must_include: [synthesis_failed]
+  properties: [review_not_ready]

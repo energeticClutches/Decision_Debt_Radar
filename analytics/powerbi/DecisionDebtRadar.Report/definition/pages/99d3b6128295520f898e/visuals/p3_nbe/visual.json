@@ -1,0 +1,214 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "p3_nbe",
+  "position": {
+    "x": 16,
+    "y": 370,
+    "z": 1005,
+    "height": 306,
+    "width": 1248,
+    "tabOrder": 1005
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_nbe_ranking"
+                    }
+                  },
+                  "Property": "decision_title"
+                }
+              },
+              "queryRef": "v_nbe_ranking.decision_title",
+              "nativeQueryRef": "decision_title"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_nbe_ranking"
+                    }
+                  },
+                  "Property": "rank_in_assessment"
+                }
+              },
+              "queryRef": "v_nbe_ranking.rank_in_assessment",
+              "nativeQueryRef": "rank_in_assessment"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_nbe_ranking"
+                    }
+                  },
+                  "Property": "action_type"
+                }
+              },
+              "queryRef": "v_nbe_ranking.action_type",
+              "nativeQueryRef": "action_type"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_nbe_ranking"
+                    }
+                  },
+                  "Property": "description"
+                }
+              },
+              "queryRef": "v_nbe_ranking.description",
+              "nativeQueryRef": "description"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_nbe_ranking"
+                    }
+                  },
+                  "Property": "effort_days"
+                }
+              },
+              "queryRef": "v_nbe_ranking.effort_days",
+              "nativeQueryRef": "effort_days"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_nbe_ranking"
+                    }
+                  },
+                  "Property": "reduction_label"
+                }
+              },
+              "queryRef": "v_nbe_ranking.reduction_label",
+              "nativeQueryRef": "reduction_label"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_nbe_ranking"
+                    }
+                  },
+                  "Property": "priority_score"
+                }
+              },
+              "queryRef": "v_nbe_ranking.priority_score",
+              "nativeQueryRef": "priority_score"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Next Best Evidence ranking (current assessments; a potential reduction, not a prediction)'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Ranked next best evidence actions'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "filter_not_superseded",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "v_nbe_ranking"
+              }
+            },
+            "Property": "is_superseded"
+          }
+        },
+        "type": "Categorical",
+        "filter": {
+          "Version": 2,
+          "From": [
+            {
+              "Name": "t",
+              "Entity": "v_nbe_ranking",
+              "Type": 0
+            }
+          ],
+          "Where": [
+            {
+              "Condition": {
+                "In": {
+                  "Expressions": [
+                    {
+                      "Column": {
+                        "Expression": {
+                          "SourceRef": {
+                            "Source": "t"
+                          }
+                        },
+                        "Property": "is_superseded"
+                      }
+                    }
+                  ],
+                  "Values": [
+                    [
+                      {
+                        "Literal": {
+                          "Value": "false"
+                        }
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

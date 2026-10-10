@@ -1,0 +1,3774 @@
+{
+  "label": "Synthetic data. Evaluation of the frozen deterministic engines and of the pipeline plumbing; replay fixtures are hand-authored, so no model behaviour is measured.",
+  "synthetic": true,
+  "specs": [
+    {
+      "spec": "core_ai_coach",
+      "group": "core",
+      "expected": "state=scored; lifecycle=challenged; blocking=none; band=golden; nbe+=powered_holdout_test; findings+=V-SEM-TYPE; props=stance_from_map,review_not_ready",
+      "observed": "state=scored; band=high; lifecycle=challenged; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "AI Coach, the demo path: pipeline, human approval of the three proposed customer items, pipeline again. The frozen engine scores it; a causal claim is reclassified by the validators; the replayed reviewer (a hand-authored fixture, not a model) returns needs_rework.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "blocking_reasons",
+          "ok": true,
+          "expected": [],
+          "observed": [],
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 60.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 60.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "challenged",
+          "observed": "challenged",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "nbe_includes:powered_holdout_test",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['financial_model_with_sensitivity', 'powered_holdout_test', 'targeted_survey', 'customer_interview_sprint']",
+          "known_gap": null
+        },
+        {
+          "name": "finding:V-SEM-TYPE",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['V-SEM-TYPE', 'review_reviewed', 'synthesis_succeeded']",
+          "known_gap": null
+        },
+        {
+          "name": "property:stance_from_map",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "3 agent-created customer item(s); stance from the tenant map and grade C or D",
+          "known_gap": null
+        },
+        {
+          "name": "property:review_not_ready",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "validate returned 409",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "a099b72e-7e93-5228-8c5a-7b938f2be02f",
+        "lifecycle": "challenged",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "d977c407-5719-4a72-bc84-845b94ab9caf",
+          "version": 2,
+          "state": "scored",
+          "ddi": 60.5,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "needs_rework",
+            "findings": [
+              {
+                "category": "causal_from_observational",
+                "severity": "blocking",
+                "source": "model",
+                "severity_model": "warning"
+              },
+              {
+                "category": "uncertainty_understated",
+                "severity": "info",
+                "source": "model",
+                "severity_model": "info"
+              }
+            ]
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "V-SEM-TYPE",
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 60.5,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 8,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 8,
+        "claims_stored_with_valid_ids": 8,
+        "analysis_values": {
+          "comparison_effect": 0.23039900564863236,
+          "heterogeneity_flag": false,
+          "segment_effects": {
+            "social_exerciser": 0.2399746057621004,
+            "solo_athlete": 0.2203955763973216,
+            "time_pressed": 0.22811805196431492
+          },
+          "experiment": {
+            "n": 1500,
+            "planned_sample": 4000,
+            "effect": 0.29333333333333345,
+            "observed_allocation": {
+              "holdout": 0.7,
+              "ai_coach": 0.3
+            },
+            "srm_flag": true
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "core_community",
+      "group": "core",
+      "expected": "state=scored; lifecycle=challenged; blocking=none; band=golden; nbe+=powered_holdout_test,segment_level_analysis; props=stance_from_map",
+      "observed": "state=scored; band=high; lifecycle=challenged; nbe_rank1=financial_model_with_sensitivity",
+      "pass": false,
+      "notes": "KNOWN GAP nbe_includes:segment_level_analysis: expected True, observed False",
+      "synthetic": true,
+      "description": "Community, the demo path. Segment effects diverge, so the heterogeneity flag fires and the contradiction penalty floor applies. The manifest (data/generated/manifest.json) expects the NBE to include segment_level_analysis and powered_holdout_test.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "blocking_reasons",
+          "ok": true,
+          "expected": [],
+          "observed": [],
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 66.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 66.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "challenged",
+          "observed": "challenged",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "nbe_includes:powered_holdout_test",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['financial_model_with_sensitivity', 'powered_holdout_test', 'targeted_survey', 'customer_interview_sprint']",
+          "known_gap": null
+        },
+        {
+          "name": "nbe_includes:segment_level_analysis",
+          "ok": false,
+          "expected": true,
+          "observed": false,
+          "note": "observed ['financial_model_with_sensitivity', 'powered_holdout_test', 'targeted_survey', 'customer_interview_sprint']",
+          "known_gap": "OBSERVED GAP, not tuned away. The manifest expects segment-aware validation, but the frozen NBE excludes an action at or above its ceiling (NBE spec R9): Community D6 is 0.60, equal to the 0.6 ceiling of segment_level_analysis, so the action would reduce nothing and is not listed, although the heterogeneity flag fires. The AC-5 clause \"NBE recommends segment-aware validation\" is therefore NOT MET by the frozen NBE v0.2 (Day-7 report, acceptance matrix AC-5).\n"
+        },
+        {
+          "name": "property:stance_from_map",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "3 agent-created customer item(s); stance from the tenant map and grade C or D",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "1e85966b-991f-5f04-9264-cc7ed2e658c2",
+        "lifecycle": "challenged",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "adbc6926-a37d-4d08-91b2-2ad81da9aebe",
+          "version": 2,
+          "state": "scored",
+          "ddi": 66.5,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "ready",
+            "findings": [
+              {
+                "category": "customer_overgeneralization",
+                "severity": "warning",
+                "source": "model",
+                "severity_model": "warning"
+              },
+              {
+                "category": "uncertainty_understated",
+                "severity": "info",
+                "source": "model",
+                "severity_model": "info"
+              }
+            ]
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 66.5,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 6,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 6,
+        "claims_stored_with_valid_ids": 6,
+        "analysis_values": {
+          "comparison_effect": 0.1451850336115241,
+          "heterogeneity_flag": true,
+          "segment_effects": {
+            "social_exerciser": 0.19558051443635877,
+            "solo_athlete": 6.0513213801210997e-05,
+            "time_pressed": -0.079500079101408
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "core_onboarding",
+      "group": "core",
+      "expected": "state=insufficient_evidence; lifecycle=challenged; blocking=min_items,min_types,open_critical_dq,success_metric_evidence; no_ddi; nbe_rank1=fix_dq_or_instrumentation; props=no_ddi_number,stance_from_map",
+      "observed": "state=insufficient_evidence; blocking=min_items,min_types,open_critical_dq,success_metric_evidence; lifecycle=challenged; nbe_rank1=fix_dq_or_instrumentation",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "Onboarding, the demo path. The seeded android tracking defect is an open critical data-quality issue on the success metric: the assessment is INSUFFICIENT EVIDENCE with no number and no band, and the NBE ranks the instrumentation fix first.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "insufficient_evidence",
+          "observed": "insufficient_evidence",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "blocking_reasons",
+          "ok": true,
+          "expected": [
+            "min_items",
+            "min_types",
+            "open_critical_dq",
+            "success_metric_evidence"
+          ],
+          "observed": [
+            "min_items",
+            "min_types",
+            "open_critical_dq",
+            "success_metric_evidence"
+          ],
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "no_ddi",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "an assessment that is not scored shows no number and no band",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "challenged",
+          "observed": "challenged",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "nbe_rank1",
+          "ok": true,
+          "expected": "fix_dq_or_instrumentation",
+          "observed": "fix_dq_or_instrumentation",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "property:no_ddi_number",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "no number, band, dimension score or penalty",
+          "known_gap": null
+        },
+        {
+          "name": "property:stance_from_map",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "1 agent-created customer item(s); stance from the tenant map and grade C or D",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "d21a53ba-de21-56db-bffc-431598318bc5",
+        "lifecycle": "challenged",
+        "stale": false,
+        "dq": [
+          {
+            "target": "onboarding_completed@android",
+            "severity": "critical",
+            "status": "open",
+            "check_type": "volume"
+          },
+          {
+            "target": "onboarding_step_2_completed@android",
+            "severity": "warn",
+            "status": "open",
+            "check_type": "volume"
+          },
+          {
+            "target": "onboarding_step_3_completed>onboarding_step_2_completed@android",
+            "severity": "warn",
+            "status": "open",
+            "check_type": "sequence"
+          }
+        ],
+        "assessment": {
+          "id": "4acf01c4-21a3-4023-9131-7d64c2549ecf",
+          "version": 2,
+          "state": "insufficient_evidence",
+          "ddi": null,
+          "band": null,
+          "as_of": "2026-10-01",
+          "blocking_codes": [
+            "min_items",
+            "min_types",
+            "open_critical_dq",
+            "success_metric_evidence"
+          ],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "fix_dq_or_instrumentation"
+        ],
+        "nbe_rank1": "fix_dq_or_instrumentation",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "ready",
+            "findings": [
+              {
+                "category": "missing_evidence",
+                "severity": "info",
+                "source": "model",
+                "severity_model": "info"
+              },
+              {
+                "category": "evidence_overstated",
+                "severity": "warning",
+                "source": "code",
+                "severity_model": "warning"
+              }
+            ]
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "evidence_overstated",
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "insufficient_evidence",
+        "ddi": null,
+        "band": null,
+        "blocking_codes": [
+          "min_items",
+          "min_types",
+          "open_critical_dq",
+          "success_metric_evidence"
+        ],
+        "nbe_rank1": "fix_dq_or_instrumentation",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 2,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 2,
+        "claims_stored_with_valid_ids": 2,
+        "analysis_values": {}
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "core_pricing",
+      "group": "core",
+      "expected": "state=scored; lifecycle=challenged; blocking=none; band=golden; nbe+=financial_model_with_sensitivity,powered_holdout_test; props=d4_unchanged,review_not_ready,stance_from_map",
+      "observed": "state=scored; band=high; lifecycle=challenged; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "Pricing after the customer evidence is approved (the demo path). The experiment is inconclusive and underpowered; D4 is identical in version 1 and version 2: the score change comes from customer evidence, not from a stronger experiment.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "blocking_reasons",
+          "ok": true,
+          "expected": [],
+          "observed": [],
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "challenged",
+          "observed": "challenged",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "nbe_includes:financial_model_with_sensitivity",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['financial_model_with_sensitivity', 'powered_holdout_test', 'extend_observation_or_refresh_data', 'targeted_survey', 'customer_interview_sprint']",
+          "known_gap": null
+        },
+        {
+          "name": "nbe_includes:powered_holdout_test",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['financial_model_with_sensitivity', 'powered_holdout_test', 'extend_observation_or_refresh_data', 'targeted_survey', 'customer_interview_sprint']",
+          "known_gap": null
+        },
+        {
+          "name": "property:d4_unchanged",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "versions [1, 2]",
+          "known_gap": null
+        },
+        {
+          "name": "property:review_not_ready",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "validate returned 409",
+          "known_gap": null
+        },
+        {
+          "name": "property:stance_from_map",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "2 agent-created customer item(s); stance from the tenant map and grade C or D",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "559e3837-726b-5326-8a4d-13e30c911257",
+        "lifecycle": "challenged",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "511a6688-ea65-4111-b97e-7c12d8dbf423",
+          "version": 2,
+          "state": "scored",
+          "ddi": 73.7,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "extend_observation_or_refresh_data",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "needs_rework",
+            "findings": [
+              {
+                "category": "statistical_misinterpretation",
+                "severity": "blocking",
+                "source": "model",
+                "severity_model": "blocking"
+              },
+              {
+                "category": "evidence_overstated",
+                "severity": "warning",
+                "source": "code",
+                "severity_model": "warning"
+              },
+              {
+                "category": "evidence_overstated",
+                "severity": "warning",
+                "source": "code",
+                "severity_model": "warning"
+              }
+            ]
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "evidence_overstated",
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 73.7,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 6,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 6,
+        "claims_stored_with_valid_ids": 6,
+        "analysis_values": {
+          "comparison_effect": -0.11196855848876375,
+          "heterogeneity_flag": null,
+          "segment_effects": {
+            "CA": -0.11196855848876375
+          },
+          "experiment": {
+            "n": 1174,
+            "planned_sample": 8000,
+            "effect": -0.020442930153321992,
+            "observed_allocation": {
+              "control_9_99": 0.5,
+              "treatment_11_99": 0.5
+            },
+            "srm_flag": false
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "var_onboarding_dq_resolved",
+      "group": "variant",
+      "expected": "state=insufficient_evidence; lifecycle=assessed; blocking=min_items,min_types,success_metric_evidence; no_ddi; nbe+=extend_observation_or_refresh_data; props=no_ddi_number",
+      "observed": "state=insufficient_evidence; blocking=min_items,min_types,success_metric_evidence; lifecycle=assessed; nbe_rank1=extend_observation_or_refresh_data",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "PRD section 19 variant: Onboarding with the data-quality issue marked resolved (PATCH /dq-checks as the BA) and the Day-3 assessment re-run on the stored state. The gate ignores a resolved check, so open_critical_dq disappears; no evidence exists for the success metric, so the assessment stays INSUFFICIENT for the remaining reasons. Marking an issue resolved does not create evidence.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "insufficient_evidence",
+          "observed": "insufficient_evidence",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "blocking_reasons",
+          "ok": true,
+          "expected": [
+            "min_items",
+            "min_types",
+            "success_metric_evidence"
+          ],
+          "observed": [
+            "min_items",
+            "min_types",
+            "success_metric_evidence"
+          ],
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "no_ddi",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "an assessment that is not scored shows no number and no band",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "assessed",
+          "observed": "assessed",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "nbe_includes:extend_observation_or_refresh_data",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['extend_observation_or_refresh_data', 'segment_level_analysis', 'financial_model_with_sensitivity', 'targeted_survey', 'powered_holdout_test', 'customer_interview_sprint']",
+          "known_gap": null
+        },
+        {
+          "name": "property:no_ddi_number",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "no number, band, dimension score or penalty",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "d21a53ba-de21-56db-bffc-431598318bc5",
+        "lifecycle": "assessed",
+        "stale": false,
+        "dq": [
+          {
+            "target": "onboarding_completed@android",
+            "severity": "critical",
+            "status": "resolved",
+            "check_type": "volume"
+          },
+          {
+            "target": "onboarding_step_2_completed@android",
+            "severity": "warn",
+            "status": "open",
+            "check_type": "volume"
+          },
+          {
+            "target": "onboarding_step_3_completed>onboarding_step_2_completed@android",
+            "severity": "warn",
+            "status": "open",
+            "check_type": "sequence"
+          }
+        ],
+        "assessment": {
+          "id": "9053366f-3fe9-421c-87a5-aa283de2776b",
+          "version": 3,
+          "state": "insufficient_evidence",
+          "ddi": null,
+          "band": null,
+          "as_of": "2026-10-01",
+          "blocking_codes": [
+            "min_items",
+            "min_types",
+            "success_metric_evidence"
+          ],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "extend_observation_or_refresh_data",
+          "segment_level_analysis",
+          "financial_model_with_sensitivity",
+          "targeted_survey",
+          "powered_holdout_test",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "extend_observation_or_refresh_data",
+        "reviews": [],
+        "syntheses": [],
+        "finding_tokens": [
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "insufficient_evidence",
+        "ddi": null,
+        "band": null,
+        "blocking_codes": [
+          "min_items",
+          "min_types",
+          "success_metric_evidence"
+        ],
+        "nbe_rank1": "extend_observation_or_refresh_data",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 2,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 2,
+        "claims_stored_with_valid_ids": 2,
+        "analysis_values": {}
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "var_clean_strong_evidence",
+      "group": "variant",
+      "expected": "state=scored; lifecycle=assessed; blocking=none; band=golden",
+      "observed": "state=scored; band=moderate; lifecycle=assessed; nbe_rank1=targeted_survey",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "PRD section 19 variant: a clean, strongly evidenced decision. Four evidence types, all grade A, fresh, all supporting, the behavioral item linked to the success metric. The band is whatever the frozen engine returns (D7-01). The decision has no registered experiment record, so the engine experiment dimension runs on defaults: this variant measures the engine, not a real experiment.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "blocking_reasons",
+          "ok": true,
+          "expected": [],
+          "observed": [],
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "moderate",
+          "observed": "moderate",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 47.1,
+            "band": "moderate",
+            "blocking_codes": [],
+            "nbe_rank1": "targeted_survey",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 47.1,
+            "band": "moderate",
+            "blocking_codes": [],
+            "nbe_rank1": "targeted_survey",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "assessed",
+          "observed": "assessed",
+          "note": "",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "68aa4c99-4368-4ed1-8d5a-b76bc11eee98",
+        "lifecycle": "assessed",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "d2d85a41-fbed-4eda-a74c-2dd9e0f4d135",
+          "version": 1,
+          "state": "scored",
+          "ddi": 47.1,
+          "band": "moderate",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "targeted_survey",
+          "powered_holdout_test",
+          "customer_interview_sprint",
+          "financial_model_with_sensitivity"
+        ],
+        "nbe_rank1": "targeted_survey",
+        "reviews": [],
+        "syntheses": [],
+        "finding_tokens": [],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 47.1,
+        "band": "moderate",
+        "blocking_codes": [],
+        "nbe_rank1": "targeted_survey",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 0,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 0,
+        "claims_stored_with_valid_ids": 0,
+        "analysis_values": {}
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "var_empty_evidence",
+      "group": "variant",
+      "expected": "state=insufficient_evidence; lifecycle=assessed; blocking=min_items,min_types,success_metric_evidence; no_ddi; props=no_ddi_number",
+      "observed": "state=insufficient_evidence; blocking=min_items,min_types,success_metric_evidence; lifecycle=assessed; nbe_rank1=extend_observation_or_refresh_data",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "PRD section 19 variant: a decision with no evidence at all. The gate returns INSUFFICIENT EVIDENCE with three reasons and no number.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "insufficient_evidence",
+          "observed": "insufficient_evidence",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "blocking_reasons",
+          "ok": true,
+          "expected": [
+            "min_items",
+            "min_types",
+            "success_metric_evidence"
+          ],
+          "observed": [
+            "min_items",
+            "min_types",
+            "success_metric_evidence"
+          ],
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "no_ddi",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "an assessment that is not scored shows no number and no band",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "assessed",
+          "observed": "assessed",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "property:no_ddi_number",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "no number, band, dimension score or penalty",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "1690b514-0d1e-4b72-9e0a-bde50c4fd7ca",
+        "lifecycle": "assessed",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "aaee29d5-0d44-4c1d-8e44-d1f0ea7df8e9",
+          "version": 1,
+          "state": "insufficient_evidence",
+          "ddi": null,
+          "band": null,
+          "as_of": "2026-10-01",
+          "blocking_codes": [
+            "min_items",
+            "min_types",
+            "success_metric_evidence"
+          ],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "extend_observation_or_refresh_data",
+          "targeted_survey",
+          "segment_level_analysis",
+          "customer_interview_sprint",
+          "financial_model_with_sensitivity",
+          "powered_holdout_test"
+        ],
+        "nbe_rank1": "extend_observation_or_refresh_data",
+        "reviews": [],
+        "syntheses": [],
+        "finding_tokens": [],
+        "briefs": []
+      },
+      "golden": {
+        "state": "insufficient_evidence",
+        "ddi": null,
+        "band": null,
+        "blocking_codes": [
+          "min_items",
+          "min_types",
+          "success_metric_evidence"
+        ],
+        "nbe_rank1": "extend_observation_or_refresh_data",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 0,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 0,
+        "claims_stored_with_valid_ids": 0,
+        "analysis_values": {}
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "var_contradictory_evidence",
+      "group": "variant",
+      "expected": "state=scored; lifecycle=assessed; blocking=none; band=golden",
+      "observed": "state=scored; band=critical; lifecycle=assessed; nbe_rank1=targeted_survey",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "PRD section 19 variant: evidence that contradicts itself. Supporting and contradicting items of equal grade in two evidence types. The frozen engine decides the band (D7-01); the stored result must equal the recomputed engine and the snapshot.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "blocking_reasons",
+          "ok": true,
+          "expected": [],
+          "observed": [],
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "critical",
+          "observed": "critical",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 84.1,
+            "band": "critical",
+            "blocking_codes": [],
+            "nbe_rank1": "targeted_survey",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 84.1,
+            "band": "critical",
+            "blocking_codes": [],
+            "nbe_rank1": "targeted_survey",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "assessed",
+          "observed": "assessed",
+          "note": "",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "ea6e67a7-30fc-4143-8bd9-6607de307934",
+        "lifecycle": "assessed",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "6076bba1-2eb3-4377-853b-d1f07da36714",
+          "version": 1,
+          "state": "scored",
+          "ddi": 84.1,
+          "band": "critical",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "targeted_survey",
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "targeted_survey",
+        "reviews": [],
+        "syntheses": [],
+        "finding_tokens": [],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 84.1,
+        "band": "critical",
+        "blocking_codes": [],
+        "nbe_rank1": "targeted_survey",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 0,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 0,
+        "claims_stored_with_valid_ids": 0,
+        "analysis_values": {}
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "var_stale_evidence",
+      "group": "variant",
+      "expected": "state=scored; lifecycle=assessed; band=golden; props=ddi_not_lower_when_older",
+      "observed": "state=scored; band=high; lifecycle=assessed; nbe_rank1=extend_observation_or_refresh_data",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "PRD section 19 variant: the same evidence assessed again with the as-of date moved forward by 365 days (a canvas edit returns the decision to evidence_gathered first). Aged evidence must not lower the debt.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 64.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "extend_observation_or_refresh_data",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 64.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "extend_observation_or_refresh_data",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "assessed",
+          "observed": "assessed",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "property:ddi_not_lower_when_older",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "DDI 55.8 at 2026-10-01 then 64.7 at 2027-10-01",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "326ee323-6762-4b26-98bd-7e100ef74247",
+        "lifecycle": "assessed",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "a28f8c4d-8d66-4ce9-9057-3a443ad81ad5",
+          "version": 2,
+          "state": "scored",
+          "ddi": 64.7,
+          "band": "high",
+          "as_of": "2027-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "extend_observation_or_refresh_data",
+          "targeted_survey",
+          "powered_holdout_test",
+          "customer_interview_sprint",
+          "financial_model_with_sensitivity"
+        ],
+        "nbe_rank1": "extend_observation_or_refresh_data",
+        "reviews": [],
+        "syntheses": [],
+        "finding_tokens": [],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 64.7,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "extend_observation_or_refresh_data",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 0,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 0,
+        "claims_stored_with_valid_ids": 0,
+        "analysis_values": {}
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "var_injection_in_customer_text",
+      "group": "variant",
+      "expected": "state=scored; lifecycle=challenged; band=golden; findings+=V-REC,V-ID,synthesis_rejected_by_validators",
+      "observed": "state=scored; band=high; lifecycle=challenged; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "PRD section 19 variant: hostile text in customer feedback (a test-only insight row, as in Day-5 E3). The Stage-5 input carries it only wrapped and redacted; a compromised synthesis that obeys it (a fabricated evidence id, a recommendation) is rejected by code. The DDI is unchanged. Whether a real model would resist is NOT MEASURED: the synthesis here is a scripted output.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 60.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 60.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "challenged",
+          "observed": "challenged",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "finding:V-REC",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['V-ID', 'V-REC', 'V-SEM-TYPE', 'review_skipped', 'synthesis_rejected_by_validators']",
+          "known_gap": null
+        },
+        {
+          "name": "finding:V-ID",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['V-ID', 'V-REC', 'V-SEM-TYPE', 'review_skipped', 'synthesis_rejected_by_validators']",
+          "known_gap": null
+        },
+        {
+          "name": "finding:synthesis_rejected_by_validators",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['V-ID', 'V-REC', 'V-SEM-TYPE', 'review_skipped', 'synthesis_rejected_by_validators']",
+          "known_gap": null
+        },
+        {
+          "name": "injected_text_wrapped_and_redacted",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "Day-5 E3 sanitisation of customer text",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "a099b72e-7e93-5228-8c5a-7b938f2be02f",
+        "lifecycle": "challenged",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "d3080536-b903-4257-a47a-4ea2880df5f1",
+          "version": 2,
+          "state": "scored",
+          "ddi": 60.5,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "needs_rework",
+            "findings": [
+              {
+                "category": "causal_from_observational",
+                "severity": "blocking",
+                "source": "model",
+                "severity_model": "warning"
+              },
+              {
+                "category": "uncertainty_understated",
+                "severity": "info",
+                "source": "model",
+                "severity_model": "info"
+              }
+            ]
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          },
+          {
+            "version": 2,
+            "status": "rejected_by_validators",
+            "claims_dropped": 1,
+            "validator_status": "rejected_by_validators"
+          }
+        ],
+        "finding_tokens": [
+          "V-ID",
+          "V-REC",
+          "V-SEM-TYPE",
+          "review_skipped",
+          "synthesis_rejected_by_validators"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 60.5,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "recompute_skipped": "evidence changed after the stored assessment (it is stale)",
+        "claims_total": 15,
+        "claims_dropped_v_id": 1,
+        "claims_stored": 8,
+        "claims_stored_with_valid_ids": 8,
+        "hostile_text_wrapped": true,
+        "analysis_values": {
+          "comparison_effect": 0.23039900564863236,
+          "heterogeneity_flag": false,
+          "segment_effects": {
+            "social_exerciser": 0.2399746057621004,
+            "solo_athlete": 0.2203955763973216,
+            "time_pressed": 0.22811805196431492
+          },
+          "experiment": {
+            "n": 1500,
+            "planned_sample": 4000,
+            "effect": 0.29333333333333345,
+            "observed_allocation": {
+              "holdout": 0.7,
+              "ai_coach": 0.3
+            },
+            "srm_flag": true
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": null
+    },
+    {
+      "spec": "extra_customer_rejected",
+      "group": "extra",
+      "expected": "state=scored; band=golden; props=proposed_excluded_from_facts",
+      "observed": "state=scored; band=high; lifecycle=assessed; nbe_rank1=targeted_survey",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "Customer evidence rejected by the BA: the items never enter the facts, so the assessment is built from the other evidence only.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 69.2,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "targeted_survey",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 69.2,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "targeted_survey",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "property:proposed_excluded_from_facts",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "3 proposed or rejected item(s), none in the facts",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "a099b72e-7e93-5228-8c5a-7b938f2be02f",
+        "lifecycle": "assessed",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "778fe330-048f-4019-b03f-03dfb5b44e8e",
+          "version": 2,
+          "state": "scored",
+          "ddi": 69.2,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "targeted_survey",
+          "customer_interview_sprint",
+          "financial_model_with_sensitivity",
+          "extend_observation_or_refresh_data",
+          "powered_holdout_test"
+        ],
+        "nbe_rank1": "targeted_survey",
+        "reviews": [],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "failed",
+            "claims_dropped": 0,
+            "validator_status": "failed"
+          }
+        ],
+        "finding_tokens": [
+          "review_skipped",
+          "synthesis_failed"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 69.2,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "targeted_survey",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 0,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 0,
+        "claims_stored_with_valid_ids": 0,
+        "analysis_values": {
+          "comparison_effect": 0.23039900564863236,
+          "heterogeneity_flag": false,
+          "segment_effects": {
+            "social_exerciser": 0.2399746057621004,
+            "solo_athlete": 0.2203955763973216,
+            "time_pressed": 0.22811805196431492
+          },
+          "experiment": {
+            "n": 1500,
+            "planned_sample": 4000,
+            "effect": 0.29333333333333345,
+            "observed_allocation": {
+              "holdout": 0.7,
+              "ai_coach": 0.3
+            },
+            "srm_flag": true
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_customer_left_proposed",
+      "group": "extra",
+      "expected": "state=scored; lifecycle=assessed; band=golden; props=proposed_excluded_from_facts",
+      "observed": "state=scored; band=high; lifecycle=assessed; nbe_rank1=targeted_survey",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "Customer evidence left proposed (no human decision): it stays out of the facts of the assessment, and the decision does not reach review because the synthesis cannot cite evidence that is not active.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 69.2,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "targeted_survey",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 69.2,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "targeted_survey",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "assessed",
+          "observed": "assessed",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "property:proposed_excluded_from_facts",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "3 proposed or rejected item(s), none in the facts",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "a099b72e-7e93-5228-8c5a-7b938f2be02f",
+        "lifecycle": "assessed",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "2751c7c8-f5f0-4f21-935b-7de517e1a871",
+          "version": 1,
+          "state": "scored",
+          "ddi": 69.2,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "targeted_survey",
+          "customer_interview_sprint",
+          "financial_model_with_sensitivity",
+          "extend_observation_or_refresh_data",
+          "powered_holdout_test"
+        ],
+        "nbe_rank1": "targeted_survey",
+        "reviews": [],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "failed",
+            "claims_dropped": 0,
+            "validator_status": "failed"
+          }
+        ],
+        "finding_tokens": [
+          "review_skipped",
+          "synthesis_failed"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 69.2,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "targeted_survey",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 0,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 0,
+        "claims_stored_with_valid_ids": 0,
+        "analysis_values": {
+          "comparison_effect": 0.23039900564863236,
+          "heterogeneity_flag": false,
+          "segment_effects": {
+            "social_exerciser": 0.2399746057621004,
+            "solo_athlete": 0.2203955763973216,
+            "time_pressed": 0.22811805196431492
+          },
+          "experiment": {
+            "n": 1500,
+            "planned_sample": 4000,
+            "effect": 0.29333333333333345,
+            "observed_allocation": {
+              "holdout": 0.7,
+              "ai_coach": 0.3
+            },
+            "srm_flag": true
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_reviewer_failing",
+      "group": "extra",
+      "expected": "state=scored; lifecycle=assessed; band=golden; props=review_not_ready",
+      "observed": "state=scored; band=high; lifecycle=assessed; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "The Reviewer call fails (transport error). It never counts as a review pass: no review row, the decision stays assessed, the DDI is unchanged and validation is refused.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "assessed",
+          "observed": "assessed",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "property:review_not_ready",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "validate returned 409",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "559e3837-726b-5326-8a4d-13e30c911257",
+        "lifecycle": "assessed",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "f3b40d2f-b914-4fda-b752-e0e33202612a",
+          "version": 2,
+          "state": "scored",
+          "ddi": 73.7,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "extend_observation_or_refresh_data",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "review_review_failed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 73.7,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 6,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 6,
+        "claims_stored_with_valid_ids": 6,
+        "analysis_values": {
+          "comparison_effect": -0.11196855848876375,
+          "heterogeneity_flag": null,
+          "segment_effects": {
+            "CA": -0.11196855848876375
+          },
+          "experiment": {
+            "n": 1174,
+            "planned_sample": 8000,
+            "effect": -0.020442930153321992,
+            "observed_allocation": {
+              "control_9_99": 0.5,
+              "treatment_11_99": 0.5
+            },
+            "srm_flag": false
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_malformed_synthesis",
+      "group": "extra",
+      "expected": "state=scored; lifecycle=assessed; band=golden; findings+=synthesis_failed; props=review_not_ready",
+      "observed": "state=scored; band=high; lifecycle=assessed; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "Malformed synthesis output (not JSON) on the call and on the repair call: the synthesis is recorded as failed, nothing is stored as a claim, the DDI is unchanged and the decision stays assessed.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "assessed",
+          "observed": "assessed",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "finding:synthesis_failed",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "observed ['review_skipped', 'synthesis_failed']",
+          "known_gap": null
+        },
+        {
+          "name": "property:review_not_ready",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "validate returned 409",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "559e3837-726b-5326-8a4d-13e30c911257",
+        "lifecycle": "assessed",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "fe114903-1e8c-4691-9a0f-606d8283e9e1",
+          "version": 2,
+          "state": "scored",
+          "ddi": 73.7,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "extend_observation_or_refresh_data",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "failed",
+            "claims_dropped": 0,
+            "validator_status": "failed"
+          }
+        ],
+        "finding_tokens": [
+          "review_skipped",
+          "synthesis_failed"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 73.7,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 0,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 0,
+        "claims_stored_with_valid_ids": 0,
+        "analysis_values": {
+          "comparison_effect": -0.11196855848876375,
+          "heterogeneity_flag": null,
+          "segment_effects": {
+            "CA": -0.11196855848876375
+          },
+          "experiment": {
+            "n": 1174,
+            "planned_sample": 8000,
+            "effect": -0.020442930153321992,
+            "observed_allocation": {
+              "control_9_99": 0.5,
+              "treatment_11_99": 0.5
+            },
+            "srm_flag": false
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_canvas_edit_stale",
+      "group": "extra",
+      "expected": "state=scored; lifecycle=evidence_gathered (stale); band=golden",
+      "observed": "state=scored; band=high; lifecycle=evidence_gathered; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "A canvas edit after the assessment marks it stale and returns the decision to evidence_gathered. The stored (now stale) assessment is still the frozen engine result for its facts.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "evidence_gathered",
+          "observed": "evidence_gathered",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "assessment_stale",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "559e3837-726b-5326-8a4d-13e30c911257",
+        "lifecycle": "evidence_gathered",
+        "stale": true,
+        "dq": [],
+        "assessment": {
+          "id": "2e5f3a9d-7b5a-49e1-9478-7c3aefb0750d",
+          "version": 2,
+          "state": "scored",
+          "ddi": 73.7,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "extend_observation_or_refresh_data",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "needs_rework",
+            "findings": [
+              {
+                "category": "statistical_misinterpretation",
+                "severity": "blocking",
+                "source": "model",
+                "severity_model": "blocking"
+              },
+              {
+                "category": "evidence_overstated",
+                "severity": "warning",
+                "source": "code",
+                "severity_model": "warning"
+              },
+              {
+                "category": "evidence_overstated",
+                "severity": "warning",
+                "source": "code",
+                "severity_model": "warning"
+              }
+            ]
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "evidence_overstated",
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 73.7,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 6,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 6,
+        "claims_stored_with_valid_ids": 6,
+        "analysis_values": {
+          "comparison_effect": -0.11196855848876375,
+          "heterogeneity_flag": null,
+          "segment_effects": {
+            "CA": -0.11196855848876375
+          },
+          "experiment": {
+            "n": 1174,
+            "planned_sample": 8000,
+            "effect": -0.020442930153321992,
+            "observed_allocation": {
+              "control_9_99": 0.5,
+              "treatment_11_99": 0.5
+            },
+            "srm_flag": false
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_needs_rework_override",
+      "group": "extra",
+      "expected": "state=scored; lifecycle=validated; band=golden",
+      "observed": "state=scored; band=high; lifecycle=validated; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "The replayed reviewer returns needs_rework. Validation is refused until a human overrides with a written reason (BR-13); then the decision is validated.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 60.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 60.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "validated",
+          "observed": "validated",
+          "note": "",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "a099b72e-7e93-5228-8c5a-7b938f2be02f",
+        "lifecycle": "validated",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "b47c47be-d795-49d2-ab39-13173b2707ac",
+          "version": 2,
+          "state": "scored",
+          "ddi": 60.5,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "needs_rework",
+            "findings": [
+              {
+                "category": "causal_from_observational",
+                "severity": "blocking",
+                "source": "model",
+                "severity_model": "warning"
+              },
+              {
+                "category": "uncertainty_understated",
+                "severity": "info",
+                "source": "model",
+                "severity_model": "info"
+              }
+            ]
+          },
+          {
+            "type": "human",
+            "verdict": "ready",
+            "findings": []
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "V-SEM-TYPE",
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 60.5,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 8,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 8,
+        "claims_stored_with_valid_ids": 8,
+        "analysis_values": {
+          "comparison_effect": 0.23039900564863236,
+          "heterogeneity_flag": false,
+          "segment_effects": {
+            "social_exerciser": 0.2399746057621004,
+            "solo_athlete": 0.2203955763973216,
+            "time_pressed": 0.22811805196431492
+          },
+          "experiment": {
+            "n": 1500,
+            "planned_sample": 4000,
+            "effect": 0.29333333333333345,
+            "observed_allocation": {
+              "holdout": 0.7,
+              "ai_coach": 0.3
+            },
+            "srm_flag": true
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_decided_freezes_writes",
+      "group": "extra",
+      "expected": "state=scored; lifecycle=decided; band=golden; props=writes_frozen",
+      "observed": "state=scored; band=high; lifecycle=decided; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "A decided record freezes the decision: late evidence, a canvas edit and a second record are all refused.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 60.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 60.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "decided",
+          "observed": "decided",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "property:writes_frozen",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "3 of 3 late writes refused",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "a099b72e-7e93-5228-8c5a-7b938f2be02f",
+        "lifecycle": "decided",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "397d9070-ee0e-4c2b-b77b-ab3df7675807",
+          "version": 2,
+          "state": "scored",
+          "ddi": 60.5,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "needs_rework",
+            "findings": [
+              {
+                "category": "causal_from_observational",
+                "severity": "blocking",
+                "source": "model",
+                "severity_model": "warning"
+              },
+              {
+                "category": "uncertainty_understated",
+                "severity": "info",
+                "source": "model",
+                "severity_model": "info"
+              }
+            ]
+          },
+          {
+            "type": "human",
+            "verdict": "ready",
+            "findings": []
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "V-SEM-TYPE",
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 60.5,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 8,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 8,
+        "claims_stored_with_valid_ids": 8,
+        "analysis_values": {
+          "comparison_effect": 0.23039900564863236,
+          "heterogeneity_flag": false,
+          "segment_effects": {
+            "social_exerciser": 0.2399746057621004,
+            "solo_athlete": 0.2203955763973216,
+            "time_pressed": 0.22811805196431492
+          },
+          "experiment": {
+            "n": 1500,
+            "planned_sample": 4000,
+            "effect": 0.29333333333333345,
+            "observed_allocation": {
+              "holdout": 0.7,
+              "ai_coach": 0.3
+            },
+            "srm_flag": true
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_gated_summary_path",
+      "group": "extra",
+      "expected": "state=insufficient_evidence; lifecycle=validated; no_ddi; props=no_ddi_number",
+      "observed": "state=insufficient_evidence; blocking=min_items,min_types,open_critical_dq,success_metric_evidence; lifecycle=validated; nbe_rank1=fix_dq_or_instrumentation",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "The gated path: an INSUFFICIENT assessment can be validated by a human and gets a Gated Evidence Summary; a Decision Brief is refused. No DDI number, band or contribution appears in the assessment, the synthesis text or the summary.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "insufficient_evidence",
+          "observed": "insufficient_evidence",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "no_ddi",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "an assessment that is not scored shows no number and no band",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "validated",
+          "observed": "validated",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "property:no_ddi_number",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "no number, band, dimension score or penalty",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "d21a53ba-de21-56db-bffc-431598318bc5",
+        "lifecycle": "validated",
+        "stale": false,
+        "dq": [
+          {
+            "target": "onboarding_completed@android",
+            "severity": "critical",
+            "status": "open",
+            "check_type": "volume"
+          },
+          {
+            "target": "onboarding_step_2_completed@android",
+            "severity": "warn",
+            "status": "open",
+            "check_type": "volume"
+          },
+          {
+            "target": "onboarding_step_3_completed>onboarding_step_2_completed@android",
+            "severity": "warn",
+            "status": "open",
+            "check_type": "sequence"
+          }
+        ],
+        "assessment": {
+          "id": "a89c9a41-0d0b-410b-b93c-699c665e3467",
+          "version": 2,
+          "state": "insufficient_evidence",
+          "ddi": null,
+          "band": null,
+          "as_of": "2026-10-01",
+          "blocking_codes": [
+            "min_items",
+            "min_types",
+            "open_critical_dq",
+            "success_metric_evidence"
+          ],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "fix_dq_or_instrumentation"
+        ],
+        "nbe_rank1": "fix_dq_or_instrumentation",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "ready",
+            "findings": [
+              {
+                "category": "missing_evidence",
+                "severity": "info",
+                "source": "model",
+                "severity_model": "info"
+              },
+              {
+                "category": "evidence_overstated",
+                "severity": "warning",
+                "source": "code",
+                "severity_model": "warning"
+              }
+            ]
+          },
+          {
+            "type": "human",
+            "verdict": "ready",
+            "findings": []
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "evidence_overstated",
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": [
+          "gated_evidence_summary"
+        ]
+      },
+      "golden": {
+        "state": "insufficient_evidence",
+        "ddi": null,
+        "band": null,
+        "blocking_codes": [
+          "min_items",
+          "min_types",
+          "open_critical_dq",
+          "success_metric_evidence"
+        ],
+        "nbe_rank1": "fix_dq_or_instrumentation",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 2,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 2,
+        "claims_stored_with_valid_ids": 2,
+        "analysis_values": {}
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_defer_stale",
+      "group": "extra",
+      "expected": "state=scored; lifecycle=evidence_gathered (stale); band=golden",
+      "observed": "state=scored; band=high; lifecycle=evidence_gathered; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "A human records defer on a validated decision: the record is kept, the decision returns to evidence_gathered with the assessment marked stale, and it never becomes decided.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 73.7,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "evidence_gathered",
+          "observed": "evidence_gathered",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "assessment_stale",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "559e3837-726b-5326-8a4d-13e30c911257",
+        "lifecycle": "evidence_gathered",
+        "stale": true,
+        "dq": [],
+        "assessment": {
+          "id": "a5c0809d-353a-454b-afd0-5aa7fe607e59",
+          "version": 2,
+          "state": "scored",
+          "ddi": 73.7,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "extend_observation_or_refresh_data",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "needs_rework",
+            "findings": [
+              {
+                "category": "statistical_misinterpretation",
+                "severity": "blocking",
+                "source": "model",
+                "severity_model": "blocking"
+              },
+              {
+                "category": "evidence_overstated",
+                "severity": "warning",
+                "source": "code",
+                "severity_model": "warning"
+              },
+              {
+                "category": "evidence_overstated",
+                "severity": "warning",
+                "source": "code",
+                "severity_model": "warning"
+              }
+            ]
+          },
+          {
+            "type": "human",
+            "verdict": "ready",
+            "findings": []
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "evidence_overstated",
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 73.7,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 6,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 6,
+        "claims_stored_with_valid_ids": 6,
+        "analysis_values": {
+          "comparison_effect": -0.11196855848876375,
+          "heterogeneity_flag": null,
+          "segment_effects": {
+            "CA": -0.11196855848876375
+          },
+          "experiment": {
+            "n": 1174,
+            "planned_sample": 8000,
+            "effect": -0.020442930153321992,
+            "observed_allocation": {
+              "control_9_99": 0.5,
+              "treatment_11_99": 0.5
+            },
+            "srm_flag": false
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_approval_bypass_refused",
+      "group": "extra",
+      "expected": "state=scored; lifecycle=challenged; band=golden; refused=approval_bypass",
+      "observed": "state=scored; band=high; lifecycle=challenged; nbe_rank1=financial_model_with_sensitivity",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "Approval bypass attempt: clearing the approver of an active agent-created customer item with raw SQL is refused by the database.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "scored",
+          "observed": "scored",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "golden_band_equals_snapshot",
+          "ok": true,
+          "expected": "high",
+          "observed": "high",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "golden_snapshot_unchanged",
+          "ok": true,
+          "expected": {
+            "state": "scored",
+            "ddi": 66.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "observed": {
+            "state": "scored",
+            "ddi": 66.5,
+            "band": "high",
+            "blocking_codes": [],
+            "nbe_rank1": "financial_model_with_sensitivity",
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          },
+          "note": "drift detection against the recorded engine output",
+          "known_gap": null
+        },
+        {
+          "name": "lifecycle_stage",
+          "ok": true,
+          "expected": "challenged",
+          "observed": "challenged",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "refused:approval_bypass",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "1e85966b-991f-5f04-9264-cc7ed2e658c2",
+        "lifecycle": "challenged",
+        "stale": false,
+        "dq": [],
+        "assessment": {
+          "id": "5b773561-1911-4e04-a745-b5ce02c64edd",
+          "version": 2,
+          "state": "scored",
+          "ddi": 66.5,
+          "band": "high",
+          "as_of": "2026-10-01",
+          "blocking_codes": [],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "financial_model_with_sensitivity",
+          "powered_holdout_test",
+          "targeted_survey",
+          "customer_interview_sprint"
+        ],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "ready",
+            "findings": [
+              {
+                "category": "customer_overgeneralization",
+                "severity": "warning",
+                "source": "model",
+                "severity_model": "warning"
+              },
+              {
+                "category": "uncertainty_understated",
+                "severity": "info",
+                "source": "model",
+                "severity_model": "info"
+              }
+            ]
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "scored",
+        "ddi": 66.5,
+        "band": "high",
+        "blocking_codes": [],
+        "nbe_rank1": "financial_model_with_sensitivity",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 6,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 6,
+        "claims_stored_with_valid_ids": 6,
+        "analysis_values": {
+          "comparison_effect": 0.1451850336115241,
+          "heterogeneity_flag": true,
+          "segment_effects": {
+            "social_exerciser": 0.19558051443635877,
+            "solo_athlete": 6.0513213801210997e-05,
+            "time_pressed": -0.079500079101408
+          }
+        }
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    },
+    {
+      "spec": "extra_dq_resolved_pipeline_reopens",
+      "group": "extra",
+      "expected": "state=insufficient_evidence; blocking=min_items,min_types,open_critical_dq,success_metric_evidence; no_ddi; nbe_rank1=fix_dq_or_instrumentation; props=no_ddi_number",
+      "observed": "state=insufficient_evidence; blocking=min_items,min_types,open_critical_dq,success_metric_evidence; lifecycle=challenged; nbe_rank1=fix_dq_or_instrumentation",
+      "pass": true,
+      "notes": "all checks met",
+      "synthetic": true,
+      "description": "Marking the Onboarding defect resolved without fixing the data does not survive a pipeline re-run: the check is reopened and the gate blocks again (Day-4 reconciliation). Accepting it would be a different, audited choice.",
+      "checks": [
+        {
+          "name": "state",
+          "ok": true,
+          "expected": "insufficient_evidence",
+          "observed": "insufficient_evidence",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "blocking_reasons",
+          "ok": true,
+          "expected": [
+            "min_items",
+            "min_types",
+            "open_critical_dq",
+            "success_metric_evidence"
+          ],
+          "observed": [
+            "min_items",
+            "min_types",
+            "open_critical_dq",
+            "success_metric_evidence"
+          ],
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "no_ddi",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "an assessment that is not scored shows no number and no band",
+          "known_gap": null
+        },
+        {
+          "name": "stored_equals_recomputed_engine",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "assess(facts) recomputed on the stored facts",
+          "known_gap": null
+        },
+        {
+          "name": "ddi_reproducible",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "the engine run twice on the same facts",
+          "known_gap": null
+        },
+        {
+          "name": "nbe_rank1",
+          "ok": true,
+          "expected": "fix_dq_or_instrumentation",
+          "observed": "fix_dq_or_instrumentation",
+          "note": "",
+          "known_gap": null
+        },
+        {
+          "name": "property:no_ddi_number",
+          "ok": true,
+          "expected": true,
+          "observed": true,
+          "note": "no number, band, dimension score or penalty",
+          "known_gap": null
+        }
+      ],
+      "observed_detail": {
+        "decision_id": "d21a53ba-de21-56db-bffc-431598318bc5",
+        "lifecycle": "challenged",
+        "stale": false,
+        "dq": [
+          {
+            "target": "onboarding_completed@android",
+            "severity": "critical",
+            "status": "open",
+            "check_type": "volume"
+          },
+          {
+            "target": "onboarding_step_2_completed@android",
+            "severity": "warn",
+            "status": "open",
+            "check_type": "volume"
+          },
+          {
+            "target": "onboarding_step_3_completed>onboarding_step_2_completed@android",
+            "severity": "warn",
+            "status": "open",
+            "check_type": "sequence"
+          }
+        ],
+        "assessment": {
+          "id": "5a14b67b-9cdd-4c20-8d62-d18a6e8d751f",
+          "version": 3,
+          "state": "insufficient_evidence",
+          "ddi": null,
+          "band": null,
+          "as_of": "2026-10-01",
+          "blocking_codes": [
+            "min_items",
+            "min_types",
+            "open_critical_dq",
+            "success_metric_evidence"
+          ],
+          "params": {
+            "ddi_params_version": "ddi_params_v0.1",
+            "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+            "nbe_params_version": "nbe_params_v0.2",
+            "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+          }
+        },
+        "nbe": [
+          "fix_dq_or_instrumentation"
+        ],
+        "nbe_rank1": "fix_dq_or_instrumentation",
+        "reviews": [
+          {
+            "type": "agent",
+            "verdict": "ready",
+            "findings": [
+              {
+                "category": "missing_evidence",
+                "severity": "info",
+                "source": "model",
+                "severity_model": "info"
+              },
+              {
+                "category": "evidence_overstated",
+                "severity": "warning",
+                "source": "code",
+                "severity_model": "warning"
+              }
+            ]
+          }
+        ],
+        "syntheses": [
+          {
+            "version": 1,
+            "status": "succeeded",
+            "claims_dropped": 0,
+            "validator_status": "passed"
+          }
+        ],
+        "finding_tokens": [
+          "evidence_overstated",
+          "review_reviewed",
+          "synthesis_succeeded"
+        ],
+        "briefs": []
+      },
+      "golden": {
+        "state": "insufficient_evidence",
+        "ddi": null,
+        "band": null,
+        "blocking_codes": [
+          "min_items",
+          "min_types",
+          "open_critical_dq",
+          "success_metric_evidence"
+        ],
+        "nbe_rank1": "fix_dq_or_instrumentation",
+        "ddi_params_version": "ddi_params_v0.1",
+        "ddi_params_hash": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee",
+        "nbe_params_version": "nbe_params_v0.2",
+        "nbe_params_hash": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+      },
+      "extras": {
+        "claims_total": 4,
+        "claims_dropped_v_id": 0,
+        "claims_stored": 4,
+        "claims_stored_with_valid_ids": 4,
+        "analysis_values": {}
+      },
+      "reproducible": true,
+      "stored_equals_recomputed": true
+    }
+  ]
+}

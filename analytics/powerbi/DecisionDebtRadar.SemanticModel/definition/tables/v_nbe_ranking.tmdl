@@ -1,0 +1,124 @@
+table v_nbe_ranking
+	lineageTag: 1433a632-960b-549d-9174-aef22429f026
+
+	column recommendation_id
+		dataType: string
+		lineageTag: 3541051b-89ea-5420-9b84-2d05320aac78
+		summarizeBy: none
+		sourceColumn: recommendation_id
+
+	column assessment_id
+		dataType: string
+		lineageTag: 95055f24-728b-5d9d-8e97-b18baceb5afb
+		summarizeBy: none
+		sourceColumn: assessment_id
+
+	column decision_id
+		dataType: string
+		lineageTag: 0f592e44-1b79-578e-a722-1c5afd19f839
+		summarizeBy: none
+		sourceColumn: decision_id
+
+	column decision_title
+		dataType: string
+		lineageTag: db145d03-5e0e-5e49-a2f1-a0b38a0c2098
+		summarizeBy: none
+		sourceColumn: decision_title
+
+	column assessment_version
+		dataType: int64
+		lineageTag: f59095b7-c3f7-5825-b052-8d812f33a518
+		summarizeBy: none
+		sourceColumn: assessment_version
+
+	column is_superseded
+		dataType: boolean
+		lineageTag: 7b1f3e47-69f5-5f0c-bbaf-35a20a6cf621
+		summarizeBy: none
+		sourceColumn: is_superseded
+
+	column action_type
+		dataType: string
+		lineageTag: b362ced7-6f40-5c5d-896c-8738abca7a88
+		summarizeBy: none
+		sourceColumn: action_type
+
+	column description
+		dataType: string
+		lineageTag: 4ed6e5a3-c07f-5aa5-8178-4f9125d9994f
+		summarizeBy: none
+		sourceColumn: description
+
+	column effort_days
+		dataType: double
+		lineageTag: d19c7a13-d716-5076-ab7d-7a275bba87cb
+		summarizeBy: none
+		sourceColumn: effort_days
+
+	column expected_reduction
+		dataType: double
+		lineageTag: c4b7fa4d-a54b-5bc9-afe2-d41a9050a11d
+		summarizeBy: none
+		sourceColumn: expected_reduction
+
+	column relevance
+		dataType: double
+		lineageTag: 0239112f-72e1-529c-8513-ba06c7468a11
+		summarizeBy: none
+		sourceColumn: relevance
+
+	column priority_score
+		dataType: double
+		lineageTag: 1f09f00f-9bee-5d5d-930c-8869f0e0facf
+		summarizeBy: none
+		sourceColumn: priority_score
+
+	column rank_in_assessment
+		dataType: int64
+		lineageTag: 44d17fec-7d58-55fe-8fbf-e48f6d64811e
+		summarizeBy: none
+		sourceColumn: rank_in_assessment
+
+	column dimensions_addressed
+		dataType: string
+		lineageTag: 4f3308cf-1304-5899-b2c2-35573dfe7eb4
+		summarizeBy: none
+		sourceColumn: dimensions_addressed
+
+	column status
+		dataType: string
+		lineageTag: d08cb4e9-40c1-5b66-87b6-ee6685a2d597
+		summarizeBy: none
+		sourceColumn: status
+
+	column human_note
+		dataType: string
+		lineageTag: 6efca70e-05e4-5ac3-ae34-9060e8aab495
+		summarizeBy: none
+		sourceColumn: human_note
+
+	column is_synthetic
+		dataType: boolean
+		lineageTag: e4361645-f4fd-547e-aec7-e70929bef0c5
+		summarizeBy: none
+		sourceColumn: is_synthetic
+
+	column reduction_label = IF(RELATED(decisions_lifecycle[latest_assessment_state]) = "scored", FORMAT(v_nbe_ranking[expected_reduction], "0.0") & " DDI points (potential, not a prediction)", "Resolves blockers (no DDI)")
+		dataType: string
+		lineageTag: f9e2dd6c-839a-570a-a7d6-f427152f89ce
+		summarizeBy: none
+
+	partition v_nbe_ranking = m
+		mode: import
+		source =
+				let
+				    Raw = Csv.Document(File.Contents(DataFolder & "\v_nbe_ranking.csv"), [Delimiter = ",", Columns = 17, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Raw, [PromoteAllScalars = true]),
+				    Clean = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Live = PostgreSQL.Database(PgServer, PgDatabase, [Query = "SELECT recommendation_id, assessment_id, decision_id, decision_title, assessment_version, is_superseded, action_type, description, effort_days, expected_reduction, relevance, priority_score, rank_in_assessment, array_to_string(dimensions_addressed::text[], ';') AS dimensions_addressed, status::text AS status, human_note, is_synthetic FROM v_nbe_ranking"]),
+				    Chosen = if DataSource = "postgres" then Live else Clean,
+				    Typed = Table.TransformColumnTypes(Chosen, {{"assessment_version", Int64.Type}, {"is_superseded", type logical}, {"effort_days", type number}, {"expected_reduction", type number}, {"relevance", type number}, {"priority_score", type number}, {"rank_in_assessment", Int64.Type}, {"is_synthetic", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

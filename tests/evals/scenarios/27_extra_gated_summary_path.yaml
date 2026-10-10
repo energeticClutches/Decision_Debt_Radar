@@ -1,0 +1,20 @@
+id: extra_gated_summary_path
+group: extra
+synthetic: true
+description: >
+  The gated path: an INSUFFICIENT assessment can be validated by a human and gets a Gated Evidence Summary; a Decision Brief is refused.
+  No DDI number, band or contribution appears in the assessment, the synthesis text or the summary.
+base_scenario: onboarding
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+  - human_review: {verdict: ready, response: "Reviewed by hand: the gate reasons are understood."}
+  - validate
+  - create_brief: {kind: decision_brief, expect_status: 409}
+  - create_brief: {kind: gated_evidence_summary}
+expect:
+  state: insufficient_evidence
+  no_ddi: true
+  lifecycle: validated
+  properties: [no_ddi_number]

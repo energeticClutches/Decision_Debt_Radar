@@ -1,0 +1,18 @@
+id: core_onboarding
+group: core
+synthetic: true
+description: >
+  Onboarding, the demo path. The seeded android tracking defect is an open critical data-quality issue on the success metric: the
+  assessment is INSUFFICIENT EVIDENCE with no number and no band, and the NBE ranks the instrumentation fix first.
+base_scenario: onboarding
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+expect:
+  state: insufficient_evidence
+  blocking_reasons: [min_items, min_types, open_critical_dq, success_metric_evidence]
+  no_ddi: true
+  lifecycle: challenged
+  nbe_rank1: fix_dq_or_instrumentation
+  properties: [no_ddi_number, stance_from_map]

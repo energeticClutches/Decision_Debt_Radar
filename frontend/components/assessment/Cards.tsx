@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { supersededLabel } from "../../lib/actions";
 import { fmtDateTime, fmtNumber, fmtPercent, fmtValue, titleCase } from "../../lib/format";
-import type { AssessmentOut, DecisionOut, RecommendationOut } from "../../lib/types";
+import type { AssessmentOut, DecisionOut, DimensionOut, PenaltyOut, RecommendationOut } from "../../lib/types";
 import { Icon, Pill } from "../ui";
 
 export const DDI_COPY = "Higher = more evidence debt (weaker support). Not a probability the decision is wrong.";
@@ -245,8 +245,12 @@ export function WhyThisScore({ assessment }: { assessment: AssessmentOut }): Rea
   );
 }
 
-/** Version history. Older versions appear only as "vN, superseded" (a date and a state, never a score). */
-export function VersionHistory({ versions, currentVersion }: { versions: Array<{ id: string; version: number; state: string; created_at: string }>; currentVersion: number | null }) {
+/** Version history. Older versions appear as "vN, superseded" (a date and a state, never a score in the list). A superseded SCORED version
+ * can be opened for a per-dimension comparison with the current scored version (stored data only, see VersionComparison). */
+export function VersionHistory({ versions, currentVersion, selected = null, onSelect, comparable = [] }: {
+  versions: Array<{ id: string; version: number; state: string; created_at: string }>; currentVersion: number | null;
+  selected?: number | null; onSelect?: (version: number | null) => void; comparable?: number[];
+}) {
   return (
     <section className="card" data-testid="version-history">
       <h3>Version history</h3>
@@ -255,9 +259,69 @@ export function VersionHistory({ versions, currentVersion }: { versions: Array<{
           <li key={v.id} data-testid="version-row">
             {v.version === currentVersion ? <strong>{`v${v.version}, current`}</strong> : supersededLabel(v.version)}
             <span className="muted small"> {titleCase(v.state)} · {fmtDateTime(v.created_at)}</span>
+            {onSelect && v.version !== currentVersion && comparable.includes(v.version) ? (
+              <button type="button" className="btn small" data-testid={`compare-v${v.version}`} aria-pressed={selected === v.version}
+                onClick={() => onSelect(selected === v.version ? null : v.version)} style={{ marginLeft: 8 }}>
+                {selected === v.version ? "Hide comparison" : "Compare with current"}
+              </button>
+            ) : null}
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+/** Per-dimension comparison of a superseded version with the current one. Every value is read from the two stored assessments; nothing is
+ * computed. An insufficient or partial version shows "no DDI" and never a number; nothing is shown at all when the current assessment is
+ * not scored (a gated decision shows no contribution anywhere). */
+export function VersionComparison({ previous, current }: { previous: AssessmentOut; current: AssessmentOut }): ReactNode {
+  if (current.state !== "scored") return null;
+  if (previous.state !== "scored") {
+    return (
+      <section className="card" data-testid="version-compare">
+        <h3>{`v${previous.version} compared with v${current.version}`}</h3>
+        <p data-testid="compare-no-ddi">{`No DDI for v${previous.version}: ${previous.state === "insufficient_evidence" ? "INSUFFICIENT EVIDENCE" : "PARTIAL ASSESSMENT"}.`}</p>
+      </section>
+    );
+  }
+  const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+  const prevDims = new Map(previous.dimensions.map((d) => [d.id, d]));
+  const prevPens = new Map(previous.penalties.map((d) => [d.id, d]));
+  type Row = { id: string; name: string; before: DimensionOut | PenaltyOut | undefined; now: DimensionOut | PenaltyOut };
+  const rows: Row[] = [
+    ...current.dimensions.map((d) => ({ id: d.id, name: d.name, before: prevDims.get(d.id), now: d })),
+    ...current.penalties.map((p) => ({ id: p.id, name: p.name, before: prevPens.get(p.id), now: p })),
+  ];
+  const inputs = (r: DimensionOut | PenaltyOut | undefined) => (r ? <InputList inputs={r.inputs} /> : <span className="muted small">none</span>);
+  return (
+    <section className="card" data-testid="version-compare">
+      <h3>{`v${previous.version} (superseded) compared with v${current.version} (current)`}</h3>
+      <p className="small muted">Read from the two stored assessments; nothing is recomputed in the browser. Synthetic data.</p>
+      <div className="tbl-wrap">
+        <table className="tbl" data-testid="compare-table">
+          <thead><tr><th>Dimension or penalty</th><th>{`Score v${previous.version}`}</th><th>{`Score v${current.version}`}</th><th>{`Contribution v${previous.version}`}</th><th>{`Contribution v${current.version}`}</th><th>Inputs before</th><th>Inputs now</th></tr></thead>
+          <tbody>
+            {rows.map((r) => {
+              // "unchanged" means the evidence-strength attributes (score and inputs) are identical; the contribution can still move because
+              // the other dimensions and the cap rescale it, and it is shown in its own columns
+              const unchanged = !!r.before && same(r.before.score, r.now.score) && same(r.before.inputs, r.now.inputs);
+              return (
+                <tr key={r.id} data-testid="compare-row" data-dim={r.id} data-unchanged={unchanged ? "true" : "false"}>
+                  <td><strong>{r.id}</strong> {r.name}{unchanged ? <span className="muted small"> (score and inputs unchanged)</span> : null}</td>
+                  <td>{fmtNumber(r.before?.score, 3)}</td>
+                  <td>{fmtNumber(r.now.score, 3)}</td>
+                  <td>{fmtNumber(r.before?.display_contribution, 2)}</td>
+                  <td>{fmtNumber(r.now.display_contribution, 2)}</td>
+                  <td>{inputs(r.before)}</td>
+                  <td>{inputs(r.now)}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p className="small" data-testid="compare-totals">{`Displayed value: v${previous.version} ${previous.ddi === null ? "n/a" : previous.ddi.toFixed(1)}, v${current.version} ${current.ddi === null ? "n/a" : current.ddi.toFixed(1)}. Band: ${titleCase(previous.band)} then ${titleCase(current.band)}.`}</p>
     </section>
   );
 }

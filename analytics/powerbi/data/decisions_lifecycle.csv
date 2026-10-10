@@ -1,0 +1,5 @@
+decision_id,title,team_id,team,decision_type,risk_level,lifecycle_stage,assessment_stale,latest_assessment_version,latest_assessment_state,ddi_band,assessment_as_of_date,days_since_assessment,report_as_of_date,open_critical_dq_issues,open_warn_dq_issues,is_synthetic
+1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,3a09e679-e7ad-522d-bed4-6e5f15819967,Product,product_feature_investment,medium,challenged,false,2,scored,high,2026-10-01,0,2026-10-01,0,0,true
+559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,af3381da-d4c8-5ae0-8d92-9a983c188aa7,Growth,pricing_change,high,challenged,false,2,scored,high,2026-10-01,0,2026-10-01,0,0,true
+a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,3a09e679-e7ad-522d-bed4-6e5f15819967,Product,product_feature_investment,high,challenged,false,2,scored,high,2026-10-01,0,2026-10-01,0,0,true
+d21a53ba-de21-56db-bffc-431598318bc5,Fund a full onboarding redesign,af3381da-d4c8-5ae0-8d92-9a983c188aa7,Growth,process_or_ux_change,medium,challenged,false,2,insufficient_evidence,,2026-10-01,0,2026-10-01,1,2,true

@@ -73,6 +73,8 @@ class ClaimNumber:
     decimals: int
     percent: bool
     raw: str
+    before: str = ""      # Day 7 (D7-06, V-NUM sign check): the text just before and after the number, to read an explicit direction word
+    after: str = ""
 
 
 def numbers_in(text: str) -> list[ClaimNumber]:
@@ -88,7 +90,7 @@ def numbers_in(text: str) -> list[ClaimNumber]:
         value = float(body)
         if decimals == 0 and not raw.endswith("%") and 1900 <= value <= 2100:
             continue
-        out.append(ClaimNumber(value, decimals, raw.endswith("%"), raw))
+        out.append(ClaimNumber(value, decimals, raw.endswith("%"), raw, cleaned[max(0, m.start() - 40):m.start()], cleaned[m.end():m.end() + 24]))
     return out
 
 
@@ -123,6 +125,57 @@ def number_matches(n: ClaimNumber, candidates: Iterable[float]) -> bool:
         if abs(c - n.value) <= tol or abs(c * 100 - n.value) <= tol:
             return True
     return False
+
+
+# ---- V-NUM sign check (Day 7, D7-06). Only SIGNED source values (effect, confidence-interval bounds) are checked; counts, sample sizes and
+# DDI values are unsigned and unaffected. A claim number that carries an explicit sign ("-0.07", "+0.03") or a direction word beside it
+# ("decreased 5%", "5% lower", "fell") must agree with the sign of at least one signed value it matches (a number that matches no signed
+# value, only counts or other unsigned values, is never sign-checked).
+SIGNED_KEYS = ("effect_size", "ci_low", "ci_high")
+_DOWN_WORDS = frozenset({"decrease", "decreased", "decreases", "decreasing", "lower", "lowered", "fell", "fall", "falls", "fallen",
+                         "drop", "dropped", "drops", "decline", "declined", "declines", "reduced", "reduction"})
+_UP_WORDS = frozenset({"increase", "increased", "increases", "increasing", "higher", "rose", "rise", "rises", "risen", "grew", "grown",
+                       "gain", "gained", "improved"})
+
+
+def signed_leaves(obj: Any, *, string_keys: Sequence[str] = ("summary", "finding", "explanation", "text")) -> list[tuple[float, int | None]]:
+    """Every numeric value as (absolute value, sign). The sign is -1 or +1 for the signed keys (effect_size, ci_low, ci_high) and for a
+    number written with an explicit sign in a text field; None (unsigned) otherwise."""
+    found: list[tuple[float, int | None]] = []
+
+    def walk(x: Any, key: str | None = None) -> None:
+        if isinstance(x, bool) or x is None:
+            return
+        if isinstance(x, (int, float)):
+            sign = (1 if x > 0 else -1 if x < 0 else None) if key in SIGNED_KEYS else None
+            found.append((abs(float(x)), sign))
+        elif isinstance(x, str):
+            if key in string_keys:
+                found.extend((n.value, -1 if n.raw.startswith("-") else 1 if n.raw.startswith("+") else None) for n in numbers_in(x))
+        elif isinstance(x, Mapping):
+            for k, val in x.items():
+                walk(val, str(k))
+        elif isinstance(x, (list, tuple)):
+            for val in x:
+                walk(val, key)
+    walk(obj)
+    return found
+
+
+def claim_sign(n: ClaimNumber) -> int | None:
+    """-1 / +1 when the claim states a direction for this number (a leading sign, or a direction word right before or after it), else None."""
+    if n.raw.startswith("-"):
+        return -1
+    if n.raw.startswith("+"):
+        return 1
+    words = re.findall(r"[a-z]+", n.before.lower())[-4:] + re.findall(r"[a-z]+", n.after.lower())[:2]
+    down, up = any(w in _DOWN_WORDS for w in words), any(w in _UP_WORDS for w in words)
+    return -1 if down and not up else 1 if up and not down else None
+
+
+def _close(n: ClaimNumber, c: float) -> bool:
+    tol = 0.5 * 10 ** (-n.decimals) + 1e-9
+    return abs(c - n.value) <= tol or abs(c * 100 - n.value) <= tol
 
 
 # ---------------------------------------------------------------- context and report
@@ -247,6 +300,15 @@ def check_numbers(claim: Mapping, ctx: ValidationContext) -> str | None:
     bad = [n.raw for n in nums if not number_matches(n, candidates)]
     if bad:
         return f"number(s) {bad} do not appear in the cited evidence items or the DDI result"
+    pool = signed_leaves([dict(i) for i in _cited(claim, ctx)]) + signed_leaves(ctx.assessment)
+    wrong = []
+    for n in nums:
+        want = claim_sign(n)
+        signed = [s for c, s in pool if s is not None and _close(n, c)]
+        if want is not None and signed and want not in signed:
+            wrong.append(n.raw)
+    if wrong:
+        return f"the direction stated for number(s) {wrong} contradicts the sign of the matching value in the cited evidence"
     return None
 
 

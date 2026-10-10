@@ -1,0 +1,19 @@
+id: extra_dq_resolved_pipeline_reopens
+group: extra
+synthetic: true
+description: >
+  Marking the Onboarding defect resolved without fixing the data does not survive a pipeline re-run: the check is reopened and the gate
+  blocks again (Day-4 reconciliation). Accepting it would be a different, audited choice.
+base_scenario: onboarding
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+  - resolve_dq
+  - run_pipeline
+expect:
+  state: insufficient_evidence
+  blocking_reasons: [min_items, min_types, open_critical_dq, success_metric_evidence]
+  no_ddi: true
+  nbe_rank1: fix_dq_or_instrumentation
+  properties: [no_ddi_number]

@@ -107,7 +107,7 @@ def test_v_evidence_freshness_ages_items_against_the_as_of_date(conn, ids):
 
 def test_v_agent_quality_aggregates_runs(conn, ids):
     build_assessed_decision(conn, ids)
-    r = conn.execute("SELECT runs, succeeded, claims_dropped, is_synthetic FROM v_agent_quality WHERE agent_name='evidence_synthesis'").fetchone()
+    r = conn.execute("SELECT runs, succeeded, claims_dropped, is_synthetic FROM v_agent_quality WHERE agent_name='evidence_synthesis' AND model='m'").fetchone()   # Day 7: the new_synthesis helper adds a second group (model stub:test); without the filter the row returned depended on the planner
     assert r == (1, 1, 2, True)
 
 

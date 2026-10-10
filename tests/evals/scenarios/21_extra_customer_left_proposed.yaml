@@ -1,0 +1,15 @@
+id: extra_customer_left_proposed
+group: extra
+synthetic: true
+description: >
+  Customer evidence left proposed (no human decision): it stays out of the facts of the assessment, and the decision does not reach
+  review because the synthesis cannot cite evidence that is not active.
+base_scenario: ai_coach
+mutations:
+  - run_pipeline
+  - leave_proposed
+expect:
+  state: scored
+  band: golden
+  lifecycle: assessed
+  properties: [proposed_excluded_from_facts]

@@ -1,0 +1,167 @@
+table v_traceability_matrix
+	lineageTag: 5862db7a-e96c-55e3-953b-714929484ec5
+
+	column decision_id
+		dataType: string
+		lineageTag: 690ffab5-862a-5821-97a2-70a12644e989
+		summarizeBy: none
+		sourceColumn: decision_id
+
+	column decision_title
+		dataType: string
+		lineageTag: 082ee7c0-124c-5af0-8092-90252d7485ba
+		summarizeBy: none
+		sourceColumn: decision_title
+
+	column assessment_id
+		dataType: string
+		lineageTag: 117d0c04-fbca-50e5-b049-e5e9a74030d4
+		summarizeBy: none
+		sourceColumn: assessment_id
+
+	column assessment_version
+		dataType: int64
+		lineageTag: 7bfddaa4-8c06-5a5f-be62-c920a4aa89c2
+		summarizeBy: none
+		sourceColumn: assessment_version
+
+	column claim_id
+		dataType: string
+		lineageTag: dee5691d-5966-5174-8613-823e9bc18bdd
+		summarizeBy: none
+		sourceColumn: claim_id
+
+	column claim_text
+		dataType: string
+		lineageTag: fb72e108-7d13-5c6b-bbe8-d2865b241bbd
+		summarizeBy: none
+		sourceColumn: claim_text
+
+	column claim_type
+		dataType: string
+		lineageTag: 2a3a0724-cba7-52be-94e3-b633393a0d86
+		summarizeBy: none
+		sourceColumn: claim_type
+
+	column stance
+		dataType: string
+		lineageTag: 264045f3-7465-580f-ab92-12bf308ec60b
+		summarizeBy: none
+		sourceColumn: stance
+
+	column claim_confidence
+		dataType: string
+		lineageTag: 26b2bdfe-2346-5f77-80bf-1a1695ec721f
+		summarizeBy: none
+		sourceColumn: claim_confidence
+
+	column evidence_id
+		dataType: string
+		lineageTag: 2c27810b-cad5-53e1-85ab-b062e736f090
+		summarizeBy: none
+		sourceColumn: evidence_id
+
+	column evidence_summary
+		dataType: string
+		lineageTag: b5756019-52d5-5929-bbdc-169a3636823f
+		summarizeBy: none
+		sourceColumn: evidence_summary
+
+	column evidence_type
+		dataType: string
+		lineageTag: 7538f75c-2b5d-5eb3-b8d1-9b056030b71b
+		summarizeBy: none
+		sourceColumn: evidence_type
+
+	column strength_grade
+		dataType: string
+		lineageTag: 81941654-2bea-51d7-b688-c707a0b0c47c
+		summarizeBy: none
+		sourceColumn: strength_grade
+
+	column source_id
+		dataType: string
+		lineageTag: 7836c45d-4ece-574b-bcb7-8dbef497e89c
+		summarizeBy: none
+		sourceColumn: source_id
+
+	column source_name
+		dataType: string
+		lineageTag: 57136c2c-d281-5733-91ce-fb0f711a9a95
+		summarizeBy: none
+		sourceColumn: source_name
+
+	column reliability_tier
+		dataType: int64
+		lineageTag: 62f06382-0e0d-5dc5-8052-f203098f2e75
+		summarizeBy: none
+		sourceColumn: reliability_tier
+
+	column analysis_id
+		dataType: string
+		lineageTag: b128c66e-be37-5679-9cd6-ee9dee261b06
+		summarizeBy: none
+		sourceColumn: analysis_id
+
+	column analysis_type
+		dataType: string
+		lineageTag: 20692ceb-fbcb-5f52-b76e-2740a5726095
+		summarizeBy: none
+		sourceColumn: analysis_type
+
+	column query_ref
+		dataType: string
+		lineageTag: 3faa70e3-4e1e-5e2e-8a33-715cd15757d3
+		summarizeBy: none
+		sourceColumn: query_ref
+
+	column dq_status
+		dataType: string
+		lineageTag: 010a8e30-c6b3-58d6-becb-cb68d5bc41e5
+		summarizeBy: none
+		sourceColumn: dq_status
+
+	column conclusion_ref
+		dataType: string
+		lineageTag: 4f38ee93-8777-5b2c-982f-9655c9f76aa6
+		summarizeBy: none
+		sourceColumn: conclusion_ref
+
+	column reviewer_challenge_ids
+		dataType: string
+		lineageTag: 7699ad18-3c59-5e11-873a-a4e7ee54b47e
+		summarizeBy: none
+		sourceColumn: reviewer_challenge_ids
+
+	column row_type
+		dataType: string
+		lineageTag: b3033dde-c6b9-5af3-8c5e-522af54db0e6
+		summarizeBy: none
+		sourceColumn: row_type
+
+	column is_synthetic
+		dataType: boolean
+		lineageTag: bbf98903-7c21-5ac0-a400-9d7f3c74bba0
+		summarizeBy: none
+		sourceColumn: is_synthetic
+
+	column evidence_status
+		dataType: string
+		lineageTag: 36437e81-9b8c-5df2-8456-5753ee4eea3b
+		summarizeBy: none
+		sourceColumn: evidence_status
+
+	partition v_traceability_matrix = m
+		mode: import
+		source =
+				let
+				    Raw = Csv.Document(File.Contents(DataFolder & "\v_traceability_matrix.csv"), [Delimiter = ",", Columns = 25, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Raw, [PromoteAllScalars = true]),
+				    Clean = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Live = PostgreSQL.Database(PgServer, PgDatabase, [Query = "SELECT decision_id, decision_title, assessment_id, assessment_version, claim_id, claim_text, claim_type, stance, claim_confidence, evidence_id, evidence_summary, evidence_type::text AS evidence_type, strength_grade, source_id, source_name, reliability_tier, analysis_id, analysis_type, query_ref, dq_status, conclusion_ref, array_to_string(reviewer_challenge_ids, ';') AS reviewer_challenge_ids, row_type, is_synthetic, evidence_status FROM v_traceability_matrix"]),
+				    Chosen = if DataSource = "postgres" then Live else Clean,
+				    Typed = Table.TransformColumnTypes(Chosen, {{"assessment_version", Int64.Type}, {"reliability_tier", Int64.Type}, {"is_synthetic", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

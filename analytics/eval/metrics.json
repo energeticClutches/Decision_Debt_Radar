@@ -1,0 +1,497 @@
+{
+  "label": "Synthetic data. No model was called. Figures from stubs say 'stub, not model output'.",
+  "synthetic": true,
+  "ddi_reproducibility": {
+    "value": "21/21",
+    "target": "100%",
+    "met": true,
+    "method": "the frozen engine run twice on the stored facts of each spec; payloads compared"
+  },
+  "stored_equals_recomputed": {
+    "value": "20/20"
+  },
+  "expected_state_match": {
+    "core": "4/4",
+    "variants": "6/6",
+    "target": "100% core",
+    "met": true
+  },
+  "spec_pass": {
+    "core": "3/4",
+    "variant": "6/6",
+    "extra": "11/11"
+  },
+  "known_gaps": [
+    {
+      "spec": "core_community",
+      "check": "nbe_includes:segment_level_analysis",
+      "reason": "OBSERVED GAP, not tuned away. The manifest expects segment-aware validation, but the frozen NBE excludes an action at or above its ceiling (NBE spec R9): Community D6 is 0.60, equal to the 0.6 ceiling of segment_level_analysis, so the action would reduce nothing and is not listed, although the heterogeneity flag fires. The AC-5 clause \"NBE recommends segment-aware validation\" is therefore NOT MET by the frozen NBE v0.2 (Day-7 report, acceptance matrix AC-5)."
+    }
+  ],
+  "unexpected_failures": [],
+  "citation_validity": {
+    "specs_before_filter": "98.8% (84/85)",
+    "specs_after_filter": "100.0% (78/78)",
+    "mutations_before_filter": "97.5% (354/363)",
+    "mutations_after_filter": "100.0% (323/323)",
+    "target": "post-filter 100%",
+    "met": true
+  },
+  "code_check": {
+    "flaw_types": 22,
+    "instances": 61,
+    "caught": 61,
+    "recall": 1.0,
+    "controls": 4,
+    "controls_flagged": 0,
+    "false_flag_rate": 0.0,
+    "target": "report; no target set",
+    "misses": []
+  },
+  "reviewer_recall_and_false_flags": {
+    "status": "NOT EVIDENCED",
+    "reason": "not measured: no live model (replay fixtures are hand-authored)"
+  },
+  "live_schema_validity": {
+    "status": "NOT EVIDENCED",
+    "reason": "not measured: no live model (replay fixtures are hand-authored)"
+  },
+  "sql_guard_pass_rate": {
+    "value": "100.0% (74/74)",
+    "target": "100%",
+    "met": true,
+    "method": "the existing guard test corpus (no LLM SQL by design), renamed from 'SQL validity'",
+    "file": "tests/backend/test_day4_sql_guard.py"
+  },
+  "dq_seeded_defect_recall": {
+    "defects": [
+      {
+        "defect": "DEF-ONB-001",
+        "target": "onboarding_step_2_completed@android",
+        "detected": true,
+        "checks": [
+          "volume (warn)"
+        ]
+      },
+      {
+        "defect": "DEF-ONB-002",
+        "target": "onboarding_completed@android",
+        "detected": true,
+        "checks": [
+          "volume (critical)"
+        ]
+      }
+    ],
+    "detected": 2,
+    "total": 2,
+    "target": ">= 90%",
+    "met": true
+  },
+  "golden_answer_accuracy": {
+    "rows": [
+      {
+        "quantity": "AI Coach: adopters minus non-adopters, D90 retention (comparison effect)",
+        "manifest_check": "AI-001",
+        "manifest_value": 0.2304,
+        "analysis_value": 0.2304,
+        "abs_diff": 0.0,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "AI Coach: experiment treatment share (observed allocation)",
+        "manifest_check": "AI-006",
+        "manifest_value": 0.3,
+        "analysis_value": 0.3,
+        "abs_diff": 0.0,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "AI Coach: experiment enrolled share of planned sample",
+        "manifest_check": "AI-008",
+        "manifest_value": 0.375,
+        "analysis_value": 0.375,
+        "abs_diff": 0.0,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "Community: joiners minus non-joiners, D90 retention (comparison effect)",
+        "manifest_check": "COM-001",
+        "manifest_value": 0.1452,
+        "analysis_value": 0.1452,
+        "abs_diff": 0.0,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "Community: segment social_exerciser effect",
+        "manifest_check": "COM-002",
+        "manifest_value": 0.1956,
+        "analysis_value": 0.1956,
+        "abs_diff": 0.0,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "Community: segment solo_athlete effect",
+        "manifest_check": "COM-003",
+        "manifest_value": 0.0001,
+        "analysis_value": 0.0001,
+        "abs_diff": 0.0,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "Community: segment time_pressed effect",
+        "manifest_check": "COM-004",
+        "manifest_value": -0.0795,
+        "analysis_value": -0.0795,
+        "abs_diff": 0.0,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "Pricing: CA pilot trial-to-paid change (comparison effect)",
+        "manifest_check": "PRC-003",
+        "manifest_value": -0.112,
+        "analysis_value": -0.112,
+        "abs_diff": 0.0,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "Pricing: experiment enrolled share of planned sample",
+        "manifest_check": "PRC-008",
+        "manifest_value": 0.1467,
+        "analysis_value": 0.1467,
+        "abs_diff": 0.0,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "Community: heterogeneity flag (manifest: True)",
+        "manifest_check": "COM-002..004 (expected_downstream)",
+        "manifest_value": true,
+        "analysis_value": true,
+        "abs_diff": null,
+        "within_tolerance": true
+      },
+      {
+        "quantity": "AI Coach: heterogeneity flag (Day-4 expected: False)",
+        "manifest_check": "day-4 expected vs observed",
+        "manifest_value": false,
+        "analysis_value": false,
+        "abs_diff": null,
+        "within_tolerance": true
+      }
+    ],
+    "tolerance": 0.005,
+    "target": "report",
+    "value": "11/11"
+  },
+  "classification_accuracy": {
+    "rows": 6083,
+    "distinct_texts": 195,
+    "scenarios": [
+      "ai_coach",
+      "community",
+      "onboarding",
+      "pricing"
+    ],
+    "themes": {
+      "coach_helpful": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 706,
+        "predicted": 706,
+        "actual": 706
+      },
+      "coach_generic_or_wrong": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 113,
+        "predicted": 113,
+        "actual": 113
+      },
+      "coach_indifferent": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 128,
+        "predicted": 128,
+        "actual": 128
+      },
+      "challenges_motivating": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 970,
+        "predicted": 970,
+        "actual": 970
+      },
+      "notifications_unwanted": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 184,
+        "predicted": 184,
+        "actual": 184
+      },
+      "challenges_indifferent": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 210,
+        "predicted": 210,
+        "actual": 210
+      },
+      "setup_blocked": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 325,
+        "predicted": 325,
+        "actual": 325
+      },
+      "price_too_high": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 1126,
+        "predicted": 1126,
+        "actual": 1126
+      },
+      "worth_the_price": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "tp": 821,
+        "predicted": 821,
+        "actual": 821
+      }
+    },
+    "label": "stub, not model output",
+    "status": "MEASURED on the keyword-rule stub only",
+    "real_model": "NOT EVIDENCED: not measured: no live model (replay fixtures are hand-authored)"
+  },
+  "product_kpis": {
+    "decisions": 4,
+    "with_completed_assessment": 4,
+    "latest_states": [
+      [
+        "scored",
+        "high"
+      ],
+      [
+        "scored",
+        "high"
+      ],
+      [
+        "insufficient_evidence",
+        null
+      ],
+      [
+        "scored",
+        "high"
+      ]
+    ],
+    "insufficient_assessments": 3,
+    "completed_assessments": 8,
+    "nbe_accepted": 0,
+    "nbe_decided": 0,
+    "decided_records": 0,
+    "decided_with_ack": 0,
+    "decided_while_high_or_insufficient": 0,
+    "claims": 22,
+    "claims_with_evidence_and_source": 22,
+    "quant_claims_with_analysis": 12,
+    "quant_claims": 12,
+    "label": "demo data (synthetic); syntheses and reviews are replayed hand-authored fixtures"
+  },
+  "parameter_versions": [
+    {
+      "kind": "engine parameters",
+      "version": "ddi_params_v0.1",
+      "file": "ddi/ddi_params_v0.1.yaml",
+      "sha256": "fd2541522b34f0fa2344076048f656fee8df8e9023148445fe53b3c7c119bcee"
+    },
+    {
+      "kind": "engine parameters",
+      "version": "nbe_params_v0.1",
+      "file": "nbe/nbe_params_v0.1.yaml",
+      "sha256": "8a7c730edb77fc7b7f69cce487bce99fba5ace660f1c028c8cb6692221546ff7"
+    },
+    {
+      "kind": "engine parameters",
+      "version": "nbe_params_v0.2",
+      "file": "nbe/nbe_params_v0.2.yaml",
+      "sha256": "c46727dd40fc642c01ea1cb490b346e41242dce11823bc55481210dc747658b2"
+    },
+    {
+      "kind": "engine parameters",
+      "version": "analytics_params_v0.1",
+      "file": "analytics/analytics_params_v0.1.yaml",
+      "sha256": "b3dfcee11c9e0d61572f471905f03e19f5641ddbdabc723f61abae62a1fa2e05"
+    },
+    {
+      "kind": "engine parameters",
+      "version": "analytics_params_v0.2",
+      "file": "analytics/analytics_params_v0.2.yaml",
+      "sha256": "40cdd235713f7d67e2b9cd6115cc0914bb8fe66efff99555b019e144cfb31a3f"
+    },
+    {
+      "kind": "tenant configuration",
+      "version": "fitconnect_analytics_config_v0.1",
+      "file": "orgs/fitconnect/analytics_config.yaml",
+      "sha256": "912ba893711b2105cad2fc100f8ede2d28f604aac753f604b48539f96e868bc9"
+    },
+    {
+      "kind": "tenant configuration",
+      "version": "fitconnect_analytics_config_v0.2",
+      "file": "orgs/fitconnect/analytics_config_v0.2.yaml",
+      "sha256": "75ee799085bdca39dda9f846703d229e6c8d89d0201f79c125d8e72a3f7b9f51"
+    },
+    {
+      "kind": "prompt",
+      "version": "v0.1/classify",
+      "file": "v0.1/classify.md",
+      "sha256": "fa35910d45a36a92289a59607cea9859b4f24fbbdca5b09c6e1e32eddb4d7eeb"
+    },
+    {
+      "kind": "prompt",
+      "version": "v0.1/review",
+      "file": "v0.1/review.md",
+      "sha256": "f23d281e9c1453b62272dfd60a0a17aee8d92697d86a00dcfcf8eb5f9ac7e234"
+    },
+    {
+      "kind": "prompt",
+      "version": "v0.1/synthesize",
+      "file": "v0.1/synthesize.md",
+      "sha256": "8347842bb10108276c58c729e120a251104424da61c9cee70d1e2e508261fa9c"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "01_core_ai_coach.yaml",
+      "file": "tests/evals/scenarios/01_core_ai_coach.yaml",
+      "sha256": "9ede5747c113e9f0ccfacfc34067f50d55e0458f429ad1a47f57c81eed3410d5"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "02_core_community.yaml",
+      "file": "tests/evals/scenarios/02_core_community.yaml",
+      "sha256": "25f970101ba65d9db1e6429d9c3c0b272d512df06af024ee4359d6ff82aef002"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "03_core_onboarding.yaml",
+      "file": "tests/evals/scenarios/03_core_onboarding.yaml",
+      "sha256": "f7bffd8e3baf027d7f972fea682ed102964797a3d34d028caf4dfa4d324996a8"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "04_core_pricing.yaml",
+      "file": "tests/evals/scenarios/04_core_pricing.yaml",
+      "sha256": "e270c76d37dd36a4b987e3cceb85c805b052812579ca66c70543e1e0f9260fc0"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "10_var_onboarding_dq_resolved.yaml",
+      "file": "tests/evals/scenarios/10_var_onboarding_dq_resolved.yaml",
+      "sha256": "ae773abb3f568c6bc21832ff75a39e633a4c1e688141ced83c8e8ad0c9594d4d"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "11_var_clean_strong_evidence.yaml",
+      "file": "tests/evals/scenarios/11_var_clean_strong_evidence.yaml",
+      "sha256": "86a8f2be6f655f2bc85c03da5ed05f98bf0d93d4aeb03f9275369af6f85da70c"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "12_var_empty_evidence.yaml",
+      "file": "tests/evals/scenarios/12_var_empty_evidence.yaml",
+      "sha256": "8bb13f28bbc4a50483fd9dc77bb19e7306cefdb51c8d439f4df1bd55287eca63"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "13_var_contradictory_evidence.yaml",
+      "file": "tests/evals/scenarios/13_var_contradictory_evidence.yaml",
+      "sha256": "96b4d9880d68755b2114083f469ec86148dd5b504b059ac636ce06549de753ff"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "14_var_stale_evidence.yaml",
+      "file": "tests/evals/scenarios/14_var_stale_evidence.yaml",
+      "sha256": "f6917af417d3c96170f40cd29c34d538c5e6552ff846d756e434565a868d11b2"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "15_var_injection_in_customer_text.yaml",
+      "file": "tests/evals/scenarios/15_var_injection_in_customer_text.yaml",
+      "sha256": "48e70ef84f8916c830469c6cb02c4fed255461ca728d0074b389f8a151110a38"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "20_extra_customer_rejected.yaml",
+      "file": "tests/evals/scenarios/20_extra_customer_rejected.yaml",
+      "sha256": "bb070ee0257eefeea277dbced32d1e2f79bcc15526c4e37046fa64f3ef84b98f"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "21_extra_customer_left_proposed.yaml",
+      "file": "tests/evals/scenarios/21_extra_customer_left_proposed.yaml",
+      "sha256": "bd4608bf0df4046d83f24ae4297dc38a16653a27d9f6d464b4b2c4fb4edc354b"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "22_extra_reviewer_failing.yaml",
+      "file": "tests/evals/scenarios/22_extra_reviewer_failing.yaml",
+      "sha256": "0d759776b289d94b3ebcfb651638ab642468679797d58c49b2bba14ff1f80541"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "23_extra_malformed_synthesis.yaml",
+      "file": "tests/evals/scenarios/23_extra_malformed_synthesis.yaml",
+      "sha256": "fc6c74dbc1d2689800367e612f44a71390528720d44f038bb4e95bf3aba7de93"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "24_extra_canvas_edit_stale.yaml",
+      "file": "tests/evals/scenarios/24_extra_canvas_edit_stale.yaml",
+      "sha256": "054fd54bf4ba1950692a0f3e5e7669b6e9fc6d46eb64a49ec63997aede48b8df"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "25_extra_needs_rework_override.yaml",
+      "file": "tests/evals/scenarios/25_extra_needs_rework_override.yaml",
+      "sha256": "430e3524f0c2a5c0b7789b5bf5be279e19e43ba340165d916c5dd8477e409f44"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "26_extra_decided_freezes_writes.yaml",
+      "file": "tests/evals/scenarios/26_extra_decided_freezes_writes.yaml",
+      "sha256": "e6e5689ee4914dc292e6e6b78a1590e9fbcfea6eb1aa15709f80d36442033c0e"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "27_extra_gated_summary_path.yaml",
+      "file": "tests/evals/scenarios/27_extra_gated_summary_path.yaml",
+      "sha256": "64e1f4b4f3ff050e876a7b7ce7ebd4b7155ba5ce739836a0b45a11bc11c6c63b"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "28_extra_defer_stale.yaml",
+      "file": "tests/evals/scenarios/28_extra_defer_stale.yaml",
+      "sha256": "3781b56423397466a8a1429989e65ab050fbe657a187100cc05adf885f287f5d"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "29_extra_approval_bypass_refused.yaml",
+      "file": "tests/evals/scenarios/29_extra_approval_bypass_refused.yaml",
+      "sha256": "629cc3e6bff1fd47bed98c291e9377ac1ed21db3a949ec89802f6171f0e1b8e6"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "30_extra_dq_resolved_pipeline_reopens.yaml",
+      "file": "tests/evals/scenarios/30_extra_dq_resolved_pipeline_reopens.yaml",
+      "sha256": "f1cfbe01269f62fbba4b02d5a7209299e197cb67e4058f3e59de0d2728cae8ff"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "mutations.yaml",
+      "file": "tests/evals/mutations.yaml",
+      "sha256": "9907d748a9b0c98029170224ff39f424f94cd19717a8d8baa3804402cf336868"
+    },
+    {
+      "kind": "evaluation input",
+      "version": "observed.json",
+      "file": "tests/evals/golden/observed.json",
+      "sha256": "856dee081a4899bab55c686dbdf55abd1e5c286804c3be5a91dcc0c78fdcb635"
+    }
+  ]
+}

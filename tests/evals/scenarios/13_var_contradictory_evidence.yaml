@@ -1,0 +1,20 @@
+id: var_contradictory_evidence
+group: variant
+synthetic: true
+description: >
+  PRD section 19 variant: evidence that contradicts itself. Supporting and contradicting items of equal grade in two evidence types. The
+  frozen engine decides the band (D7-01); the stored result must equal the recomputed engine and the snapshot.
+base_scenario: new
+mutations:
+  - create_decision
+  - confirm_evidence
+  - add_evidence: {kind: behavioral, stance: supports, grade: B, age_days: 30, n_sample: 12000, effect_size: 0.05, ci_low: 0.03, ci_high: 0.07}
+  - add_evidence: {kind: behavioral, stance: contradicts, grade: B, age_days: 30, n_sample: 12000, effect_size: -0.05, ci_low: -0.07, ci_high: -0.03, link_metric: false}
+  - add_evidence: {kind: customer, stance: supports, grade: B, age_days: 30, n_sample: 600}
+  - add_evidence: {kind: customer, stance: contradicts, grade: B, age_days: 30, n_sample: 600}
+  - run_assessment
+expect:
+  state: scored
+  blocking_reasons: []
+  band: golden
+  lifecycle: assessed

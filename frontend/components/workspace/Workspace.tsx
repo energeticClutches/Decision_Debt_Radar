@@ -117,6 +117,17 @@ export function Workspace({ id }: { id: string }) {
   if (decision.error && !decision.data) return <ErrorBox error={decision.error} onRetry={decision.reload} />;
   if (!decision.data) return <Loading label="Loading the decision" />;
 
+  // Trust rule (Day-7 verification): "no review" and "no NBE action" are claims, so they are never shown while the data of the
+  // CURRENT assessment is still loading. A reload keeps the previous data (no flicker), but data that belongs to another
+  // assessment (after a re-run) does not count as loaded. A failed load is shown as an error, never as "no review".
+  const belongsToCurrent = (rows: readonly { assessment_id: string }[] | null) => !!rows && rows.every((r) => r.assessment_id === aid);
+  const assessmentScoped = [reviews, recommendations, syntheses] as const;
+  if ((!assessments.data && !assessments.error) || (aid && assessmentScoped.some((r) => !r.error && !belongsToCurrent(r.data)))) {
+    return <Loading label="Loading the assessment" />;
+  }
+  const scopedError = assessmentScoped.find((r) => r.error && r.error.status !== 404)?.error ?? null;
+  if (scopedError) return <ErrorBox error={scopedError} onRetry={refresh} />;
+
   const ws: WorkspaceData = {
     decision: decision.data, me, users, assessment: current, assessments: assessments.data ?? [], recommendations: recommendations.data ?? [],
     reviews: reviews.data ?? [], syntheses: syntheses.data ?? [], evidence: evidence.data ?? [], customer: customer.data, dq: dq.data ?? [],

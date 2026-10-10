@@ -1,0 +1,19 @@
+id: extra_decided_freezes_writes
+group: extra
+synthetic: true
+description: >
+  A decided record freezes the decision: late evidence, a canvas edit and a second record are all refused.
+base_scenario: ai_coach
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+  - human_review: {verdict: ready, response: "Reviewed by hand: the causal wording was reclassified to associative by the validators."}
+  - validate
+  - record_decision: {outcome: approve_conditional, rationale: "Evaluation record with the risk acknowledged.", acknowledged_risk: true}
+  - attempt_writes_after_decided
+expect:
+  state: scored
+  band: golden
+  lifecycle: decided
+  properties: [writes_frozen]

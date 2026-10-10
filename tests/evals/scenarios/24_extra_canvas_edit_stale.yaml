@@ -1,0 +1,16 @@
+id: extra_canvas_edit_stale
+group: extra
+synthetic: true
+description: >
+  A canvas edit after the assessment marks it stale and returns the decision to evidence_gathered. The stored (now stale) assessment is
+  still the frozen engine result for its facts.
+base_scenario: pricing
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+  - edit_canvas: {hypothesis: "If we raise the price then paid conversion will not fall materially, and churn will stay flat."}
+expect:
+  state: scored
+  band: golden
+  lifecycle: {stage: evidence_gathered, stale: true}

@@ -1,0 +1,14 @@
+table DecisionTypes
+	lineageTag: 5d8ec050-7d52-565b-b8a4-8bfb141cd89e
+
+	column decision_type
+		dataType: string
+		lineageTag: 3e958153-f67a-5a80-b7ce-e859e919cd34
+		summarizeBy: none
+		sourceColumn: [decision_type]
+
+	partition DecisionTypes = calculated
+		mode: import
+		source = DISTINCT(SELECTCOLUMNS(decisions_lifecycle, "decision_type", decisions_lifecycle[decision_type]))
+
+	annotation PBI_Id = fdec40b307575ed69abd7a8cd33d385f

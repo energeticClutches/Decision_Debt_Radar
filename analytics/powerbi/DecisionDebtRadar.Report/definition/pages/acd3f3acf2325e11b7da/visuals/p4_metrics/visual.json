@@ -1,0 +1,143 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "p4_metrics",
+  "position": {
+    "x": 16,
+    "y": 216,
+    "z": 1004,
+    "height": 270,
+    "width": 1248,
+    "tabOrder": 1004
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "eval_metrics"
+                    }
+                  },
+                  "Property": "metric"
+                }
+              },
+              "queryRef": "eval_metrics.metric",
+              "nativeQueryRef": "metric"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "eval_metrics"
+                    }
+                  },
+                  "Property": "value"
+                }
+              },
+              "queryRef": "eval_metrics.value",
+              "nativeQueryRef": "value"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "eval_metrics"
+                    }
+                  },
+                  "Property": "target"
+                }
+              },
+              "queryRef": "eval_metrics.target",
+              "nativeQueryRef": "target"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "eval_metrics"
+                    }
+                  },
+                  "Property": "status"
+                }
+              },
+              "queryRef": "eval_metrics.status",
+              "nativeQueryRef": "status"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "eval_metrics"
+                    }
+                  },
+                  "Property": "provenance_label"
+                }
+              },
+              "queryRef": "eval_metrics.provenance_label",
+              "nativeQueryRef": "provenance_label"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "eval_metrics"
+                    }
+                  },
+                  "Property": "note"
+                }
+              },
+              "queryRef": "eval_metrics.note",
+              "nativeQueryRef": "note"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Evaluation metrics (NOT EVIDENCED rows are shown as such)'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Evaluation metrics with status and provenance'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

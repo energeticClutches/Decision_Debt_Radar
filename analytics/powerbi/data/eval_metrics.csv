@@ -1,0 +1,16 @@
+metric_id,metric,value,target,status,stub_not_model_output,note,is_synthetic
+citation_validity_post,Citation validity after filtering (specs),100.0% (78/78),100%,MEASURED,false,,true
+citation_validity_pre,Citation validity before filtering (specs),98.8% (84/85),report,MEASURED,false,,true
+classification_real,Classification accuracy of a real model,NOT EVIDENCED,report,NOT EVIDENCED,false,not measured: no live model (replay fixtures are hand-authored),true
+classification_stub,"Classification precision and recall, minimum over themes",1.000,report,MEASURED on a stub only,true,"stub, not model output; templated feedback; real model NOT EVIDENCED",true
+code_check_false_flags,Code-check false-flag rate (clean controls),0/4,report; no target set,MEASURED,false,,true
+code_check_recall,Code-check recall (validators and deterministic critic),61/61,report; no target set,MEASURED,false,,true
+ddi_reproducibility,DDI reproducibility,21/21,100%,MEASURED,false,,true
+dq_recall,Data-quality seeded-defect recall,2/2,>= 90%,MEASURED,false,,true
+expected_state_core,"Expected-state match, core scenarios",4/4,100%,MEASURED,false,,true
+expected_state_variants,"Expected-state match, variants",6/6,report,MEASURED,false,,true
+golden_answers,Golden-answer accuracy (analyses vs manifest),11/11,report,MEASURED,false,,true
+reviewer_false_flags,Reviewer false-flag rate,NOT EVIDENCED,<= 20%,NOT EVIDENCED,false,not measured: no live model (replay fixtures are hand-authored),true
+reviewer_recall,Reviewer recall of seeded flaws,NOT EVIDENCED,>= 80%,NOT EVIDENCED,false,not measured: no live model (replay fixtures are hand-authored),true
+schema_validity_live,Live schema validity,NOT EVIDENCED,report,NOT EVIDENCED,false,not measured: no live model (replay fixtures are hand-authored),true
+sql_guard,SQL-guard pass rate (guard test corpus),100.0% (74/74),100%,MEASURED,false,no LLM-written SQL exists by design,true

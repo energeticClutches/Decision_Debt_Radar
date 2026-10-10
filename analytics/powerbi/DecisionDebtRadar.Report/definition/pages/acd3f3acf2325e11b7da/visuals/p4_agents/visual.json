@@ -1,0 +1,185 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.13.0/schema.json",
+  "name": "p4_agents",
+  "position": {
+    "x": 16,
+    "y": 498,
+    "z": 1005,
+    "height": 178,
+    "width": 1248,
+    "tabOrder": 1005
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_agent_quality"
+                    }
+                  },
+                  "Property": "agent_name"
+                }
+              },
+              "queryRef": "v_agent_quality.agent_name",
+              "nativeQueryRef": "agent_name"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_agent_quality"
+                    }
+                  },
+                  "Property": "stage"
+                }
+              },
+              "queryRef": "v_agent_quality.stage",
+              "nativeQueryRef": "stage"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_agent_quality"
+                    }
+                  },
+                  "Property": "model"
+                }
+              },
+              "queryRef": "v_agent_quality.model",
+              "nativeQueryRef": "model"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_agent_quality"
+                    }
+                  },
+                  "Property": "provenance_label"
+                }
+              },
+              "queryRef": "v_agent_quality.provenance_label",
+              "nativeQueryRef": "provenance_label"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_agent_quality"
+                    }
+                  },
+                  "Property": "prompt_version"
+                }
+              },
+              "queryRef": "v_agent_quality.prompt_version",
+              "nativeQueryRef": "prompt_version"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_agent_quality"
+                    }
+                  },
+                  "Property": "runs"
+                }
+              },
+              "queryRef": "v_agent_quality.runs",
+              "nativeQueryRef": "runs"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_agent_quality"
+                    }
+                  },
+                  "Property": "succeeded"
+                }
+              },
+              "queryRef": "v_agent_quality.succeeded",
+              "nativeQueryRef": "succeeded"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_agent_quality"
+                    }
+                  },
+                  "Property": "failed"
+                }
+              },
+              "queryRef": "v_agent_quality.failed",
+              "nativeQueryRef": "failed"
+            },
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "v_agent_quality"
+                    }
+                  },
+                  "Property": "claims_dropped"
+                }
+              },
+              "queryRef": "v_agent_quality.claims_dropped",
+              "nativeQueryRef": "claims_dropped"
+            }
+          ]
+        }
+      }
+    },
+    "visualContainerObjects": {
+      "title": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "true"
+                }
+              }
+            },
+            "text": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Agent runs by stage and model (v_agent_quality)'"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "general": [
+        {
+          "properties": {
+            "altText": {
+              "expr": {
+                "Literal": {
+                  "Value": "'Agent runs with provenance'"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

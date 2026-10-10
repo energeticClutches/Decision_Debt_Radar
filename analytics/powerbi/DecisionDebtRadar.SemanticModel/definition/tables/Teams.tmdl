@@ -1,0 +1,20 @@
+table Teams
+	lineageTag: 977d2364-0bac-58d3-a604-3b286085441f
+
+	column team_id
+		dataType: string
+		lineageTag: f2e16390-b414-58ed-80a0-36b85da3d9f8
+		summarizeBy: none
+		sourceColumn: [team_id]
+
+	column team
+		dataType: string
+		lineageTag: cb247b42-3fd6-5755-8250-b284d11d7738
+		summarizeBy: none
+		sourceColumn: [team]
+
+	partition Teams = calculated
+		mode: import
+		source = DISTINCT(SELECTCOLUMNS(decisions_lifecycle, "team_id", decisions_lifecycle[team_id], "team", decisions_lifecycle[team]))
+
+	annotation PBI_Id = bd1428e8eb7a5b36abd8d50af2287b45

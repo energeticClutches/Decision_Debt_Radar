@@ -1,0 +1,41 @@
+table v_coverage_checklist
+	lineageTag: f47ac8c4-eb70-53c0-8b7b-688425be072c
+
+	column decision_type
+		dataType: string
+		lineageTag: dfffa092-8e5d-5b32-8b4b-168905b4d658
+		summarizeBy: none
+		sourceColumn: decision_type
+
+	column required_label
+		dataType: string
+		lineageTag: 1b8cf6d1-ed5f-5933-8538-3420f0d0f34d
+		summarizeBy: none
+		sourceColumn: required_label
+
+	column accepted_types
+		dataType: string
+		lineageTag: d7215bb3-7ad1-568b-9113-b5bdc6bcb250
+		summarizeBy: none
+		sourceColumn: accepted_types
+
+	column is_synthetic
+		dataType: boolean
+		lineageTag: cb446f06-5c66-5352-bd17-71c4a44c8060
+		summarizeBy: none
+		sourceColumn: is_synthetic
+
+	partition v_coverage_checklist = m
+		mode: import
+		source =
+				let
+				    Raw = Csv.Document(File.Contents(DataFolder & "\v_coverage_checklist.csv"), [Delimiter = ",", Columns = 4, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Raw, [PromoteAllScalars = true]),
+				    Clean = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Live = PostgreSQL.Database(PgServer, PgDatabase, [Query = "SELECT decision_type, required_label, array_to_string(accepted_types::text[], ';') AS accepted_types, true AS is_synthetic FROM v_coverage_checklist"]),
+				    Chosen = if DataSource = "postgres" then Live else Clean,
+				    Typed = Table.TransformColumnTypes(Chosen, {{"is_synthetic", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

@@ -1,0 +1,61 @@
+recommendation_id,assessment_id,decision_id,decision_title,assessment_version,is_superseded,action_type,description,effort_days,expected_reduction,relevance,priority_score,rank_in_assessment,dimensions_addressed,status,human_note,is_synthetic
+071d068b-7535-453f-a7ce-e0a6098a7b48,b3ae5449-f4b4-46c1-b722-c90848e4d4b7,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,1,true,targeted_survey,"Targeted survey
+Why this: Customer Evidence (D5) is 0.00. This could raise it to 0.80. It also supplies a missing checklist evidence type (D2 0.50 to 0.75).",1,22.8548,0.7,15.9984,1,D5,proposed,,true
+0f8e30bd-e16b-473c-be16-c27546bda0e5,52da2329-5794-493e-bade-bb64d1c7d8a8,1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,1,true,powered_holdout_test,"Run a powered holdout or A/B test
+Why this: Addresses 2 blocker(s) that prevent scoring: min_items, min_types.",8,0,0.7,0.175,5,D4;D6,proposed,,true
+1ec172fc-13e5-4536-9cef-46c15318abd8,7837915e-6b60-4d52-a4b5-ef35ef18f47d,d21a53ba-de21-56db-bffc-431598318bc5,Fund a full onboarding redesign,2,false,fix_dq_or_instrumentation,"Fix or add instrumentation, or resolve a data-quality issue
+Why this: An open critical data-quality issue on data source FitConnect product events (fc_.events) (0c66c5bb-16bb-57ab-b20b-5094ee725445) blocks scoring. Resolving it removes the open_critical_dq blocker.",3,0,1,0.3333,1,DQ_GATE,proposed,,true
+305bf146-f9a4-4e15-abd9-d758ef45be1b,5075db90-bcf0-45a7-aa1c-eaccd3792a05,1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,2,false,customer_interview_sprint,"Customer interview sprint
+Why this: Customer Evidence (D5) is 0.75. This could raise it to 0.85.",3,1.6668,0.4,0.2222,4,D5,proposed,,true
+30fde376-6b00-468f-a9a2-07e54b4c674d,b38d7c24-ad7c-4a23-b6dc-4fde881e22de,d21a53ba-de21-56db-bffc-431598318bc5,Fund a full onboarding redesign,1,true,fix_dq_or_instrumentation,"Fix or add instrumentation, or resolve a data-quality issue
+Why this: An open critical data-quality issue on data source FitConnect product events (fc_.events) (0c66c5bb-16bb-57ab-b20b-5094ee725445) blocks scoring. Resolving it removes the open_critical_dq blocker.",3,0,1,0.3333,1,DQ_GATE,proposed,,true
+49f58e7e-02c1-41e7-8fc3-68e4b9c2166f,5075db90-bcf0-45a7-aa1c-eaccd3792a05,1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,2,false,targeted_survey,"Targeted survey
+Why this: Customer Evidence (D5) is 0.75. This could raise it to 0.80.",1,0.8334,0.4,0.3334,3,D5,proposed,,true
+4a20f21d-1ba6-414b-a63c-e1da3eee30bc,52da2329-5794-493e-bade-bb64d1c7d8a8,1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,1,true,extend_observation_or_refresh_data,"Extend the observation window or refresh data
+Why this: Addresses 1 blocker(s) that prevent scoring: min_items.",1,0,0.4,0.4,4,D3;P2,proposed,,true
+4afe6820-0e0b-48c7-b892-b4de5be74d80,52da2329-5794-493e-bade-bb64d1c7d8a8,1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,1,true,financial_model_with_sensitivity,"Financial model with a sensitivity range
+Why this: Addresses 2 blocker(s) that prevent scoring: min_items, min_types.",3,0,0.7,0.4667,2,D7,proposed,,true
+5abd0128-b797-41c3-b801-b764b5c36523,983bbae7-3884-4b16-8ede-7b92f3b7490c,a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,2,false,financial_model_with_sensitivity,"Financial model with a sensitivity range
+Why this: Financial / Business Evidence (D7) is 0.00. A sensitivity-ranged model could raise it to 0.80. It also supplies a missing checklist evidence type (D2 0.75 to 1.00).",3,17.9311,0.7,4.1839,1,D7,proposed,,true
+5de8bdc5-c65a-420e-a1b1-64d84e67c063,983bbae7-3884-4b16-8ede-7b92f3b7490c,a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,2,false,powered_holdout_test,"Run a powered holdout or A/B test
+Why this: Experimental Strength (D4) is 0.24. A powered holdout could raise it to 0.80 and lift the observational cap on Behavioral Evidence (D6).",8,16.3942,1,2.0493,2,D4;D6,proposed,,true
+69256fc5-e110-469f-a968-3dbbe731cbd1,52da2329-5794-493e-bade-bb64d1c7d8a8,1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,1,true,targeted_survey,"Targeted survey
+Why this: Addresses 2 blocker(s) that prevent scoring: min_items, min_types.",1,0,0.7,1.4,1,D5,proposed,,true
+6a9e86a3-1199-499c-8675-739e6507b99e,b3ae5449-f4b4-46c1-b722-c90848e4d4b7,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,1,true,customer_interview_sprint,"Customer interview sprint
+Why this: Customer Evidence (D5) is 0.00. This could raise it to 0.85. It also supplies a missing checklist evidence type (D2 0.50 to 0.75).",3,23.971,0.7,5.5932,2,D5,proposed,,true
+6db9b181-d1ab-46de-9fe9-d4f27659d991,297e3651-e41e-40be-984c-912ee3b84e69,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,2,false,targeted_survey,"Targeted survey
+Why this: Customer Evidence (D5) is 0.75. This could raise it to 0.80.",1,1.0329,0.4,0.4132,4,D5,proposed,,true
+6fe92c3a-66f2-45f2-8a9b-fed68fe1d3d8,d2f6c736-538e-4a72-a109-a1a82b447fb3,a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,1,true,customer_interview_sprint,"Customer interview sprint
+Why this: Customer Evidence (D5) is 0.00. This could raise it to 0.85. It also supplies a missing checklist evidence type (D2 0.50 to 0.75).",3,16.2897,0.7,3.8009,2,D5,proposed,,true
+757554a9-3b15-43ec-8304-e8690a5d7255,d2f6c736-538e-4a72-a109-a1a82b447fb3,a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,1,true,financial_model_with_sensitivity,"Financial model with a sensitivity range
+Why this: Financial / Business Evidence (D7) is 0.00. A sensitivity-ranged model could raise it to 0.80. It also supplies a missing checklist evidence type (D2 0.50 to 0.75).",3,15.5493,0.7,3.6282,3,D7,proposed,,true
+76965922-bae6-453d-af36-77551c62db19,52da2329-5794-493e-bade-bb64d1c7d8a8,1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,1,true,customer_interview_sprint,"Customer interview sprint
+Why this: Addresses 2 blocker(s) that prevent scoring: min_items, min_types.",3,0,0.7,0.4667,2,D5,proposed,,true
+7a666da2-a003-41c4-8cff-20ad65104433,d2f6c736-538e-4a72-a109-a1a82b447fb3,a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,1,true,targeted_survey,"Targeted survey
+Why this: Customer Evidence (D5) is 0.00. This could raise it to 0.80. It also supplies a missing checklist evidence type (D2 0.50 to 0.75).",1,15.5493,0.7,10.8845,1,D5,proposed,,true
+8ea122ac-1f56-4380-b426-ebd96fd9d4d1,b3ae5449-f4b4-46c1-b722-c90848e4d4b7,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,1,true,powered_holdout_test,"Run a powered holdout or A/B test
+Why this: Experimental Strength (D4) is 0.04. A powered holdout could raise it to 0.80 and lift the observational cap on Behavioral Evidence (D6).",8,25.29,1,3.1612,4,D4;D6,proposed,,true
+9fef0bcf-e9b1-4f32-bf48-a68a6a35909f,983bbae7-3884-4b16-8ede-7b92f3b7490c,a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,2,false,targeted_survey,"Targeted survey
+Why this: Customer Evidence (D5) is 0.75. This could raise it to 0.80.",1,0.8539,0.4,0.3415,3,D5,proposed,,true
+ab41900b-8426-4036-890e-70f5557127aa,b3ae5449-f4b4-46c1-b722-c90848e4d4b7,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,1,true,extend_observation_or_refresh_data,"Extend the observation window or refresh data
+Why this: Evidence Freshness (D3) is 0.73 and the CI-width component of Uncertainty is 0.64. Extending the window or refreshing data could improve both.",1,4.2407,0.4,1.6963,5,D3;P2,proposed,,true
+cfb52e04-8a98-493a-b720-aa36d7531bec,983bbae7-3884-4b16-8ede-7b92f3b7490c,a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,2,false,customer_interview_sprint,"Customer interview sprint
+Why this: Customer Evidence (D5) is 0.75. This could raise it to 0.85.",3,1.7077,0.4,0.2277,4,D5,proposed,,true
+cfc764fb-9754-4c18-aff6-944ae2082247,d2f6c736-538e-4a72-a109-a1a82b447fb3,a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,1,true,extend_observation_or_refresh_data,"Extend the observation window or refresh data
+Why this: Evidence Freshness (D3) is 0.49 and the CI-width component of Uncertainty is 0.33. Extending the window or refreshing data could improve both.",1,6.629,0.4,2.6516,4,D3;P2,proposed,,true
+d2921756-716c-486c-89ae-4c394985f0dc,297e3651-e41e-40be-984c-912ee3b84e69,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,2,false,extend_observation_or_refresh_data,"Extend the observation window or refresh data
+Why this: Evidence Freshness (D3) is 0.82 and the CI-width component of Uncertainty is 0.64. Extending the window or refreshing data could improve both.",1,2.5025,0.4,1.001,3,D3;P2,proposed,,true
+d66e0157-764c-49cc-9fc5-27d9428a2b2b,b3ae5449-f4b4-46c1-b722-c90848e4d4b7,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,1,true,financial_model_with_sensitivity,"Financial model with a sensitivity range
+Why this: Financial / Business Evidence (D7) is 0.00. A sensitivity-ranged model could raise it to 0.80. It also supplies a missing checklist evidence type (D2 0.50 to 0.75).",3,22.8548,0.7,5.3328,3,D7,proposed,,true
+dea84dd3-2e60-4f45-9966-2fb7038846d1,5075db90-bcf0-45a7-aa1c-eaccd3792a05,1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,2,false,powered_holdout_test,"Run a powered holdout or A/B test
+Why this: Experimental Strength (D4) is 0.00. A powered holdout could raise it to 0.80 and lift the observational cap on Behavioral Evidence (D6). It also supplies a missing checklist evidence type (D2 0.50 to 0.75).",8,24.1682,1,3.021,2,D4;D6,proposed,,true
+e6a847db-f822-45b3-a127-27238aad5121,297e3651-e41e-40be-984c-912ee3b84e69,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,2,false,customer_interview_sprint,"Customer interview sprint
+Why this: Customer Evidence (D5) is 0.75. This could raise it to 0.85.",3,2.0658,0.4,0.2754,5,D5,proposed,,true
+f20d6eea-b9ab-42be-bc7c-bff9f507bd59,5075db90-bcf0-45a7-aa1c-eaccd3792a05,1e85966b-991f-5f04-9264-cc7ed2e658c2,Invest in community challenges,2,false,financial_model_with_sensitivity,"Financial model with a sensitivity range
+Why this: Financial / Business Evidence (D7) is 0.00. A sensitivity-ranged model could raise it to 0.80. It also supplies a missing checklist evidence type (D2 0.50 to 0.75).",3,17.5011,0.7,4.0836,1,D7,proposed,,true
+f39022d4-f6eb-4366-bc4d-dcb09775131b,297e3651-e41e-40be-984c-912ee3b84e69,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,2,false,powered_holdout_test,"Run a powered holdout or A/B test
+Why this: Experimental Strength (D4) is 0.04. A powered holdout could raise it to 0.80 and lift the observational cap on Behavioral Evidence (D6).",8,23.9442,1,2.993,2,D4;D6,proposed,,true
+f4c86c8c-b23a-4fe7-83e5-68960662a8bb,297e3651-e41e-40be-984c-912ee3b84e69,559e3837-726b-5326-8a4d-13e30c911257,Raise the premium subscription price,2,false,financial_model_with_sensitivity,"Financial model with a sensitivity range
+Why this: Financial / Business Evidence (D7) is 0.00. A sensitivity-ranged model could raise it to 0.80. It also supplies a missing checklist evidence type (D2 0.75 to 1.00).",3,21.6907,0.7,5.0612,1,D7,proposed,,true
+f7d12fb5-8a4f-408d-904f-e48fe0554519,d2f6c736-538e-4a72-a109-a1a82b447fb3,a099b72e-7e93-5228-8c5a-7b938f2be02f,Invest in expanding the AI Coach,1,true,powered_holdout_test,"Run a powered holdout or A/B test
+Why this: Experimental Strength (D4) is 0.24. A powered holdout could raise it to 0.80 and lift the observational cap on Behavioral Evidence (D6).",8,14.2165,1,1.7771,5,D4;D6,proposed,,true

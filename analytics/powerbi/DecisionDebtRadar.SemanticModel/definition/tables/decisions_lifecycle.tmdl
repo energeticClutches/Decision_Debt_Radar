@@ -1,0 +1,166 @@
+table decisions_lifecycle
+	lineageTag: b205c293-e149-577e-91ff-da455185f507
+
+	measure Decisions = COUNTROWS(decisions_lifecycle)
+		formatString: 0
+		lineageTag: 7c8d4d02-9e47-5556-abd7-cc4ad3070a68
+
+	measure 'Scored decisions' = CALCULATE(COUNTROWS(decisions_lifecycle), decisions_lifecycle[latest_assessment_state] = "scored")
+		formatString: 0
+		lineageTag: 62ebcc51-0471-555a-8536-4b3c4a272347
+
+	measure 'Insufficient decisions' = CALCULATE(COUNTROWS(decisions_lifecycle), decisions_lifecycle[latest_assessment_state] = "insufficient_evidence")
+		formatString: 0
+		lineageTag: 9a6b93e7-75b7-5475-98df-3ef410014e47
+
+	measure 'Stale decisions' = CALCULATE(COUNTROWS(decisions_lifecycle), decisions_lifecycle[assessment_stale] = TRUE())
+		formatString: 0
+		lineageTag: 75b82bcc-fdf0-515a-9c11-8eaf4d71463b
+
+	measure 'Average DDI (scored, current)' = CALCULATE(AVERAGE(v_debt_radar[ddi_score]), v_debt_radar[assessment_state] = "scored", v_debt_radar[assessment_stale] = FALSE())
+		formatString: 0.0
+		lineageTag: 935e358d-cda4-55db-844d-97e9e3be4bb9
+
+	measure 'Open critical DQ issues' = SUM(decisions_lifecycle[open_critical_dq_issues])
+		formatString: 0
+		lineageTag: eda93fe6-ce57-57ad-a838-32b8431f3c39
+
+	measure 'Open warn DQ issues' = SUM(decisions_lifecycle[open_warn_dq_issues])
+		formatString: 0
+		lineageTag: df74b02a-4943-51bb-a70b-5de427fac9e9
+
+	measure 'Decided while High, Critical or insufficient' = CALCULATE(COUNTROWS(decisions_lifecycle), decisions_lifecycle[decided_at_risk] = TRUE())
+		formatString: 0
+		lineageTag: 9777d2ef-3611-54b7-9811-ff2589021fde
+
+	measure 'Days since last assessment' = MAX(decisions_lifecycle[days_since_assessment])
+		formatString: 0
+		lineageTag: 7e15407f-2432-5bf5-b3b4-ac2395095d20
+
+	column decision_id
+		dataType: string
+		lineageTag: 754a1f45-e2b2-501d-a130-79bae19a9823
+		summarizeBy: none
+		sourceColumn: decision_id
+
+	column title
+		dataType: string
+		lineageTag: f0425d00-2194-5a4e-a219-078f2f723f44
+		summarizeBy: none
+		sourceColumn: title
+
+	column team_id
+		dataType: string
+		lineageTag: 3e40e7c5-0399-5a11-a179-9578dfd0d209
+		summarizeBy: none
+		sourceColumn: team_id
+
+	column team
+		dataType: string
+		lineageTag: 357d0525-38b6-5a2c-8585-fb5a387a2e8d
+		summarizeBy: none
+		sourceColumn: team
+
+	column decision_type
+		dataType: string
+		lineageTag: 56655e94-6603-505b-8e08-158b43554f37
+		summarizeBy: none
+		sourceColumn: decision_type
+
+	column risk_level
+		dataType: string
+		lineageTag: d51bc3cd-94e8-5318-ad09-a7c1f28752b6
+		summarizeBy: none
+		sourceColumn: risk_level
+
+	column lifecycle_stage
+		dataType: string
+		lineageTag: 00d21368-7297-5d5a-8fcd-0c999b422bfe
+		summarizeBy: none
+		sourceColumn: lifecycle_stage
+
+	column assessment_stale
+		dataType: boolean
+		lineageTag: cc134e40-315a-5450-a290-f95eb792f4f5
+		summarizeBy: none
+		sourceColumn: assessment_stale
+
+	column latest_assessment_version
+		dataType: int64
+		lineageTag: 295bdcde-8a3f-572b-af31-c66745c5d9f9
+		summarizeBy: none
+		sourceColumn: latest_assessment_version
+
+	column latest_assessment_state
+		dataType: string
+		lineageTag: 0be04e0b-a33b-566c-bd42-50242c0aafd7
+		summarizeBy: none
+		sourceColumn: latest_assessment_state
+
+	column ddi_band
+		dataType: string
+		lineageTag: c102fe56-ab64-58b9-95d9-0fb05b646c1d
+		summarizeBy: none
+		sourceColumn: ddi_band
+
+	column assessment_as_of_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4ade82a0-de30-53a9-b6ae-7b2d83f3ecbb
+		summarizeBy: none
+		sourceColumn: assessment_as_of_date
+
+	column days_since_assessment
+		dataType: int64
+		lineageTag: b28e2b59-4b1b-5132-a2f7-028850ac5d75
+		summarizeBy: none
+		sourceColumn: days_since_assessment
+
+	column report_as_of_date
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 30f0ba79-c617-54cf-b30a-a6d95495c297
+		summarizeBy: none
+		sourceColumn: report_as_of_date
+
+	column open_critical_dq_issues
+		dataType: int64
+		lineageTag: 9d4bb9b4-7910-5719-b336-533d7c5aeda9
+		summarizeBy: none
+		sourceColumn: open_critical_dq_issues
+
+	column open_warn_dq_issues
+		dataType: int64
+		lineageTag: ed713e56-b3d5-5f04-85a3-bc8dd73c01c1
+		summarizeBy: none
+		sourceColumn: open_warn_dq_issues
+
+	column is_synthetic
+		dataType: boolean
+		lineageTag: 4661ac7d-e6c7-5bcc-8e2b-eacd10dc63bd
+		summarizeBy: none
+		sourceColumn: is_synthetic
+
+	column band_label = SWITCH(TRUE(), decisions_lifecycle[assessment_stale] = TRUE(), "Stale (not current)", decisions_lifecycle[latest_assessment_state] = "insufficient_evidence", "INSUFFICIENT EVIDENCE (no DDI)", decisions_lifecycle[latest_assessment_state] = "scored", UPPER(LEFT(decisions_lifecycle[ddi_band], 1)) & MID(decisions_lifecycle[ddi_band], 2, 20) & " band", "No assessment")
+		dataType: string
+		lineageTag: 49d57477-3d66-53bd-8eba-8fbbec7844ab
+		summarizeBy: none
+
+	column decided_at_risk = AND(decisions_lifecycle[lifecycle_stage] = "decided", OR(decisions_lifecycle[latest_assessment_state] <> "scored", decisions_lifecycle[ddi_band] = "high", decisions_lifecycle[ddi_band] = "critical"))
+		dataType: boolean
+		lineageTag: 65f3c60d-dd0a-5def-9cfe-ea01ff5ef38b
+		summarizeBy: none
+
+	partition decisions_lifecycle = m
+		mode: import
+		source =
+				let
+				    Raw = Csv.Document(File.Contents(DataFolder & "\decisions_lifecycle.csv"), [Delimiter = ",", Columns = 17, Encoding = 65001, QuoteStyle = QuoteStyle.Csv]),
+				    Promoted = Table.PromoteHeaders(Raw, [PromoteAllScalars = true]),
+				    Clean = Table.ReplaceValue(Promoted, "", null, Replacer.ReplaceValue, Table.ColumnNames(Promoted)),
+				    Chosen = Clean,
+				    Typed = Table.TransformColumnTypes(Chosen, {{"assessment_stale", type logical}, {"latest_assessment_version", Int64.Type}, {"assessment_as_of_date", type date}, {"days_since_assessment", Int64.Type}, {"report_as_of_date", type date}, {"open_critical_dq_issues", Int64.Type}, {"open_warn_dq_issues", Int64.Type}, {"is_synthetic", type logical}}, "en-US")
+				in
+				    Typed
+
+	annotation PBI_ResultType = Table

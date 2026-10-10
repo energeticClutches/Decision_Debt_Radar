@@ -1,0 +1,18 @@
+id: extra_defer_stale
+group: extra
+synthetic: true
+description: >
+  A human records defer on a validated decision: the record is kept, the decision returns to evidence_gathered with the assessment
+  marked stale, and it never becomes decided.
+base_scenario: pricing
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+  - human_review: {verdict: ready, response: "Reviewed by hand: the blocking no-harm claim is understood."}
+  - validate
+  - record_decision: {outcome: defer, rationale: "Evaluation: defer until the experiment is powered.", acknowledged_risk: true}
+expect:
+  state: scored
+  band: golden
+  lifecycle: {stage: evidence_gathered, stale: true}

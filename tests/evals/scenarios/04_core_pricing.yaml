@@ -1,0 +1,18 @@
+id: core_pricing
+group: core
+synthetic: true
+description: >
+  Pricing after the customer evidence is approved (the demo path). The experiment is inconclusive and underpowered; D4 is identical in
+  version 1 and version 2: the score change comes from customer evidence, not from a stronger experiment.
+base_scenario: pricing
+mutations:
+  - run_pipeline
+  - approve_customer_evidence: all
+  - run_pipeline
+expect:
+  state: scored
+  blocking_reasons: []
+  band: golden
+  lifecycle: challenged
+  nbe_must_include: [financial_model_with_sensitivity, powered_holdout_test]
+  properties: [d4_unchanged, review_not_ready, stance_from_map]

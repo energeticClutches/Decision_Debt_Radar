@@ -1,0 +1,36 @@
+# Seeded-flaw suite for the CODE layers (validators and deterministic critic checks), docs/day-7-implementation-brief.md section 2.
+#
+# Each entry seeds ONE flaw into a VALID synthesis that is built from the real input payload of a scenario (the payload of the demo path,
+# after the customer evidence is approved). `catcher` names the layer that must catch it: a validator rule (V-*) or a deterministic critic
+# category (source `code`). Flaws that only a model reviewer could find (for example a subtle causal overclaim in prose) are NOT in this
+# file: reviewer recall is NOT MEASURED, because no live model exists (replay fixtures are hand-authored).
+#
+# synthetic: true. A mutation is applied by tests/evals/mutations.py (closed list of operations).
+synthetic: true
+mutations:
+  # ---- grounding: citations
+  - {id: M01, flaw: unsupported_claim, op: no_evidence_ids, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-ID}}
+  - {id: M02, flaw: unknown_evidence_id, op: unknown_id, scenarios: [ai_coach, community, pricing, onboarding], catcher: {layer: validator, rule: V-ID}}
+  - {id: M03, flaw: foreign_decision_id, op: foreign_id, scenarios: [ai_coach, pricing], catcher: {layer: validator, rule: V-ID}}
+  - {id: M04, flaw: valid_but_irrelevant_citation_type, op: customer_claim_cites_behavioral, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-SEM-TYPE}}
+  - {id: M05, flaw: valid_but_irrelevant_citation_scope, op: d4_claim_cites_customer, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-SEM-SCOPE}}
+  - {id: M06, flaw: mixed_stance_citation, op: supports_claim_cites_contradicting, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-SEM-STANCE}}
+  # ---- grounding: numbers
+  - {id: M07, flaw: invented_ddi, op: invent_ddi, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-NUM}}
+  - {id: M08, flaw: invented_percentage, op: invent_percentage, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-NUM}}
+  - {id: M09, flaw: invented_effect_size, op: invent_effect, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-NUM}}
+  - {id: M10, flaw: invented_p_value, op: invent_p_value, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-NUM}}
+  - {id: M11, flaw: invented_confidence_interval, op: invent_ci, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-NUM}}
+  - {id: M12, flaw: invented_sample_size, op: invent_sample_size, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-NUM}}
+  - {id: M13, flaw: wrong_sign, op: wrong_sign, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-NUM}, note: "caught only after the D7-06 sign check"}
+  # ---- claim type, language, gate
+  - {id: M14, flaw: causal_claim_from_observational_evidence, op: causal_from_behavioral, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-SEM-TYPE}}
+  - {id: M15, flaw: recommendation_management_should, op: management_should, scenarios: [ai_coach, community, pricing, onboarding], catcher: {layer: validator, rule: V-REC}}
+  - {id: M16, flaw: recommendation_imperative, op: imperative, scenarios: [ai_coach, pricing], catcher: {layer: validator, rule: V-REC}}
+  - {id: M17, flaw: sufficient_text_while_gated, op: sufficient_while_gated, scenarios: [onboarding], catcher: {layer: validator, rule: V-GATE}}
+  - {id: M18, flaw: ddi_number_while_gated, op: ddi_while_gated, scenarios: [onboarding], catcher: {layer: validator, rule: V-GATE}}
+  - {id: M19, flaw: sentence_without_claim_reference, op: uncited_sentence, scenarios: [ai_coach, community, pricing], catcher: {layer: validator, rule: V-REF}}
+  # ---- deterministic critic checks (source code)
+  - {id: M20, flaw: omitted_contradiction, op: omit_contradiction, scenarios: [ai_coach, community, pricing], catcher: {layer: critic, category: contradiction_ignored}}
+  - {id: M21, flaw: ignored_critical_dq_issue, op: ignore_dq, scenarios: [onboarding], catcher: {layer: critic, category: dq_issue_ignored}}
+  - {id: M22, flaw: high_confidence_on_grade_c_or_d, op: high_confidence_weak, scenarios: [ai_coach, community, pricing, onboarding], catcher: {layer: critic, category: evidence_overstated}}

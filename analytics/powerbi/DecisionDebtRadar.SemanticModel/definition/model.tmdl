@@ -1,0 +1,25 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	discourageImplicitMeasures
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+ref table decisions_lifecycle
+ref table v_debt_radar
+ref table v_evidence_health
+ref table v_evidence_freshness
+ref table v_coverage_checklist
+ref table v_nbe_ranking
+ref table v_traceability_matrix
+ref table v_agent_quality
+ref table eval_metrics
+ref table Teams
+ref table DecisionTypes
+
+ref expression DataFolder
+ref expression DataSource
+ref expression PgServer
+ref expression PgDatabase

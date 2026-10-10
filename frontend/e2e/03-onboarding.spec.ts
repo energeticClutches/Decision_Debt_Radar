@@ -63,4 +63,13 @@ test.describe.serial("Onboarding: insufficient evidence, no DDI anywhere", () =>
     await expect(page.getByTestId("brief-gate-reasons")).toContainText("open_critical_dq");
     await expectNoDdiNumber(page);
   });
+
+  test("a gated decision offers no version comparison and shows no contribution from an older version", async ({ page, request }) => {
+    await loginAs(page, request, "pm");
+    await openWorkspace(page, id, "assessment");
+    await expect(page.getByTestId("version-history")).toBeVisible();
+    await expect(page.locator('[data-testid^="compare-v"]')).toHaveCount(0);
+    await expect(page.getByTestId("version-compare")).toHaveCount(0);
+    await expectNoDdiNumber(page);
+  });
 });
