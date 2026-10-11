@@ -28,7 +28,18 @@ def _database_url() -> str | None:
     return None
 
 
-DATABASE_URL = _database_url()
+def _normalise(url: str | None) -> str | None:
+    """Accept a provider URL (Neon: postgres://...?sslmode=require) and use the psycopg 3 driver, like the application does."""
+    if not url:
+        return url
+    url = url.strip()
+    for prefix in ("postgres://", "postgresql://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg://" + url[len(prefix):]
+    return url
+
+
+DATABASE_URL = _normalise(_database_url())
 
 
 def run_migrations_offline() -> None:

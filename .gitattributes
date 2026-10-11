@@ -10,3 +10,6 @@ tests/fixtures/llm/**/*.json -text
 
 # Day 6: replay demo fixtures (generated or hand-authored JSON; a changed line ending would change a hash)
 backend/demo_fixtures/**/*.json -text
+
+# Deploy profile: classification fixtures for the 20,000-user hosted-demo scale (same rule as above)
+backend/demo_fixtures_deploy/**/*.json -text

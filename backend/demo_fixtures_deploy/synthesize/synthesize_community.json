@@ -1,0 +1,131 @@
+{
+ "fixture_id": "synthesis_community_v1_users20000",
+ "match_evidence_n": [
+  75,
+  80,
+  395,
+  10366,
+  16336
+ ],
+ "model": "stub:handauthored_synthesis_v1",
+ "note": "HAND-AUTHORED, not model output. The same claims as backend/demo_fixtures/synthesize/synthesize_community.json with the numbers of the 20,000-user hosted-demo data scale (the values in the cited evidence of that scale), so the number validator accepts them. Used only when the request's evidence sample sizes equal match_evidence_n. Synthetic data.",
+ "output": {
+  "claims": [
+   {
+    "claim_type": "associative",
+    "conclusion_ref": "D6",
+    "confidence": "medium",
+    "evidence_ids": [
+     "@behavioral:comparison"
+    ],
+    "local_id": "c1",
+    "stance": "supports",
+    "text": "Users who joined a challenge show 38.4% D90 retention against 23.3% for all other users, a difference of +15.1% (95% CI +13.3% to +16.9%) in an observational comparison."
+   },
+   {
+    "claim_type": "risk",
+    "conclusion_ref": "P1",
+    "confidence": "high",
+    "evidence_ids": [
+     "@behavioral:comparison",
+     "@customer:notifications_unwanted"
+    ],
+    "local_id": "c2",
+    "stance": "neutral",
+    "text": "The aggregate difference may mask opposite effects across engagement styles: the heterogeneity analysis flagged segments whose within-segment effects differ in direction, so the pooled figure should not be read as applying to every user."
+   },
+   {
+    "claim_type": "customer",
+    "conclusion_ref": "P1",
+    "confidence": "medium",
+    "evidence_ids": [
+     "@customer:notifications_unwanted"
+    ],
+    "local_id": "c3",
+    "stance": "contradicts",
+    "text": "80 relevant feedback mentions complain that challenge notifications or reminders are too frequent, pushy or stressful."
+   },
+   {
+    "claim_type": "customer",
+    "conclusion_ref": "D5",
+    "confidence": "low",
+    "evidence_ids": [
+     "@customer:challenges_motivating"
+    ],
+    "local_id": "c4",
+    "stance": "supports",
+    "text": "395 relevant feedback mentions say that challenges keep the customer motivated."
+   },
+   {
+    "claim_type": "customer",
+    "conclusion_ref": "D5",
+    "confidence": "low",
+    "evidence_ids": [
+     "@customer:challenges_indifferent"
+    ],
+    "local_id": "c5",
+    "stance": "neutral",
+    "text": "75 relevant feedback mentions describe challenges as not particularly useful to the customer."
+   },
+   {
+    "claim_type": "descriptive",
+    "conclusion_ref": "D1",
+    "confidence": "low",
+    "evidence_ids": [
+     "@behavioral:trend"
+    ],
+    "local_id": "c6",
+    "stance": "neutral",
+    "text": "The weekly D90 retention series is flat, 26.8% over the last 4 weeks against 26.7% before, in a descriptive view without a test."
+   }
+  ],
+  "criteria_assessment": [
+   {
+    "criterion_index": 0,
+    "evidence_ids": [
+     "@behavioral:comparison"
+    ],
+    "status": "not_met"
+   },
+   {
+    "criterion_index": 1,
+    "evidence_ids": [],
+    "status": "not_testable"
+   },
+   {
+    "criterion_index": 2,
+    "evidence_ids": [],
+    "status": "not_testable"
+   }
+  ],
+  "gaps": [
+   {
+    "gap_type": "missing_experiment_evidence",
+    "text": "No experiment evidence exists for the retention effect of challenges."
+   },
+   {
+    "gap_type": "missing_financial_evidence",
+    "text": "No financial evidence exists for the cost of the challenges."
+   }
+  ],
+  "sections": {
+   "contradicting": "Feedback mentions complain about challenge notifications [[c3]]. Segments may differ in direction from the aggregate [[c2]].",
+   "summary": "Challenge participants retain better at 90 days in the aggregate [[c1]]. The aggregate may mask segments that move in opposite directions [[c2]]. Customers also complain about challenge notifications [[c3]].",
+   "supporting": "The aggregate comparison favours challenge participants [[c1]]. Many feedback mentions say challenges motivate customers [[c4]].",
+   "uncertainty": "Joining a challenge is self-selected [[c2]]. The weekly retention series is descriptive only [[c6]]."
+  },
+  "uncertainties": [
+   {
+    "evidence_ids": [
+     "@behavioral:comparison"
+    ],
+    "text": "Participation in challenges is self-selected, so the comparison cannot separate the effect of challenges from the type of user who joins."
+   }
+  ]
+ },
+ "prompt_version": "v0.1",
+ "provenance": "stub_not_model_output",
+ "purpose": "synthesize",
+ "scale_users": 20000,
+ "scenario_key": "community"
+}

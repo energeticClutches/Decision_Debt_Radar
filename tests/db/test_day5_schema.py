@@ -226,5 +226,5 @@ def test_downgrade_0006_to_0005_with_day_5_data_keeps_evidence_and_upgrades_agai
     again = alembic(env, "upgrade", "head")
     assert again.returncode == 0, again.stderr[-2000:]
     with psycopg.connect(scratch_db) as c:
-        assert c.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0006"
+        assert c.execute("SELECT version_num FROM alembic_version").fetchone()[0] == "0007"
         assert c.execute("SELECT count(*) FROM claims WHERE synthesis_id IS NULL").fetchone()[0] == 1       # old rows are not re-checked (NOT VALID)

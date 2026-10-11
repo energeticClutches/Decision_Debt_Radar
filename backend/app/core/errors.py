@@ -71,3 +71,9 @@ def install_error_handlers(app: FastAPI) -> None:
         if mapped is None:
             raise exc
         return JSONResponse(status_code=status_for(mapped), content=error_body(mapped))
+
+    @app.exception_handler(Exception)
+    async def _unexpected(_: Request, __: Exception):
+        # Never a stack trace or an exception message in a response: the traceback goes to the server log only.
+        body = {"error": {"code": "internal_error", "message": "Something went wrong on the server. Please retry.", "detail": None}}
+        return JSONResponse(status_code=500, content=body)

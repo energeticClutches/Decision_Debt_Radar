@@ -5,6 +5,7 @@ import { useEffect, type ReactNode } from "react";
 
 import { ApiError } from "../lib/api";
 import { isReplayProvenance, REPLAY_NOTICE, roleName, titleCase } from "../lib/format";
+import { isWakingError, useWaking, WAKING_FAILED_MESSAGE, WAKING_MESSAGE } from "../lib/wake";
 import { SvgIcon } from "./icons";
 
 /** A decorative inline SVG (the text beside it carries the meaning). */
@@ -33,7 +34,8 @@ export function SeverityPill({ severity }: { severity: string | null | undefined
 }
 
 export function Loading({ label = "Loading" }: { label?: string }) {
-  return <div className="card muted loading" role="status" data-testid="loading">{label}...</div>;
+  const waking = useWaking();      // the free API host is starting: say so instead of an indefinite "Loading"
+  return <div className="card muted loading" role="status" data-testid="loading">{waking ? WAKING_MESSAGE : `${label}...`}</div>;
 }
 
 export function Empty({ children, testId }: { children: ReactNode; testId?: string }) {
@@ -47,6 +49,17 @@ export function ErrorBox({ error, onRetry, onDismiss }: { error: ApiError; onRet
     return (
       <div className="banner warn" role="alert" data-testid="error-404">
         <strong>Not found.</strong> {error.message} <Link href="/">Back to the portfolio</Link>
+      </div>
+    );
+  }
+  if (isWakingError(error)) {
+    return (
+      <div className="banner info" role="alert" data-testid="error-box" data-status={error.status} data-waking="true">
+        <div>{WAKING_FAILED_MESSAGE}</div>
+        <div className="row" style={{ marginTop: 6 }}>
+          {onRetry ? <button className="btn small" onClick={onRetry}>Retry</button> : null}
+          {onDismiss ? <button className="btn small" onClick={onDismiss}>Dismiss</button> : null}
+        </div>
       </div>
     );
   }

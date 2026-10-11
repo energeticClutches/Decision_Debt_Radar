@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import { api, getStoredUser, setStoredUser } from "./api";
 import type { Health, UserOut } from "./types";
+import { retryOnWake } from "./wake";
 
 interface IdentityValue {
   users: UserOut[];
@@ -31,7 +32,7 @@ export function IdentityProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([api.users(), api.health().catch(() => null)]).then(
+    retryOnWake(() => Promise.all([api.users(), api.health().catch(() => null)]), () => cancelled).then(
       ([list, h]) => {
         if (cancelled) return;
         setUsers(list);

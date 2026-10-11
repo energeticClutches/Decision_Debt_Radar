@@ -13,6 +13,9 @@ How it works
     run reports the audit-row count and the assessment versions before and after to prove it.
   * A decision that is already `validated` or `decided` is never touched; it is reported as already advanced.
   * `--reset` first reseeds the database (`python -m database.seed.run --reset`, about 6 minutes) for a clean demo.
+  * `--users N` (deploy profile) reseeds with N synthetic users instead of the default 50,000 (the hosted demo uses 20,000 to fit
+    a free Postgres). The generated CSVs go to data/generated/users_N, so the local 50,000-user files are never overwritten.
+    The DDI values at another scale are whatever the frozen engine returns there; they are not expected to equal the 50k values.
 """
 
 from __future__ import annotations
@@ -184,22 +187,35 @@ def prepare(http) -> Report:
     return report
 
 
-def _reset() -> None:
-    print("reseeding the database (python -m database.seed.run --reset), about 6 minutes ...", flush=True)
+DEFAULT_USERS = 50_000
+
+
+def _reset(users: int | None = None) -> None:
+    cmd = [sys.executable, "-m", "database.seed.run", "--reset"]
+    if users is not None and users != DEFAULT_USERS:
+        cmd += ["--users", str(users), "--data-dir", str(ROOT / "data" / "generated" / f"users_{users}")]
+    print(f"reseeding the database ({' '.join(cmd[1:])}); about 6 minutes at 50,000 users ...", flush=True)
     env = {**os.environ, "PYTHONPATH": os.pathsep.join([str(ROOT / "backend"), str(ROOT)])}
-    subprocess.run([sys.executable, "-m", "database.seed.run", "--reset"], cwd=ROOT, env=env, check=True)
+    subprocess.run(cmd, cwd=ROOT, env=env, check=True)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--reset", action="store_true", help="reseed the database first (clean demo)")
+    parser.add_argument("--users", type=int, default=None, help="with --reset: the number of synthetic users to seed (default 50000)")
     parser.add_argument("--as-of", default=os.environ.get("DDR_AS_OF_DATE") or DEFAULT_AS_OF, help="the demo as-of date (default 2026-10-01)")
     args = parser.parse_args(argv)
     os.chdir(ROOT)
     os.environ["DDR_AS_OF_DATE"] = args.as_of
     os.environ["DDR_LLM_MODE"] = "replay"
+    os.environ["DDR_RATE_LIMIT"] = "0"          # this script drives the API in process and makes far more writes than a visitor
+    os.environ["DDR_LOG_REQUESTS"] = "0"        # and its own output is the report: no request line per call
+    if args.users is not None and not args.reset:
+        parser.error("--users needs --reset (it chooses the scale of the reseed)")
+    if args.users is not None and args.users < 20_000:
+        parser.error("--users must be at least 20000: below that the scenario patterns are not reproduced")
     if args.reset:
-        _reset()
+        _reset(args.users)
     from fastapi.testclient import TestClient
 
     from app.core import deps

@@ -17,8 +17,11 @@ _CHUNK = 1 << 20
 
 
 def to_conninfo(database_url: str) -> str:
-    """Convert a SQLAlchemy-style URL (postgresql+psycopg://...) to a libpq URL."""
-    return database_url.replace("postgresql+psycopg://", "postgresql://", 1)
+    """Convert a SQLAlchemy-style URL (postgresql+psycopg://...) or a provider URL (postgres://...) to a libpq URL."""
+    url = database_url.strip()
+    if url.startswith("postgres://"):
+        return "postgresql://" + url[len("postgres://"):]
+    return url.replace("postgresql+psycopg://", "postgresql://", 1)
 
 
 def read_header(path: Path) -> list[str]:

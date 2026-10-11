@@ -54,6 +54,10 @@ DDR_LLM_MODE=replay DDR_AS_OF_DATE=2026-10-01 PYTHONPATH="backend;." backend/.ve
 
 On macOS or Linux, separate the `PYTHONPATH` entries with `:` instead of `;`. No API key is needed or used. Check the result with `scripts/demo_check.py` (all PASS) and `http://127.0.0.1:8000/health` (`llm_mode: replay`).
 
+## Deploy it for free (Vercel + Render + Neon)
+
+A public, shared demo can run on free tiers with no credit card: the Next.js frontend on Vercel, the FastAPI backend (replay mode, no API key) on a Render free web service and the database on a Neon free Postgres, with GitHub Actions for CI and a nightly reset. The hosted data scale is 20,000 synthetic users (about 205 MB), so its DDI values differ from the local 50,000-user demo; the engines are unchanged. Click-by-click steps, the cost and limits table, what sleeps and when, the measurements and troubleshooting are in **[docs/deployment.md](docs/deployment.md)**; the implementation notes and deviations are in [docs/production-readiness-notes.md](docs/production-readiness-notes.md). The local setup above is unchanged.
+
 ## Honest limitations
 
 > - **Synthetic, templated data.** FitConnect data is generated; customer feedback is 195 distinct sentences for 6,083 rows.
@@ -73,6 +77,7 @@ On macOS or Linux, separate the `PYTHONPATH` entries with `:` instead of `;`. No
 | [docs/spot-audit.md](docs/spot-audit.md) | Sampled claims and findings for the Product Owner's review |
 | [analytics/powerbi/](analytics/powerbi/README.md) | Power BI project (PBIP) and CSV snapshot of the reporting views |
 | [docs/day-7-implementation-notes.md](docs/day-7-implementation-notes.md) | Day-7 notes, deviations and the fresh-clone log |
+| [docs/deployment.md](docs/deployment.md) | Free full-stack deployment: steps for the Product Owner, costs, limits, measurements, troubleshooting |
 
 Tests: `backend/.venv/Scripts/python -m pytest` (includes `tests/evals`), `cd frontend && npm test && npm run typecheck && npm run test:e2e` (the e2e run reseeds the database).
 

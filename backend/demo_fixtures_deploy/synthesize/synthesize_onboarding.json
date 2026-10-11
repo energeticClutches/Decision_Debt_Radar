@@ -1,0 +1,82 @@
+{
+ "fixture_id": "synthesis_onboarding_v1_users20000",
+ "match_evidence_n": [
+  130
+ ],
+ "model": "stub:handauthored_synthesis_v1",
+ "note": "HAND-AUTHORED, not model output. The same claims as backend/demo_fixtures/synthesize/synthesize_onboarding.json with the numbers of the 20,000-user hosted-demo data scale (the values in the cited evidence of that scale), so the number validator accepts them. Used only when the request's evidence sample sizes equal match_evidence_n. Synthetic data.",
+ "output": {
+  "claims": [
+   {
+    "claim_type": "customer",
+    "conclusion_ref": "D5",
+    "confidence": "low",
+    "evidence_ids": [
+     "@customer:setup_blocked"
+    ],
+    "local_id": "c1",
+    "stance": "supports",
+    "text": "130 relevant feedback mentions describe getting stuck, looping or giving up during setup."
+   },
+   {
+    "claim_type": "risk",
+    "conclusion_ref": "gate",
+    "confidence": "high",
+    "evidence_ids": [
+     "@customer:setup_blocked"
+    ],
+    "local_id": "c2",
+    "stance": "neutral",
+    "text": "An open critical data-quality finding on the activation metric blocks scoring, and customer feedback alone cannot lift the block."
+   }
+  ],
+  "criteria_assessment": [
+   {
+    "criterion_index": 0,
+    "evidence_ids": [],
+    "status": "not_testable"
+   },
+   {
+    "criterion_index": 1,
+    "evidence_ids": [
+     "@customer:setup_blocked"
+    ],
+    "status": "not_testable"
+   },
+   {
+    "criterion_index": 2,
+    "evidence_ids": [],
+    "status": "not_testable"
+   }
+  ],
+  "gaps": [
+   {
+    "gap_type": "missing_behavioral_evidence",
+    "text": "No behavioral or experiment evidence exists on the success metric while the data-quality finding is open."
+   },
+   {
+    "gap_type": "missing_financial_evidence",
+    "text": "No financial evidence exists for the redesign."
+   }
+  ],
+  "sections": {
+   "contradicting": "No contradicting evidence is available [[c2]].",
+   "summary": "The assessment has insufficient evidence and no DDI is shown [[c2]]. Customer feedback describes setup problems [[c1]].",
+   "supporting": "Feedback mentions describe customers getting stuck during setup [[c1]].",
+   "uncertainty": "The data-quality finding blocks scoring [[c2]]. Feedback is self-reported [[c1]]."
+  },
+  "uncertainties": [
+   {
+    "evidence_ids": [
+     "@customer:setup_blocked"
+    ],
+    "text": "Feedback mentions are self-reported and say nothing about how many users are affected."
+   }
+  ]
+ },
+ "prompt_version": "v0.1",
+ "provenance": "stub_not_model_output",
+ "purpose": "synthesize",
+ "scale_users": 20000,
+ "scenario_key": "onboarding"
+}

@@ -1,0 +1,50 @@
+# Nightly reset of the hosted demo database (and on demand: Actions > demo-reset > Run workflow).
+#
+# It migrates the Neon database to head, reseeds it with 20,000 SYNTHETIC users and brings the four demo decisions to their demo state
+# through the real API with the replay client (no key, no model call). Visitors share one database, so this removes whatever they changed.
+#
+# Needs ONE repository secret: DATABASE_URL = the DIRECT (unpooled) Neon connection string (host name without "-pooler"). The seed uses
+# session settings and COPY, which a pooled connection does not support. Takes about 2 to 4 minutes; the free allowance is far larger.
+name: demo-reset
+
+on:
+  schedule:
+    - cron: "17 3 * * *"          # 03:17 UTC every day
+  workflow_dispatch:
+
+concurrency:
+  group: demo-reset
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DDR_ENV: production
+      DDR_LLM_MODE: replay
+      DDR_AS_OF_DATE: "2026-10-01"
+      PYTHONPATH: backend:.
+    steps:
+      - name: Check the secret is set
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "::error::Add the DATABASE_URL repository secret (Settings > Secrets and variables > Actions)."; exit 1; fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: backend/pyproject.toml
+      - name: Install the backend dependencies
+        run: pip install ./backend
+      - name: Migrate to head
+        working-directory: database
+        env:
+          PYTHONPATH: ../backend:..
+        run: alembic -c alembic.ini upgrade head
+      - name: Reseed with 20,000 synthetic users and prepare the four decisions
+        run: python scripts/demo_prepare.py --reset --users 20000

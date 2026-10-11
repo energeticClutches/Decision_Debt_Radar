@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { useIdentity } from "../lib/identity";
+import { PUBLIC_DEMO, PUBLIC_DEMO_NOTE } from "../lib/deploy";
 import { roleName, REPLAY_NOTICE } from "../lib/format";
 import { useTabsSlot } from "./AppShell";
 import { LogoMark, SvgIcon } from "./icons";
@@ -20,6 +21,7 @@ export function Header() {
           {health?.llm_mode === "replay" ? (
             <span className="badge micro demo" data-testid="llm-chip" title={REPLAY_NOTICE}>Demo mode: replayed fixtures</span>
           ) : null}
+          {PUBLIC_DEMO ? <span className="badge micro info" data-testid="public-demo-note">{PUBLIC_DEMO_NOTE}</span> : null}
           {health?.llm_mode === "off" ? <span className="badge micro" data-testid="llm-chip">LLM off</span> : null}
           <div className={styles.right}>
             <div className={styles.who}>

@@ -1,0 +1,155 @@
+{
+ "fixture_id": "synthesis_ai_coach_v1_users20000",
+ "match_evidence_n": [
+  50,
+  53,
+  266,
+  600,
+  10366,
+  16336
+ ],
+ "model": "stub:handauthored_synthesis_v1",
+ "note": "HAND-AUTHORED, not model output. The same claims as backend/demo_fixtures/synthesize/synthesize_ai_coach.json with the numbers of the 20,000-user hosted-demo data scale (the values in the cited evidence of that scale), so the number validator accepts them. Used only when the request's evidence sample sizes equal match_evidence_n. Synthetic data.",
+ "output": {
+  "claims": [
+   {
+    "claim_type": "associative",
+    "conclusion_ref": "D6",
+    "confidence": "medium",
+    "evidence_ids": [
+     "@behavioral:comparison"
+    ],
+    "local_id": "c1",
+    "stance": "supports",
+    "text": "Users with an ai_coach_session show 48.0% D90 retention against 22.9% for all other users, a difference of +25.1% (95% CI +22.9% to +27.2%) in an observational comparison."
+   },
+   {
+    "claim_type": "risk",
+    "conclusion_ref": "P2",
+    "confidence": "medium",
+    "evidence_ids": [
+     "@behavioral:comparison"
+    ],
+    "local_id": "c2",
+    "stance": "neutral",
+    "text": "The comparison is not randomised, so the difference may reflect which users adopt the coach rather than the coach itself."
+   },
+   {
+    "claim_type": "descriptive",
+    "conclusion_ref": "D4",
+    "confidence": "low",
+    "evidence_ids": [
+     "@experiment"
+    ],
+    "local_id": "c3",
+    "stance": "neutral",
+    "text": "The AI Coach holdout shows +0.548 workouts (95% CI +0.265 to +0.83) but its sample-ratio check failed, so its allocation cannot be trusted."
+   },
+   {
+    "claim_type": "customer",
+    "conclusion_ref": "D5",
+    "confidence": "low",
+    "evidence_ids": [
+     "@customer:coach_helpful"
+    ],
+    "local_id": "c4",
+    "stance": "supports",
+    "text": "266 relevant feedback mentions describe the AI Coach as helpful for staying on track."
+   },
+   {
+    "claim_type": "customer",
+    "conclusion_ref": "P1",
+    "confidence": "low",
+    "evidence_ids": [
+     "@customer:coach_generic_or_wrong"
+    ],
+    "local_id": "c5",
+    "stance": "contradicts",
+    "text": "53 relevant feedback mentions describe the AI Coach as generic or as ignoring what the customer told it."
+   },
+   {
+    "claim_type": "customer",
+    "conclusion_ref": "D5",
+    "confidence": "low",
+    "evidence_ids": [
+     "@customer:coach_indifferent"
+    ],
+    "local_id": "c6",
+    "stance": "neutral",
+    "text": "50 relevant feedback mentions describe the AI Coach as acceptable without a clear benefit."
+   },
+   {
+    "claim_type": "causal",
+    "conclusion_ref": "D6",
+    "confidence": "high",
+    "evidence_ids": [
+     "@behavioral:comparison"
+    ],
+    "local_id": "c7",
+    "stance": "supports",
+    "text": "The higher D90 retention among AI Coach users is caused by the coach itself."
+   },
+   {
+    "claim_type": "risk",
+    "conclusion_ref": "P2",
+    "confidence": "medium",
+    "evidence_ids": [
+     "@behavioral:comparison"
+    ],
+    "local_id": "c8",
+    "stance": "neutral",
+    "text": "The retention difference has a similar size within each engagement style, so the aggregate does not appear to hide a reversal."
+   }
+  ],
+  "criteria_assessment": [
+   {
+    "criterion_index": 0,
+    "evidence_ids": [
+     "@experiment"
+    ],
+    "status": "not_testable"
+   },
+   {
+    "criterion_index": 1,
+    "evidence_ids": [],
+    "status": "not_testable"
+   },
+   {
+    "criterion_index": 2,
+    "evidence_ids": [],
+    "status": "not_testable"
+   }
+  ],
+  "gaps": [
+   {
+    "gap_type": "missing_financial_evidence",
+    "text": "No financial evidence exists for the cost of the coach per retained user."
+   }
+  ],
+  "sections": {
+   "contradicting": "Some feedback mentions describe the coach as generic or as ignoring the customer [[c5]].",
+   "summary": "Users of the AI Coach retain better at 90 days in an observational comparison [[c1]]. The only experiment has a failed sample-ratio check [[c3]]. Customer feedback is mixed [[c4]] [[c5]].",
+   "supporting": "The comparison shows a higher retention among coach users [[c1]]. Many feedback mentions describe the coach as helpful [[c4]].",
+   "uncertainty": "The comparison is observational [[c2]]. The holdout allocation cannot be trusted [[c3]]."
+  },
+  "uncertainties": [
+   {
+    "evidence_ids": [
+     "@behavioral:comparison"
+    ],
+    "text": "The observational comparison cannot separate the effect of the coach from prior engagement."
+   },
+   {
+    "evidence_ids": [
+     "@experiment"
+    ],
+    "text": "The holdout experiment has a failed sample-ratio check."
+   }
+  ]
+ },
+ "prompt_version": "v0.1",
+ "provenance": "stub_not_model_output",
+ "purpose": "synthesize",
+ "scale_users": 20000,
+ "scenario_key": "ai_coach"
+}

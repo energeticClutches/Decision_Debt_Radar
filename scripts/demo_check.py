@@ -87,6 +87,23 @@ def connect():
     return create_engine(url, future=True, connect_args={"connect_timeout": 5})
 
 
+def find_manifest(users: int) -> dict:
+    """The manifest that matches the loaded scale: data/generated (50,000 users), data/generated/users_N (the deploy profile of
+    demo_prepare --users N), else the tracked canonical copy. data/generated is git-ignored."""
+    candidates = [ROOT / "data" / "generated" / "manifest.json", *sorted((ROOT / "data" / "generated").glob("users_*/manifest.json")),
+                  ROOT / "data" / "manifest" / "fitconnect_manifest.json"]
+    found = []
+    for path in candidates:
+        if path.exists():
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+            found.append(manifest)
+            if manifest.get("scale", {}).get("users") == users:
+                return manifest
+    if not found:
+        raise FileNotFoundError("no manifest: run database.seed.run (it writes data/generated/manifest.json)")
+    return found[0]                     # no manifest at this scale: the row counts then fail with the exact fix
+
+
 def check_database() -> None:
     from sqlalchemy import text
     engine = connect()
@@ -98,10 +115,7 @@ def check_database() -> None:
                 record("FAIL", "alembic", f"database is at {current}, head is {heads[-1]}", FIX_MIGRATE)
             else:
                 record("PASS", "alembic", f"at head ({current})")
-            mpath = ROOT / "data" / "generated" / "manifest.json"
-            if not mpath.exists():                                  # data/generated is git-ignored: fall back to the tracked copy
-                mpath = ROOT / "data" / "manifest" / "fitconnect_manifest.json"
-            manifest = json.loads(mpath.read_text(encoding="utf-8"))
+            manifest = find_manifest(c.execute(text("select count(*) from fc_.users")).scalar())
             bad = []
             for table, want in manifest["row_counts"].items():
                 got = c.execute(text(f"select count(*) from fc_.{table}")).scalar()

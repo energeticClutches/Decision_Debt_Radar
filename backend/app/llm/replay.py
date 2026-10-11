@@ -23,6 +23,10 @@ from pathlib import Path
 from app.llm.client import LlmRequest, LlmResponse, RecordedClient
 
 FIXTURE_DIR = Path(__file__).resolve().parents[2] / "demo_fixtures"
+# Deploy profile: classification fixtures recorded for the smaller hosted-demo data scale (20,000 users). A classification request is
+# keyed by the hash of its input, and at another scale the last batch of distinct feedback texts differs, so it has its own fixtures.
+# They are loaded in addition to FIXTURE_DIR; a request still without a fixture fails loudly (fixture_missing), as before.
+DEPLOY_FIXTURE_DIR = Path(__file__).resolve().parents[2] / "demo_fixtures_deploy"
 
 # The model names stored as the REQUESTED model of a replayed call. They are stub names on purpose: a stored row must never claim
 # that a real model (for example claude-sonnet-5-5) produced a replayed fixture.
@@ -33,6 +37,12 @@ REPLAY_MODELS = {"classify": "stub:keyword_rules_v1", "synthesize": "stub:handau
 class ReplayDemoClient:
     def __init__(self, directory: Path | str | None = None):
         self._recorded = RecordedClient(directory=directory or FIXTURE_DIR)
+        # Fixtures written for the deploy data scale: classification ones are keyed by input hash, like the base ones. A synthesis
+        # fixture names the evidence sample sizes it was written for (`match_evidence_n`) and is used only for a request with exactly those.
+        self._scaled: list[dict] = []
+        if directory is None and DEPLOY_FIXTURE_DIR.is_dir():
+            for fixture in RecordedClient(directory=DEPLOY_FIXTURE_DIR).fixtures:
+                (self._scaled if "match_evidence_n" in fixture else self._recorded.fixtures).append(fixture)
         self.calls: list[LlmRequest] = []
 
     @property
@@ -41,4 +51,19 @@ class ReplayDemoClient:
 
     def complete(self, request: LlmRequest) -> LlmResponse:
         self.calls.append(request)
+        scaled = self._scaled_fixture(request)
+        if scaled is not None:
+            return RecordedClient(fixtures=[scaled]).complete(request)
         return self._recorded.complete(request)
+
+    def _scaled_fixture(self, request: LlmRequest) -> dict | None:
+        if not self._scaled:
+            return None
+        sizes = sorted(e.get("n_sample") for e in (request.input_obj.get("evidence") or []) if isinstance(e, dict) and e.get("n_sample") is not None)
+        for fixture in self._scaled:
+            if (fixture.get("purpose") == request.purpose and fixture.get("prompt_version") == request.prompt_version
+                    and fixture.get("scenario_key") == request.meta.get("scenario_key")
+                    and (fixture.get("variant") or "default") == (request.meta.get("variant") or "default")
+                    and fixture["match_evidence_n"] == sizes):
+                return fixture
+        return None

@@ -140,9 +140,23 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("--as-of", default=DEFAULT_AS_OF.isoformat())
     parser.add_argument("--check", action="store_true", help="only verify that every classification request has a fixture")
+    parser.add_argument("--supplement", action="store_true",
+                        help="deploy profile: record against the CURRENT database (for example the 20,000-user hosted-demo scale) and write only the "
+                             "requests that have no fixture yet to backend/demo_fixtures_deploy/classify; existing fixtures are never touched")
     args = parser.parse_args(argv)
     as_of = date.fromisoformat(args.as_of)
-    if not args.check:
+    if args.supplement:
+        from app.llm.replay import DEPLOY_FIXTURE_DIR, FIXTURE_DIR
+        have = {json.loads(p.read_text(encoding="utf-8")).get("input_sha256")
+                for d in (FIXTURE_DIR, DEPLOY_FIXTURE_DIR) for p in d.rglob("*.json")}
+        print(f"recording classification requests at {as_of} (supplement) ...")
+        fresh = [f for f in record(as_of) if f["input_sha256"] not in have]
+        out = DEPLOY_FIXTURE_DIR / "classify"
+        out.mkdir(parents=True, exist_ok=True)
+        for f in fresh:
+            (out / f"{f['fixture_id']}.json").write_bytes((json.dumps(f, indent=1, sort_keys=True, ensure_ascii=False) + chr(10)).encode("utf-8"))
+        print(f"wrote {len(fresh)} supplementary fixture(s) to {out}")
+    elif not args.check:
         print(f"recording classification requests at {as_of} ...")
         fixtures = record(as_of)
         OUT.mkdir(parents=True, exist_ok=True)

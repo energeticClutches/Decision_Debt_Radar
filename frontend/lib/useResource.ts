@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { ApiError } from "./api";
+import { retryOnWake } from "./wake";
 
 export interface Resource<T> {
   loading: boolean;
@@ -26,7 +27,8 @@ export function useResource<T>(fetcher: () => Promise<T>, deps: readonly unknown
     }
     let cancelled = false;
     setState((s) => ({ ...s, loading: true, error: null }));
-    fetcherRef.current().then(
+    // A gateway failure (the free API host is waking up) is retried with a backoff while the waking state is shown; it is not an error yet.
+    retryOnWake(() => fetcherRef.current(), () => cancelled).then(
       (data) => {
         if (!cancelled) setState({ loading: false, error: null, data });
       },

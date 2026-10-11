@@ -1,0 +1,264 @@
+{
+ "fixture_id": "classify_community_03_44bdf42ec023",
+ "input_sha256": "44bdf42ec02300c891513e6b09bb42e9db084ddeeca434d2c3439709a4322cdc",
+ "model": "stub:keyword_rules_v1",
+ "note": "NOT MODEL OUTPUT. Produced by the deterministic keyword-rule stub (tests/fixtures/llm/stub_classifier.py) for the classification request with this input hash, by scripts/build_demo_fixtures.py. Synthetic data.",
+ "output": {
+  "classifications": [
+   {
+    "relevance": "direct",
+    "text_ref": "t1",
+    "theme": "challenges_indifferent"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t2",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t3",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t4",
+    "theme": "notifications_unwanted"
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t5",
+    "theme": "challenges_motivating"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t6",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t7",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t8",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t9",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t10",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t11",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t12",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t13",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t14",
+    "theme": "notifications_unwanted"
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t15",
+    "theme": "challenges_indifferent"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t16",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t17",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t18",
+    "theme": "challenges_motivating"
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t19",
+    "theme": "challenges_indifferent"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t20",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t21",
+    "theme": "challenges_indifferent"
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t22",
+    "theme": "challenges_motivating"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t23",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t24",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t25",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t26",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t27",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t28",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t29",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t30",
+    "theme": "notifications_unwanted"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t31",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t32",
+    "theme": "notifications_unwanted"
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t33",
+    "theme": "notifications_unwanted"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t34",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t35",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t36",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t37",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t38",
+    "theme": "notifications_unwanted"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t39",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t40",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t41",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t42",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t43",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t44",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t45",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t46",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t47",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t48",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t49",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t50",
+    "theme": null
+   }
+  ]
+ },
+ "prompt_version": "v0.1",
+ "provenance": "stub_not_model_output",
+ "purpose": "classify",
+ "scenario_key": "community"
+}

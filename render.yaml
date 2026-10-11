@@ -1,0 +1,32 @@
+# Render Blueprint: the FastAPI backend on the FREE web service plan (512 MB RAM; it sleeps after 15 minutes without traffic and a cold
+# start takes about a minute). The database is a Neon free Postgres project; the frontend is on Vercel (see docs/deployment.md).
+#
+# Render creates the service from this file ("New > Blueprint") and asks for the one secret marked sync: false. Nothing else is secret.
+services:
+  - type: web
+    name: ddr-api
+    runtime: python
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    # The backend is run from source (PYTHONPATH); the build only installs its dependencies (pyproject.toml in backend/).
+    buildCommand: pip install ./backend
+    # Migrate to head (a no-op when the database is current), then serve. --proxy-headers makes uvicorn trust Render's forwarded headers.
+    startCommand: >-
+      export PYTHONPATH="$PWD/backend:$PWD" &&
+      (cd database && alembic -c alembic.ini upgrade head) &&
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      # Production profile: replay mode (no key, no model call), a fixed as-of date, request logging, the rate limit, no stack traces.
+      - key: DDR_ENV
+        value: production
+      - key: DDR_LLM_MODE
+        value: replay
+      - key: DDR_AS_OF_DATE
+        value: "2026-10-01"
+      # The DIRECT (unpooled) Neon connection string, for example postgresql://<owner>:<password>@ep-xxxx.<region>.aws.neon.tech/neondb?sslmode=require
+      # (a host name WITHOUT "-pooler"). Set it in the Render dashboard; it is never stored in this repository.
+      - key: DATABASE_URL
+        sync: false

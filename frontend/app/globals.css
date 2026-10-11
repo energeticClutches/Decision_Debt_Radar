@@ -298,6 +298,7 @@ button.chip { padding: 1px 7px; }
 .banner.ok { --spine: var(--ok-spine); background: var(--ok-bg); }
 .banner.ok > .icon, .banner.ok strong { color: var(--ok); }
 .banner > div { flex: 1 1 100%; min-width: 0; }
+.banner.waking { margin-bottom: 12px; }
 
 /* ---- tables: 36 px header, 48 px rows ---- */
 table.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }

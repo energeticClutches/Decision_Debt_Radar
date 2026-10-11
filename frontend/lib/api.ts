@@ -8,6 +8,9 @@ import type {
 
 export const IDENTITY_KEY = "ddr.demo_user";
 export const API_BASE = "/api";
+/** The free API host sleeps when idle; for about a minute after the first request it answers 502, 503 or 504. */
+export const WAKING_MESSAGE = "The free demo server is waking up (about a minute). Retrying…";
+const READ_TIMEOUT_MS = 45_000;
 
 export class ApiError extends Error {
   status: number;
@@ -69,6 +72,7 @@ export function toApiError(status: number, body: unknown): ApiError {
     }
     return new ApiError(422, "validation", "Some fields are not valid.", { fields });
   }
+  if (status === 502 || status === 503 || status === 504) return new ApiError(status, "unavailable", WAKING_MESSAGE);
   if (status >= 500) return new ApiError(status, "server_error", "Something went wrong on the server. Please retry.");
   return new ApiError(status, "error", `The request failed (${status}).`);
 }
@@ -80,7 +84,9 @@ async function request<T>(method: string, path: string, body?: unknown, opts?: {
   if (body !== undefined) headers["Content-Type"] = "application/json";
   let res: Response;
   try {
-    res = await fetch(`${API_BASE}${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), cache: "no-store" });
+    // A read that never answers (the host is still starting) is aborted and treated like a network failure, which the hooks retry.
+    const signal = method === "GET" && typeof AbortSignal !== "undefined" && "timeout" in AbortSignal ? AbortSignal.timeout(READ_TIMEOUT_MS) : undefined;
+    res = await fetch(`${API_BASE}${path}`, { method, headers, body: body === undefined ? undefined : JSON.stringify(body), cache: "no-store", signal });
   } catch {
     throw new ApiError(0, "network", "The server cannot be reached. Please retry.");
   }
@@ -93,6 +99,8 @@ async function request<T>(method: string, path: string, body?: unknown, opts?: {
       parsed = null;
     }
   }
+  // The API answers every error with a JSON body; a plain 500 without one comes from the proxy in front of it (the API host is down or starting).
+  if (res.status === 500 && parsed === null) throw new ApiError(502, "unavailable", WAKING_MESSAGE);
   if (!res.ok) throw toApiError(res.status, parsed);
   return parsed as T;
 }

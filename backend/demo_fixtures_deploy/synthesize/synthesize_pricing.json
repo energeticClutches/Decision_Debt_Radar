@@ -1,0 +1,126 @@
+{
+ "fixture_id": "synthesis_pricing_v1_users20000",
+ "match_evidence_n": [
+  337,
+  438,
+  475,
+  1376,
+  3427
+ ],
+ "model": "stub:handauthored_synthesis_v1",
+ "note": "HAND-AUTHORED, not model output. The same claims as backend/demo_fixtures/synthesize/synthesize_pricing.json with the numbers of the 20,000-user hosted-demo data scale (the values in the cited evidence of that scale), so the number validator accepts them. Used only when the request's evidence sample sizes equal match_evidence_n. Synthetic data.",
+ "output": {
+  "claims": [
+   {
+    "claim_type": "associative",
+    "conclusion_ref": "D6",
+    "confidence": "medium",
+    "evidence_ids": [
+     "@behavioral:comparison"
+    ],
+    "local_id": "c1",
+    "stance": "contradicts",
+    "text": "Conversion for Canadian signups on or after 2026-04-01 is 31.8% against 41.2% before, a difference of -9.4% (95% CI -14.5% to -4.3%) in an observational comparison."
+   },
+   {
+    "claim_type": "descriptive",
+    "conclusion_ref": "D4",
+    "confidence": "medium",
+    "evidence_ids": [
+     "@experiment"
+    ],
+    "local_id": "c2",
+    "stance": "neutral",
+    "text": "The price test shows an effect of -0.0827 on conversion with a 95% CI from -0.169 to +0.00366, so the result is inconclusive."
+   },
+   {
+    "claim_type": "risk",
+    "conclusion_ref": "D4",
+    "confidence": "high",
+    "evidence_ids": [
+     "@experiment"
+    ],
+    "local_id": "c3",
+    "stance": "neutral",
+    "text": "The test has a design power of 0.07 at the pre-registered MDE, so it could not reliably detect a conversion loss of that size."
+   },
+   {
+    "claim_type": "customer",
+    "conclusion_ref": "P1",
+    "confidence": "low",
+    "evidence_ids": [
+     "@customer:price_too_high"
+    ],
+    "local_id": "c4",
+    "stance": "contradicts",
+    "text": "438 relevant feedback mentions say the premium price is too high."
+   },
+   {
+    "claim_type": "customer",
+    "conclusion_ref": "D5",
+    "confidence": "low",
+    "evidence_ids": [
+     "@customer:worth_the_price"
+    ],
+    "local_id": "c5",
+    "stance": "supports",
+    "text": "337 relevant feedback mentions say premium is worth the price."
+   },
+   {
+    "claim_type": "descriptive",
+    "conclusion_ref": "D4",
+    "confidence": "high",
+    "evidence_ids": [
+     "@experiment"
+    ],
+    "local_id": "c6",
+    "stance": "neutral",
+    "text": "The price test found no harm to conversion from the higher price."
+   }
+  ],
+  "criteria_assessment": [
+   {
+    "criterion_index": 0,
+    "evidence_ids": [
+     "@experiment"
+    ],
+    "status": "not_testable"
+   },
+   {
+    "criterion_index": 1,
+    "evidence_ids": [],
+    "status": "not_testable"
+   },
+   {
+    "criterion_index": 2,
+    "evidence_ids": [],
+    "status": "not_testable"
+   }
+  ],
+  "gaps": [
+   {
+    "gap_type": "missing_financial_evidence",
+    "text": "No financial evidence exists for the revenue effect of the price change."
+   }
+  ],
+  "sections": {
+   "contradicting": "The observational comparison shows lower conversion [[c1]]. Feedback mentions say the price is too high [[c4]].",
+   "summary": "The price test is inconclusive [[c2]]. The observational comparison for one country shows lower conversion after the change date [[c1]]. Customers disagree about the price [[c4]] [[c5]].",
+   "supporting": "Some feedback mentions say premium is worth the price [[c5]].",
+   "uncertainty": "The test has low power [[c3]]. The confidence interval spans zero [[c2]]."
+  },
+  "uncertainties": [
+   {
+    "evidence_ids": [
+     "@experiment"
+    ],
+    "text": "The price test is underpowered, so its confidence interval spans both a loss and a gain."
+   }
+  ]
+ },
+ "prompt_version": "v0.1",
+ "provenance": "stub_not_model_output",
+ "purpose": "synthesize",
+ "scale_users": 20000,
+ "scenario_key": "pricing"
+}

@@ -1,0 +1,264 @@
+{
+ "fixture_id": "classify_pricing_03_b4119e91f55a",
+ "input_sha256": "b4119e91f55ae8b4ae17e34ef334f4994f8925f8fdb5e4493e2d4ccdf98b2afe",
+ "model": "stub:keyword_rules_v1",
+ "note": "NOT MODEL OUTPUT. Produced by the deterministic keyword-rule stub (tests/fixtures/llm/stub_classifier.py) for the classification request with this input hash, by scripts/build_demo_fixtures.py. Synthetic data.",
+ "output": {
+  "classifications": [
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t1",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t2",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t3",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t4",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t5",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t6",
+    "theme": "price_too_high"
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t7",
+    "theme": "worth_the_price"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t8",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t9",
+    "theme": "price_too_high"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t10",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t11",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t12",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t13",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t14",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t15",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t16",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t17",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t18",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t19",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t20",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t21",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t22",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t23",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t24",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t25",
+    "theme": "worth_the_price"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t26",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t27",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t28",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t29",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t30",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t31",
+    "theme": "price_too_high"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t32",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t33",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t34",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t35",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t36",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t37",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t38",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t39",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t40",
+    "theme": "price_too_high"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t41",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t42",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t43",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t44",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t45",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t46",
+    "theme": "price_too_high"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t47",
+    "theme": null
+   },
+   {
+    "relevance": "direct",
+    "text_ref": "t48",
+    "theme": "worth_the_price"
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t49",
+    "theme": null
+   },
+   {
+    "relevance": "not_relevant",
+    "text_ref": "t50",
+    "theme": null
+   }
+  ]
+ },
+ "prompt_version": "v0.1",
+ "provenance": "stub_not_model_output",
+ "purpose": "classify",
+ "scenario_key": "pricing"
+}
