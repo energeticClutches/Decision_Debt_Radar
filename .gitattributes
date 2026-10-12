@@ -13,3 +13,6 @@ backend/demo_fixtures/**/*.json -text
 
 # Deploy profile: classification fixtures for the 20,000-user hosted-demo scale (same rule as above)
 backend/demo_fixtures_deploy/**/*.json -text
+
+# Seed manifest and its recorded digests (the test hashes the file bytes; keep them byte-for-byte on every platform)
+data/manifest/*.json -text
